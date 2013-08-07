@@ -80,13 +80,6 @@ int main(int argc, char* argv[])
 #endif
    std::ofstream cerr_log_file;
    std::string cerr_log("pbjgame.log");
-
-   if (argc != 1)
-   {
-      std::cout << "PBJgame " << PBJ_VERSION_MAJOR << '.' << PBJ_VERSION_MINOR << " (" << __DATE__ " " __TIME__ << ')' << std::endl
-                << PBJ_COPYRIGHT << std::endl;
-      return 1;
-   }
    
    // Set the appropriate verbosity level
    be::setVerbosity(verbosity);
@@ -100,6 +93,10 @@ int main(int argc, char* argv[])
       PBJ_LOG_STREAM.rdbuf(cerr_log_file.rdbuf());
    }
 #endif
+
+    std::cout << "PBJgame " << PBJ_VERSION_MAJOR << '.' << PBJ_VERSION_MINOR << " (" << __DATE__ " " __TIME__ << ')' << std::endl
+              << PBJ_COPYRIGHT << std::endl;
+
 
    // Initialize game engine
    pbj::Engine engine;
