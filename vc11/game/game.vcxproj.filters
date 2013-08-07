@@ -84,6 +84,9 @@
     <ClCompile Include="..\..\deps\stb_image.c">
       <Filter>Source Files\_deps</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\app_entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\pbj\audio\audio_buffer.cpp">
       <Filter>Source Files\pbj\pbj::audio</Filter>
     </ClCompile>

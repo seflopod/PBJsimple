@@ -24,7 +24,7 @@
 #include <catch.hpp>
 #else
 
-#include "pbj/engine.h"
+#include "pbj/game.h"
 
 #include <iostream>
 #include <fstream>
@@ -79,8 +79,6 @@ int main(int argc, char* argv[])
 
 
    // Initialize game engine
-   pbj::Engine engine;
-
    // TODO: start game
 };
 
