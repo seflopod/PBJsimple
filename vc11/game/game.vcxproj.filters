@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\_deps">
+      <UniqueIdentifier>{c0a76454-9446-4ff9-9858-e2d9091a34d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pbj">
+      <UniqueIdentifier>{7260d941-96c5-4a05-8bb5-63c5ef95bd1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pbj\pbj::audio">
+      <UniqueIdentifier>{137f3ba3-dbf0-4d06-a7d1-01e52c9553f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pbj\pbj::gfx">
+      <UniqueIdentifier>{02c42011-5933-4954-aec9-f2c65d615073}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pbj\pbj::scene">
+      <UniqueIdentifier>{49e461b7-e42c-48e0-80c8-44685f0e95eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pbj\pbj::sw">
+      <UniqueIdentifier>{301e6d45-9339-4537-bf2d-f5e819cfc5ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pbj\%28convenience headers%29">
+      <UniqueIdentifier>{52f7a34c-9545-4c13-935d-5eb3ff299af6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\pbj\pbj::scene\%28ui%29">
+      <UniqueIdentifier>{09329f56-445a-4e76-b62a-356f65b59ec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pbj">
+      <UniqueIdentifier>{8d99c63f-1fd9-4bbf-9c82-d26ec5d55857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pbj\pbj::sw">
+      <UniqueIdentifier>{9269aed0-ba86-4b30-8710-62410464d340}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pbj\pbj::scene">
+      <UniqueIdentifier>{9fe1a1a1-4cd7-42d5-abd4-8073cffc56aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pbj\pbj::gfx">
+      <UniqueIdentifier>{870e661a-df42-40b0-9830-3a19c2ad5cfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pbj\pbj::audio">
+      <UniqueIdentifier>{f445c550-f361-4330-bc26-8c644ed80867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pbj\pbj::scene\%28ui%29">
+      <UniqueIdentifier>{31e3ff9a-1cba-465e-91e1-79695ad9a6a4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\deps\pugixml.cpp">
+      <Filter>Source Files\_deps</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\deps\sqlite3.c">
+      <Filter>Source Files\_deps</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\deps\stb_image.c">
+      <Filter>Source Files\_deps</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\app_entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\input_controller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\rigidbody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\window_settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\audio\audio_buffer.cpp">
+      <Filter>Source Files\pbj\pbj::audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\camera.cpp">
+      <Filter>Source Files\pbj\pbj::scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\entity.cpp">
+      <Filter>Source Files\pbj\pbj::scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\scene.cpp">
+      <Filter>Source Files\pbj\pbj::scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\texture.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\texture_font.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\texture_font_character.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_button.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_element.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_image.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_label.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_listbox.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_panel.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_root.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\sw\sandwich.cpp">
+      <Filter>Source Files\pbj\pbj::sw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\sw\sandwich_open.cpp">
+      <Filter>Source Files\pbj\pbj::sw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\sw\resource_id.cpp">
+      <Filter>Source Files\pbj\pbj::sw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\sw\import.cpp">
+      <Filter>Source Files\pbj\pbj::sw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\pbj\engine.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\input_controller.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\rigidbody.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\scene.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\transform.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\window.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\window_settings.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\audio\audio_buffer.h">
+      <Filter>Header Files\pbj\pbj::audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\camera.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\entity.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\_al.h">
+      <Filter>Header Files\pbj\%28convenience headers%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\_gl.h">
+      <Filter>Header Files\pbj\%28convenience headers%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\_math.h">
+      <Filter>Header Files\pbj\%28convenience headers%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\_pbj.h">
+      <Filter>Header Files\pbj\%28convenience headers%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\sw\import.h">
+      <Filter>Header Files\pbj\pbj::sw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\sw\resource_id.h">
+      <Filter>Header Files\pbj\pbj::sw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\sw\sandwich.h">
+      <Filter>Header Files\pbj\pbj::sw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\sw\sandwich_open.h">
+      <Filter>Header Files\pbj\pbj::sw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\gfx\texture.h">
+      <Filter>Header Files\pbj\pbj::gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\gfx\texture_font.h">
+      <Filter>Header Files\pbj\pbj::gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\gfx\texture_font_character.h">
+      <Filter>Header Files\pbj\pbj::gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_button.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_element.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_image.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_label.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_listbox.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_panel.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_root.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\game.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\include\pbj\sw\resource_id.inl">
+      <Filter>Header Files\pbj\pbj::sw</Filter>
+    </None>
+    <None Include="..\..\include\pbj\gfx\texture_font.inl">
+      <Filter>Header Files\pbj\pbj::gfx</Filter>
+    </None>
+  </ItemGroup>
+</Project>
