@@ -69,24 +69,6 @@
     <ClCompile Include="..\..\src\app_entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pbj\engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pbj\input_controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pbj\rigidbody.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pbj\transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pbj\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pbj\window_settings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pbj\audio\audio_buffer.cpp">
       <Filter>Source Files\pbj\pbj::audio</Filter>
     </ClCompile>
@@ -141,8 +123,26 @@
     <ClCompile Include="..\..\src\pbj\sw\import.cpp">
       <Filter>Source Files\pbj\pbj::sw</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pbj\engine.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\pbj\game.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\input_controller.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\rigidbody.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\transform.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\window.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\window_settings.cpp">
+      <Filter>Source Files\pbj</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
