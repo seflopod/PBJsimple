@@ -33,6 +33,7 @@
     <ClCompile Include="..\..\src\pbj\audio\audio_buffer.cpp" />
     <ClCompile Include="..\..\src\pbj\game.cpp" />
     <ClCompile Include="..\..\src\pbj\engine.cpp" />
+    <ClCompile Include="..\..\src\pbj\gfx\shape_square.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture_font.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture_font_character.cpp" />
@@ -71,6 +72,8 @@
     <ClInclude Include="..\..\include\pbj\audio\audio_buffer.h" />
     <ClInclude Include="..\..\include\pbj\game.h" />
     <ClInclude Include="..\..\include\pbj\engine.h" />
+    <ClInclude Include="..\..\include\pbj\gfx\material.h" />
+    <ClInclude Include="..\..\include\pbj\gfx\shape_square.h" />
     <ClInclude Include="..\..\include\pbj\gfx\texture.h" />
     <ClInclude Include="..\..\include\pbj\gfx\texture_font.h" />
     <ClInclude Include="..\..\include\pbj\gfx\texture_font_character.h" />

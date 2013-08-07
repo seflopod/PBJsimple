@@ -69,6 +69,8 @@ bool Game::init(U32 fps)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+
+	//remove when making for reals
 	initTestScene();
 
 	_running = true;
@@ -174,21 +176,7 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
-	_scene.entities.resize(1);
-
-	Transform trans = Transform();
-	
-	const gfx::Mesh& testMesh = _builtIns.getMesh(Id("Mesh.std_quad"));
-	gfx::Mesh* useMesh = (Mesh*)&testMesh;
-	gfx::SceneShaderProgram ssp = gfx::SceneShaderProgram();
-	ssp.init(_builtIns.getShader(Id("Shader.UIBox.vertex")),
-			_builtIns.getShader(Id("Shader.UIBox.fragment")));
-	gfx::EntityMaterial mat = EntityMaterial();
-	mat.setShaderProgram(&ssp);
-
-	scene::Entity e = scene::Entity();
-	e.setMaterial(&mat);
-	e.setMesh(_builtIns.getMesh(Id("Mesh.std_quad"))));
-	e.setTransform(trans);
-	_scene.entities[0] = e;
+	scene::Entity e;
+	e.init();
+	_scene.addEntity(e);
 }

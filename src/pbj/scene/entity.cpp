@@ -24,14 +24,6 @@ Entity::Entity()
 	_initialized = false;
 }
 
-Entity::Entity(const Entity& src)
-{
-	init();
-	setTransform(src._transform);
-	setMesh(src._mesh);
-	setMaterial(src._material);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	Entity::~Entity()
 ///
@@ -56,13 +48,10 @@ Entity::~Entity()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::init()
 {
-	_batcherTask.n_indices = 0;
 	_transform = Transform();
 	_transformCallbackId = U32(-1);
-	///< An enum constant representing the material callback identifier option
-	_materialCallbackId = U32(-1);
-	_mesh = 0;
-	_material = 0;
+	
+	_textureId = 0;
 	_initialized = true;
 }
 
@@ -73,117 +62,35 @@ void Entity::init()
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-05
-/// \details    This will teardown the object.  Since many components are
-///             pointers they will not be deleted, simply nulled.  This means
-///             that these components will need to be deleted in some other part
-///             of the code.
+/// \details    Holdover from old version.  May or may not necessary down the
+///             road.
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::destroy()
 {
-	if(_mesh != nullptr)
-		_mesh = nullptr;
-
-	if(_material != nullptr)
-		_material = nullptr;
-	
-	//Since there isn't really a decent way to teardown the task, it makes sense
-	//to say it has no vertices to render.  This should keep it from getting
-	//returned.
-	_batcherTask.n_indices = 0;
-	
 	_initialized = false;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	const BatcherTask* Entity::getBatcherTask()
-///
-/// \brief	Gets batcher task.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-///
-/// \return	null if it fails, else the batcher task.
-////////////////////////////////////////////////////////////////////////////////
-const BatcherTask* Entity::getBatcherTask()
+void Entity::draw()
 {
-	if(_batcherTask.n_indices != 0 && _initialized)
-		return &_batcherTask;
-	return 0;
+	vec3 glmPos = _transform.getPosition();
+	vec4 glmRot = _transform.getAngleAxis();
+	vec3 glmSca = _transform.getScale();
+	GLfloat pos[3] = { glmPos.x, glmPos.y, glmPos.z };
+	GLfloat rot[4] = { glmRot.x, glmRot.y, glmRot.z, glmRot.w };
+	GLfloat sca[3] = { glmSca.x, glmSca.y, glmSca.z };
+
+	glPushMatrix();
+		glTranslatef(pos[0], pos[1], pos[2]);
+		glRotatef(rot[0], rot[1], rot[2], rot[3]);
+		glScalef(sca[0], sca[1], sca[2]);
+		//if colors are being done, use material.h  for now
+		//this solid color works with no textures loaded.
+		ShapeSquare::draw(_textureId, color4(0.0f,1.0f,0.0f,1.0f));
+	glPopMatrix();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Entity::generateBatcherTask()
-///
-/// \brief	Generates a batcher task.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-/// \details	The BatcherTask needs to be recreated everytime the entity
-///				changes something that would affect its drawing (position,
-///				shape, or appearance).  If these do not change, then Entity does
-///				not need to recreate its BatcherTask and this function does not
-///				need to be called.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::generateBatcherTask()
-{
-	if(!_initialized)
-	{
-		init();
-		return; //since the default task after init is good, we're done here
-	}
-	assert(_mesh!=0);
-	assert(_material!=0);
-
-	_batcherTask.order_index;
-	
-    _batcherTask.program_id = _material->getShaderProgram()->getGlId();
-	
-	//At least geometry is easy.
-    _batcherTask.vao_id = _mesh->getVaoId();
-    _batcherTask.n_indices = _mesh->getIndexCount();
-    _batcherTask.index_data_type = _mesh->getIndexType();
-	
-	//workaround for not having any textures
-	_batcherTask.samplers = nullptr;
-	_batcherTask.n_samplers = 0;
-    //_batcherTask.samplers = _material->getSamplerConfigs();
-    //_batcherTask.n_samplers = EntityMaterial::nSamplers;
-
-	//still need to figure out data population from here
-	_batcherTask.n_uniforms = EntityMaterial::nUniforms;
-
-    gfx::UniformConfig unis[EntityMaterial::nUniforms];
-
-	//want a copy because a material may be shared across Entity objects
-	memcpy(unis, _material->getUniformConfigs(), EntityMaterial::nUniforms);
-
-	//the checks and assignments in here are not what I'd call "great".  This is
-	//mostly done to have something to work from.
-	for(int i=0;i<EntityMaterial::nUniforms;++i)
-	{
-		if(gfx::SceneShaderProgram::indexToName[i] == "projection_matrix")
-		{
-			unis[i].data = &_transform.getMatrix();
-		}
-		else if(gfx::SceneShaderProgram::indexToName[i] == "modelview_matrix")
-		{
-			unis[i].data = &_transform.getMatrix();
-		}
-		else if(gfx::SceneShaderProgram::indexToName[i] == "mvp_matrix")
-		{
-			unis[i].data = &_transform.getMatrix();
-		}
-	}
-	_batcherTask.uniforms = unis;
-	
-    _batcherTask.depth_tested = false;
-	
-	//Ignoring for now
-    _batcherTask.scissor = 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	const Transform* Entity::getTransform()
+/// \fn	const Transform* Entity::getTransform() const
 ///
 /// \brief	Gets the transform.
 ///
@@ -192,7 +99,7 @@ void Entity::generateBatcherTask()
 ///
 /// \return	null if it fails, else the transform.
 ////////////////////////////////////////////////////////////////////////////////
-const Transform* Entity::getTransform()
+const Transform* Entity::getTransform() const
 {
 	if(_initialized)
 		return &_transform;
@@ -209,94 +116,19 @@ const Transform* Entity::getTransform()
 ///
 /// \param	transform	The transform.
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::setTransform(Transform transform)
+void Entity::setTransform(const Transform& transform)
 {
 	if(!_initialized)
 		init();
 	_transform = transform;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	Mesh* Entity::getMesh()
-///
-/// \brief	Gets the mesh.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-///
-/// \return	null if it fails, else the mesh.
-////////////////////////////////////////////////////////////////////////////////
-Mesh* Entity::getMesh()
+GLuint Entity::getTextureId() const
 {
-	if(_initialized)
-		return (Mesh*)&_mesh;
-	return nullptr;
+	return _textureId;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Entity::setMesh(Mesh* mesh)
-///
-/// \brief	Sets a mesh.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-///
-/// \param [in,out]	mesh	If non-null, the mesh.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::setMesh(Mesh& mesh)
+void Entity::setTextureId(const GLuint newId)
 {
-	if(!_initialized)
-		init();
-	_mesh = &mesh;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	const EntityMaterial* Entity::getMaterial()
-///
-/// \brief	Gets the material.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-///
-/// \return	null if it fails, else the material.
-////////////////////////////////////////////////////////////////////////////////
-const EntityMaterial* Entity::getMaterial()
-{
-	if(_initialized)
-		return _material;
-	return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Entity::setMaterial(EntityMaterial* material)
-///
-/// \brief	Sets a material.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-///
-/// \param [in,out]	material	If non-null, the material.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::setMaterial(EntityMaterial* material)
-{
-	if(!_initialized)
-		init();
-
-	if(_material != 0)
-		_material->removeCallback(_materialCallbackId);
-	_material = material;
-	_materialCallbackId = _material->addCallback([&](){ this->generateBatcherTask(); });
-}
-
-Entity& Entity::operator=(const Entity& src)
-{
-	if(this == &src)
-		return *this;
-
-	init();
-	setTransform(src._transform);
-	setMesh(src._mesh);
-	setMaterial(src._material);
-
-	return *this;
+	_textureId = newId;
 }

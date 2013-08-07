@@ -7,19 +7,19 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-#include "pbj/gfx/mesh.h"
-#include "pbj/transform.h"
-
 #include "pbj/_pbj.h"
 #include "pbj/transform.h"
-#include "pbj/gfx/mesh.h"
-#include "pbj/gfx/gfx_entity_material.h"
-#include "pbj/gfx/batcher.h"
+#include "pbj/gfx/texture.h"
+#include "pbj/gfx/shape_square.h"
+//too lazy to check which if these actually need to be a part of this
+//I figure it's worth including the possibility that an entity might be text
+//though for our current purposes this might be a bit overboard.
+#include "pbj/gfx/texture_font.h"
+#include "pbj/gfx/texture_font_character.h"
 
-using pbj::gfx::Mesh;
-using pbj::gfx::EntityMaterial;
-using pbj::gfx::BatcherTask;
 using pbj::gfx::ComponentCallback;
+using pbj::gfx::Texture;
+using pbj::gfx::ShapeSquare;
 
 namespace pbj
 {
@@ -37,43 +37,36 @@ namespace scene
 	class Entity
 	{
 	public:
-		
-
 		Entity();
-		Entity(const Entity&);
+		
 		~Entity();
 		
 		//intialization and destruction funcs
 		void init();
 		void destroy();
 		
-		//BatcherTask related funcs, ignoring const correctness
-		const BatcherTask* getBatcherTask();
-		void generateBatcherTask();
+		void draw();
 		
 		//accessors, these will expand as the class gains more component
 		//possiblities
-		const Transform* getTransform();
-		void setTransform(Transform);
+		const Transform* getTransform() const;
+		void setTransform(const Transform&);
 		
-		Mesh* getMesh();
-		void setMesh(const Mesh&);
+		GLuint getTextureId() const;
+		void setTextureId(const GLuint);
 		
-		const EntityMaterial* getMaterial();
-		void setMaterial(EntityMaterial*);
-
-		Entity& operator=(const Entity&);
+		
 	private:
 		bool _initialized;
-		BatcherTask _batcherTask;
-		
+				
 		U32 _transformCallbackId;
-		U32 _materialCallbackId;
-
+		
 		//components
 		Transform _transform;
-		const Mesh* _mesh;
-		EntityMaterial* _material;
+		GLuint _textureId;
+
+		Entity(const Entity&);
+		void operator=(const Entity&);
 	};
 } //namespace pbj::scene
 } //namespace pbj

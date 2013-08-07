@@ -132,7 +132,7 @@ void Rigidbody::setVelocity(const vec2& v)
 
 F32 Rigidbody::getMass()
 {
-	_body->GetMass();
+	return _body->GetMass();
 }
 
 void Rigidbody::setMass(F32 m)

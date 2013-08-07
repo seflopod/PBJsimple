@@ -79,7 +79,17 @@ int main(int argc, char* argv[])
 
 
    // Initialize game engine
-   // TODO: start game
+	pbj::Engine e;
+
+	//Start and run game
+	pbj::Game::instance()->init(30);
+	pbj::I32 exitCode = pbj::Game::instance()->run();
+
+	//Do teardown
+	pbj::Game::instance()->stop();
+	pbj::Game::destroyInstance();
+	
+	return exitCode;
 };
 
 #endif

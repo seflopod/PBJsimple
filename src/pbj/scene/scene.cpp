@@ -12,7 +12,7 @@ namespace scene {
 Scene::Scene()
 {
 	_nextEntityId = 0;
-	_entities = map<U32,Entity>();
+	_entities = unordered_map<U32,Entity>();
 }
 
 Scene::~Scene()
@@ -25,8 +25,28 @@ void Scene::draw()
 		it != _entities.end();
 		++it)
 	{
-		it->second->draw();
+		it->second.draw();
 	}
+
+	//I assume the ui drawing goes like this.
+	ui.draw();
+}
+
+//returns the id of the entity in the map
+U32 Scene::addEntity(Entity& e)
+{
+	U32 ret = _nextEntityId;
+	//this seems a little overdone.  Think this could be better.
+	_entities[_nextEntityId].init();
+	_entities[_nextEntityId].setTransform(*(e.getTransform()));
+	_entities[_nextEntityId].setTextureId(e.getTextureId());
+	_nextEntityId++;
+	return ret;
+}
+
+void Scene::removeEntity(U32 id)
+{
+	_entities.erase(id);
 }
 
 } // namespace pbj::scene

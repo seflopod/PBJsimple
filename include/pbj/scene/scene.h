@@ -12,7 +12,7 @@
 #include "pbj/_pbj.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/entity.h"
-#include "pbj/gfx/batcher.h"
+#include "pbj/scene/camera.h"
 
 using std::vector;
 using std::unordered_map;
@@ -31,7 +31,7 @@ public:
 
 	void draw();
 
-	U32 addEntity(Entity);
+	U32 addEntity(Entity&);
 	void removeEntity(U32);
 
 private:

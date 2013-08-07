@@ -74,7 +74,10 @@ namespace detail { }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	Namespace for drawing.
-namespace gfx { typedef std::function<void()> ComponentCallback; }
+namespace gfx
+{
+	typedef std::function<void()> ComponentCallback;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Alias of be::bed.
