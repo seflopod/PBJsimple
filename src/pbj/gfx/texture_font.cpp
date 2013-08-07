@@ -10,35 +10,30 @@ namespace pbj {
 namespace gfx {
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Destroys the TextureFont.
 TextureFont::~TextureFont()
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-const be::Handle<TextureFont>& TextureFont::getHandle()
-{
-    return handle_;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-const be::ConstHandle<TextureFont>& TextureFont::getHandle() const
-{
-    return handle_;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-const sw::ResourceId& TextureFont::getId() const
-{
-    return resource_id_;
-}
-
-///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the cap height specified for this font.
+///
+/// \return The cap height.
 F32 TextureFont::getCapHeight() const
 {
     return cap_height_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves a TextureFontCharacter object corresponding to a
+///         particular unicode codepoint.
+///
+/// \details If the codepoint does not have a TextureFontCharacter defined
+///         for it, a placeholder character is used.
+///
+/// \param  codepoint The unicode codepoint to retrieve a TextureFontCharacter
+///         for.
+/// \return A TextureFontCharacter for drawing the codepoint requested.
 const TextureFontCharacter& TextureFont::operator[](U32 codepoint) const
 {
     const TextureFontCharacter* ch(nullptr);
@@ -50,11 +45,7 @@ const TextureFontCharacter& TextureFont::operator[](U32 codepoint) const
     {
         TextureFontCharacter query;
         query.codepoint = codepoint;
-        auto i = std::lower_bound(ext_chars_.begin(), ext_chars_.end(), query,
-            [](const TextureFontCharacter& a, const TextureFontCharacter& b)
-            {
-                return a.codepoint < b.codepoint;
-            });
+        auto i = std::lower_bound(ext_chars_.begin(), ext_chars_.end(), query);
 
         if (i != ext_chars_.end())
         {
@@ -69,21 +60,16 @@ const TextureFontCharacter& TextureFont::operator[](U32 codepoint) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-F32 TextureFont::getTextWidth(const std::string& text)
+void TextureFont::print(const std::string& text) const
 {
-    // TODO: implement if necessary.
-    throw std::exception("Not yet implemented!");
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-F32 TextureFont::print(const mat4& transform, const std::string& text, const vec4& color)
+F32 TextureFont::getTextWidth(const std::string& text) const
 {
-    // use TextureFontText instead 
 
-    // TODO: implement if necessary.
-    throw std::exception("Not yet implemented!");
 }
-
 
 } // namespace pbj::gfx
 } // namespace pbj

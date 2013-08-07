@@ -40,18 +40,21 @@ public:
         FM_Nearest = 1
     };
 
-    Texture(const sw::ResourceId& id, const GLubyte* data, size_t size, InternalFormat format, bool srgb_color, FilterMode mag_mode, FilterMode min_mode);
+    Texture(const GLubyte* data, size_t size, InternalFormat format, bool srgb_color, FilterMode mag_mode, FilterMode min_mode);
     ~Texture();
 
-    const sw::ResourceId& getId() const;
     GLuint getGlId() const;
     const ivec2& getDimensions() const;
 
-private:
-    sw::ResourceId resource_id_;
+    void bind(GLenum blend_mode) const;
+    static void unbind();
 
+private:
     ivec2 dimensions_;
     GLuint gl_id_;
+
+    static GLuint active_texture_;
+    static GLenum active_blend_mode_;
     
     Texture(const Texture&);
     void operator=(const Texture&);
