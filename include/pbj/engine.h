@@ -12,6 +12,7 @@
 #include "pbj/window.h"
 
 #include <memory>
+#include <Box2D/Box2D.h>
 
 namespace pbj {
 
@@ -26,9 +27,11 @@ public:
    ~Engine();
 
    Window* getWindow() const;
+   b2World* getWorld() const;
 
 private:
     std::unique_ptr<Window> window_;
+	std::unique_ptr<b2World> world_;
 
     Engine(const Engine&);
     void operator=(const Engine&);
