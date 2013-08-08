@@ -26,7 +26,7 @@ public:
 	Transform();
 	~Transform();
 
-	void rotate(F32, const vec3&);
+	void rotate(F32);
 
 	void move(F32, F32, F32);
 	void move(const vec3&);
@@ -35,24 +35,21 @@ public:
 	void setPosition(F32, F32, F32);
 	void setPosition(const vec3&);
 
-	const vec4& getAngleAxis() const;
-	void setAngleAxis(F32, F32, F32, F32);
-	void setAngleAxis(F32, const vec3&);
+	F32 getRotation() const;
+	void setRotation(F32 rotation);
 
-	const quat& getRotation() const;
+	const vec2& getScale() const;
+	void setScale(F32, F32);
+	void setScale(const vec2&);
 
-	const vec3& getScale() const;
-	void setScale(F32, F32, F32);
-	void setScale(const vec3&);
-
-	mat4 getMatrix() const;
+	//mat4 getMatrix() const;
 
 	//Entity* getOwner();
 private:
 	//Entity* _owner
 	vec4 _position;	///< The position.
-	quat _rotation;	///< Rotation stored as a quaternion.
-	vec3 _scale;	///< Scale.
+	F32 _rotation;	///< Rotation stored as a quaternion.
+	vec2 _scale;	///< Scale.
 };
 
 } //namespace pbj
