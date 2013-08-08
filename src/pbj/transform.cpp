@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \file   pbj/transform.cpp
-/// \author Peter Bartosch
+/// \author Peter Bartosch / Josh Douglas
 /// \date   2013-07-18
 /// \brief  Implementation for Transform class
 
@@ -16,8 +16,8 @@ namespace pbj {
 Transform::Transform()
 {
 	_position = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	_rotation = quat();
-	_scale = vec3(1.0f);
+	_rotation = 0.0;
+	_scale = vec2(1.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,12 +26,20 @@ Transform::~Transform()
 {}
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief Rotate the Transform along a certain axis.
+/// \brief Rotate the Transform along the z axis.
 /// \param angle The angle to rotate, in degrees.
-/// \param axis The axis along which the rotation occurs.
-void Transform::rotate(F32 angle, const vec3& axis)
+void Transform::rotate(F32 angle)
 {
-	_rotation = glm::rotate(_rotation, angle, axis);
+	while (_rotation >= 360)
+	{
+		_rotation -= 360 + angle;
+	}
+
+	while (_rotation < 0)
+	{
+		_rotation += 360 + angle;
+	}
+
 	/*
 	if(_owner->rigidbody!=0)
 		//convert y rotation to euler angles and set the rigidbody accordingly
@@ -65,9 +73,9 @@ void Transform::move(const vec3& deltas)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief The position of the Transform.
 /// \return The position of the Transform as a glm::vec3 (x,y,z).
-const vec3& Transform::getPosition() const
+const vec2& Transform::getPosition() const
 {
-	return _position.xyz;
+	return _position;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,9 +83,9 @@ const vec3& Transform::getPosition() const
 /// \param x The x position
 /// \param y The y position
 /// \param z The z position
-void Transform::setPosition(F32 x, F32 y, F32 z)
+void Transform::setPosition(F32 x, F32 y)
 {
-	_position = vec4(x, y, z, 1.0f);
+	_position = vec2(x, y);
 	/*
 	if(_owner->rigidbody!=0)
 		_owner->rigidbody->moveBody(_position.x, _position.y);
@@ -87,48 +95,9 @@ void Transform::setPosition(F32 x, F32 y, F32 z)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Sets the position of the Transform
 /// \param pos The new position as a glm::vec3.
-void Transform::setPosition(const vec3& pos)
+void Transform::setPosition(const vec2& pos)
 {
-	setPosition(pos.x, pos.y, pos.z);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Get the rotation of the Transform.
-/// \return A glm::vec4 containing the angle of rotation (in degrees) and the
-///         x, y, and z coordinates of the vector that forms the axis of
-///         rotation.
-/// \details Keep in mind that the returned angles are not necessarily
-///          equivilent to Euler angles and that further conversion is
-///          necessary to get those angle values.
-const vec4& Transform::getAngleAxis() const
-{
-	F32 angle = glm::angle(_rotation);
-	vec3 axis = glm::axis(_rotation);
-	return vec4(angle, axis.x, axis.y, axis.z);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Set the rotation of the Transform.
-/// \param angle The angle of rotation.
-/// \param x The x value of the axis of rotation.
-/// \param y The y value of the axis of rotation.
-/// \param z The z value of the axis of rotation.
-void Transform::setAngleAxis(F32 angle, F32 x, F32 y, F32 z)
-{
-	_rotation = glm::angleAxis(angle, x, y, z);
-	/*
-	if(_owner->rigidbody!=0)
-		//convert y rotation to euler angles and set the rigidbody accordingly
-	*/
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Set the rotation of the Transform.
-/// \param angle The angle of rotation.
-/// \param axis The axis of rotation.
-void Transform::setAngleAxis(F32 angle, const glm::vec3& axis)
-{
-	_rotation = glm::angleAxis(angle, glm::normalize(axis));
+	setPosition(pos.x, pos.y);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,15 +105,23 @@ void Transform::setAngleAxis(F32 angle, const glm::vec3& axis)
 /// \return A quaternion representing the rotation of the Transform.
 /// \details I have no idea why we might want to get the rotation is this manner
 ///          but it seems like a good idea.  So here it is.
-const quat& Transform::getRotation() const
+F32 Transform::getRotation() const
 {
 	return _rotation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief Sets the rotation of the Transform
+/// \param rotation The new rotation as a F32.
+void Transform::setRotation(F32 rotation)
+{
+	_rotation = rotation;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief Get the scale of the Transform.
 /// \return A glm::vec3 representing the scale along the x-, y-, and z- axis.
-const vec3& Transform::getScale() const
+const vec2& Transform::getScale() const
 {
 	return _scale;
 }
@@ -154,15 +131,15 @@ const vec3& Transform::getScale() const
 /// \param x The scale along the x-axis.
 /// \param y The scale along the y-axis.
 /// \param z The scale along the z-axis.
-void Transform::setScale(F32 x, F32 y, F32 z)
+void Transform::setScale(F32 x, F32 y)
 {
-	_scale = glm::vec3(x, y, z);
+	_scale = glm::vec2(x, y);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Set the scale of the Transform
 /// \param scale A glm::vec3 of for the scale in the x, y, and z directions.
-void Transform::setScale(const vec3& scale)
+void Transform::setScale(const vec2& scale)
 {
 	_scale = scale;
 }
@@ -172,15 +149,15 @@ void Transform::setScale(const vec3& scale)
 /// \returns The Transform as a 4x4 matrix.
 /// \details Since our call require a transformation matrix, this will provide
 ///          one.
-mat4 Transform::getMatrix() const
-{
-	mat4 ret = mat4();
-	vec3 v = _position.xyz;
-	ret = glm::translate(ret, v);
-	ret = glm::rotate(ret, glm::angle(_rotation), glm::axis(_rotation));
-	ret = glm::scale(ret, _scale);
-	return ret;
-}
+//mat4 Transform::getMatrix() const
+//{
+//	mat4 ret = mat4();
+//	vec3 v = _position.xyz;
+//	ret = glm::translate(ret, v);
+//	ret = glm::rotate(ret, glm::angle(_rotation), glm::axis(_rotation));
+//	ret = glm::scale(ret, _scale);
+//	return ret;
+//}
 
 /*
 Entity* Transform::getOwner()
