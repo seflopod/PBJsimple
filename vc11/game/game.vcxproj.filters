@@ -197,6 +197,8 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\physics\rigidbody.cpp">
       <Filter>Source Files\pbj\pbj::physics</Filter>
+    <ClCompile Include="..\..\src\pbj\sw\resource_manager.cpp">
+      <Filter>Source Files\pbj\pbj::sw</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -316,6 +318,8 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\physics\rigidbody.h">
       <Filter>Header Files\pbj\pbj::physics</Filter>
+    <ClInclude Include="..\..\include\pbj\sw\resource_manager.h">
+      <Filter>Header Files\pbj\pbj::sw</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
