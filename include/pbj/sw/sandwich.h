@@ -11,7 +11,6 @@
 #include "be/bed/stmt.h"
 #include "be/bed/stmt_cache.h"
 #include "be/id.h"
-#include "be/source_handle.h"
 #include "pbj/_pbj.h"
 
 #include <memory>

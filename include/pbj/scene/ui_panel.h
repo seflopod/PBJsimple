@@ -8,7 +8,6 @@
 #include "pbj/scene/ui_element.h"
 
 #include "pbj/engine.h"
-#include "pbj/gfx/mesh.h"
 
 #include <memory>
 #include <vector>
@@ -71,19 +70,9 @@ private:
     vec2 scale_;
 
     UIPanelAppearance appearance_;
-    const gfx::Mesh& panel_mesh_;
     vec2 border_bounds_[4];
     mat4 panel_transform_;
     bool panel_transform_valid_;
-
-    static const size_t u_transform_ = 0;
-    static const size_t u_border_bounds_ = 1;
-    static const size_t u_border_color_ = 2;
-    static const size_t u_background_color_ = 3;
-    static const size_t u_outside_color_ = 4;
-
-    gfx::UniformConfig uniforms_[5];
-    gfx::BatcherTask btask_;
 
     mat4 view_matrix_;
     mat4 inv_view_matrix_;

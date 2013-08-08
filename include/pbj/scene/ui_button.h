@@ -8,8 +8,6 @@
 #define PBJ_SCENE_UI_BUTTON_H_
 
 #include "pbj/scene/ui_label.h"
-#include "pbj/gfx/mesh.h"
-#include "pbj/gfx/batcher.h"
 
 #include <functional>
 
@@ -22,7 +20,7 @@ struct UIButtonStateConfig
     
     std::function<void()> click_callback;
 
-    be::ConstHandle<gfx::TextureFont> font;
+    const gfx::TextureFont* font;
     vec2 text_scale;
 
     color4 background_color;    ///< The color of the inside of the button
@@ -107,21 +105,10 @@ private:
 
     UILabel label_;
 
-    const gfx::Mesh& btn_mesh_;
-
     std::vector<UIButtonStateConfig> state_configs_;
     const UIButtonStateConfig* current_config_;
     mat4 btn_transform_;
     vec2 border_bounds_[4];
-
-    static const size_t u_transform_ = 0;
-    static const size_t u_border_bounds_ = 1;
-    static const size_t u_border_color_ = 2;
-    static const size_t u_background_color_ = 3;
-    static const size_t u_outside_color_ = 4;
-
-    gfx::UniformConfig uniforms_[5];
-    gfx::BatcherTask btask_;
 
     Id normal_state_;
     Id hovered_state_;

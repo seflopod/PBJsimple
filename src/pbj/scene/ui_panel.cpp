@@ -4,6 +4,8 @@
 
 #include "pbj/scene/ui_panel.h"
 
+#include "pbj/gfx/texture.h"
+
 namespace pbj {
 namespace scene {
 
@@ -24,48 +26,8 @@ UIPanelAppearance::UIPanelAppearance()
 }
 
 UIPanel::UIPanel()
-    : scale_(1.0f, 1.0f),
-      panel_mesh_(getEngine().getBuiltIns().getMesh(Id("Mesh.std_quad")))
+    : scale_(1.0f, 1.0f)
 {
-    const gfx::BuiltIns& builtins = getEngine().getBuiltIns();
-
-    btask_.program_id = builtins.getProgram(Id("ShaderProgram.UIBox")).getGlId();
-
-    btask_.vao_id = panel_mesh_.getVaoId();
-    btask_.n_indices = panel_mesh_.getIndexCount();
-    btask_.index_data_type = panel_mesh_.getIndexType();
-
-    btask_.samplers = nullptr;
-    btask_.n_samplers = 0;
-    btask_.uniforms = uniforms_;
-    btask_.n_uniforms = 5;
-
-    uniforms_[u_transform_].location = glGetUniformLocation(btask_.program_id, "transform");
-    uniforms_[u_transform_].type = gfx::UniformConfig::UM4f;
-    uniforms_[u_transform_].array_size = 1;
-    uniforms_[u_transform_].data = glm::value_ptr(panel_transform_);
-
-    uniforms_[u_border_bounds_].location = glGetUniformLocation(btask_.program_id, "border_bounds");
-    uniforms_[u_border_bounds_].type = gfx::UniformConfig::U2f;
-    uniforms_[u_border_bounds_].array_size = 4;
-    uniforms_[u_border_bounds_].data = glm::value_ptr(border_bounds_[0]);
-
-    uniforms_[u_border_color_].location = glGetUniformLocation(btask_.program_id, "border_color");
-    uniforms_[u_border_color_].type = gfx::UniformConfig::U4f;
-    uniforms_[u_border_color_].array_size = 1;
-    uniforms_[u_border_color_].data = glm::value_ptr(appearance_.border_color);
-
-    uniforms_[u_background_color_].location = glGetUniformLocation(btask_.program_id, "background_color");
-    uniforms_[u_background_color_].type = gfx::UniformConfig::U4f;
-    uniforms_[u_background_color_].array_size = 1;
-    uniforms_[u_background_color_].data = glm::value_ptr(appearance_.background_color);
-
-    uniforms_[u_outside_color_].location = glGetUniformLocation(btask_.program_id, "outside_color");
-    uniforms_[u_outside_color_].type = gfx::UniformConfig::U4f;
-    uniforms_[u_outside_color_].array_size = 1;
-    uniforms_[u_outside_color_].data = glm::value_ptr(appearance_.margin_color);
-
-    btask_.depth_tested = false;
 }
 
 UIPanel::~UIPanel()
@@ -99,9 +61,6 @@ const vec2& UIPanel::getScale() const
 
 void UIPanel::addElement(std::unique_ptr<UIElement>&& element)
 {
-    element->order_index_offset_ = &combined_order_index_offset_;
-    element->scissor_ = scissor_;
-    element->projection_ = projection_;
     element->view_ = &view_matrix_;
     element->inv_view_ = &inv_view_matrix_;
     element->focused_element_ = focused_element_;
@@ -140,12 +99,49 @@ void UIPanel::draw()
     if (!isVisible())
         return;
 
-    if (appearance_.solid && projection_ && view_)
+    if (appearance_.solid && view_)
     {
         if (!panel_transform_valid_)
             calculateTransform_();
 
-        getEngine().getBatcher().submit(btask_);
+        glLoadMatrixf(glm::value_ptr(*view_));
+        gfx::Texture::disable();
+        
+        glColor4fv(glm::value_ptr(appearance_.background_color));
+        glBegin(GL_QUADS);
+            glVertex2fv(glm::value_ptr(border_bounds_[0]));
+            glVertex2f(border_bounds_[0].x, border_bounds_[1].y);
+            glVertex2fv(glm::value_ptr(border_bounds_[1]));
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
+        glEnd();
+
+        glColor4fv(glm::value_ptr(appearance_.border_color));
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
+            glVertex2f(border_bounds_[3].x, border_bounds_[3].y);
+            glVertex2f(border_bounds_[1].x, border_bounds_[1].y);
+            glVertex2f(border_bounds_[2].x, border_bounds_[3].y);
+            glVertex2f(border_bounds_[0].x, border_bounds_[1].y);
+            glVertex2f(border_bounds_[2].x, border_bounds_[2].y);
+            glVertex2f(border_bounds_[0].x, border_bounds_[0].y);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
+        glEnd();
+
+        glColor4fv(glm::value_ptr(appearance_.margin_color));
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex2f(1, 0);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+            glVertex2f(1, 1);
+            glVertex2f(border_bounds_[3].x, border_bounds_[3].y);
+            glVertex2f(0, 1);
+            glVertex2f(border_bounds_[2].x, border_bounds_[3].y);
+            glVertex2f(0, 0);
+            glVertex2f(border_bounds_[2].x, border_bounds_[2].y);
+            glVertex2f(1, 0);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+        glEnd();
     }
     
     for (std::unique_ptr<UIElement>& ptr : elements_)
@@ -156,16 +152,10 @@ void UIPanel::onBoundsChange_()
 {
     view_matrix_ = glm::scale(glm::translate(*view_, vec3(getPosition(), 0)), vec3(scale_, 1)); 
     inv_view_matrix_ = glm::inverse(view_matrix_);
-    combined_order_index_offset_ = *order_index_offset_ + 100;
-    btask_.order_index = *order_index_offset_;
-    btask_.scissor = scissor_;
     panel_transform_valid_ = false;
 
     for (std::unique_ptr<UIElement>& ptr : elements_)
     {
-        ptr->order_index_offset_ = &combined_order_index_offset_;
-        ptr->scissor_ = scissor_;
-        ptr->projection_ = projection_;
         ptr->view_ = &view_matrix_;
         ptr->inv_view_ = &inv_view_matrix_;
         ptr->focused_element_ = focused_element_;
@@ -175,22 +165,28 @@ void UIPanel::onBoundsChange_()
 
 void UIPanel::calculateTransform_()
 {
-    if (!(projection_ && view_))
+    if (!view_)
         return;
     
     vec3 scale(getDimensions(), 1);
     vec3 translate(getPosition(), 0);
-    panel_transform_ = glm::scale(glm::translate(*projection_ * *view_, translate), scale);
+    panel_transform_ = glm::scale(glm::translate(*view_, translate), scale);
         
     vec2 inv_scale(1.0f / scale.x, 1.0f / scale.y);
 
+    // inside top left
     border_bounds_[0] = inv_scale * vec2(appearance_.margin_left + appearance_.border_width_left,
                                          appearance_.margin_top + appearance_.border_width_top);
+
+    // inside bottom right
     border_bounds_[1] = vec2(1, 1) - inv_scale * vec2(appearance_.margin_right + appearance_.border_width_right,
                                                       appearance_.margin_bottom + appearance_.border_width_bottom);
 
+    // outside top left
     border_bounds_[2] = inv_scale * vec2(appearance_.margin_left - appearance_.border_width_left,
                                          appearance_.margin_top - appearance_.border_width_top);
+
+    // outside bottom right
     border_bounds_[3] = vec2(1, 1) - inv_scale * vec2(appearance_.margin_right - appearance_.border_width_right,
                                                       appearance_.margin_bottom - appearance_.border_width_bottom);
 }

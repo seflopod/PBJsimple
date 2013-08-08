@@ -71,8 +71,6 @@ Engine::Engine()
     Window* wnd = new Window(window_settings);
     window_.reset(wnd);
 
-    built_ins_.reset(new gfx::BuiltIns());
-
     wnd->setTitle(window_title);
     
     wnd->registerContextResizeListener(
@@ -96,7 +94,6 @@ Engine::~Engine()
     pbj::InputController::destroy();
 
     window_.reset();
-    built_ins_.reset();
     glfwTerminate();
 }
 
@@ -107,24 +104,6 @@ Engine::~Engine()
 Window* Engine::getWindow() const
 {
     return window_.get();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief  Retrieves the engine's graphics Batcher object.
-///
-/// \return The gfx::Batcher object.
-gfx::Batcher& Engine::getBatcher()
-{
-    return batcher_;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief  Retrieves the engine's graphics BuiltIns object.
-///
-/// \return The gfx::BuiltIns object.
-const gfx::BuiltIns& Engine::getBuiltIns() const
-{
-    return *built_ins_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

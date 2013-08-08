@@ -10,8 +10,6 @@
 #include <functional>
 #include <vector>
 
-#include "be/source_handle.h"
-
 #include "pbj/_gl.h"
 #include "pbj/_pbj.h"
 
@@ -41,8 +39,6 @@ private:
     void onMouseButton(I32 button, bool down);
     void onKey(I32 keycode, I32 action, I32 modifiers);
     void onCharacter(I32 codepoint);
-
-    be::SourceHandle<UIRoot> handle_;
 
     ivec2 mouse_position_;
     UIElement* under_mouse_;
