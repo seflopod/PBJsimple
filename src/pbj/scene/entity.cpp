@@ -100,7 +100,7 @@ void Entity::draw()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	const Transform* Entity::getTransform() const
+/// \fn	Transform* Entity::getTransform() const
 ///
 /// \brief	Gets the transform.
 ///
@@ -109,7 +109,7 @@ void Entity::draw()
 ///
 /// \return	null if it fails, else the transform.
 ////////////////////////////////////////////////////////////////////////////////
-const Transform* Entity::getTransform() const
+Transform* Entity::getTransform() const
 {
 	if(_initialized)
 		return &_transform;
@@ -148,10 +148,24 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 	vec2 scale = _transform.getScale();
 	vec2 pos = _transform.getPosition();
 	b2PolygonShape shape;
-	shape.Set(verts,4);
 	shape.SetAsBox(scale.x, scale.y, b2Vec2(pos.x, pos.y), _transform.getRotation());
 
-	_rigidbody = new Rigidbody(bodyType, shape, world);
+	_rigidbody = new Rigidbody(bodyType, &shape, world, this);
+	switch(_type)
+	{
+	case Player:
+		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+		break;
+	case Terrain:
+		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+		break;
+	case SpawnPoint:
+		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+		break;
+	default:
+		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+		break;
+	}
 }
 
 Rigidbody* Entity::getRigidbody() const
@@ -167,4 +181,32 @@ U32 Entity::getSceneId() const
 void Entity::setSceneId(U32 id)
 {
 	_sceneId = id;
+}
+
+Entity::EntityType Entity::getType() const
+{
+	return _type;
+}
+
+void Entity::setType(EntityType et)
+{
+	_type = et;
+	if(_rigidbody != nullptr)
+	{
+		switch(_type)
+		{
+		case Player:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+			break;
+		case Terrain:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+			break;
+		case SpawnPoint:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+			break;
+		default:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+			break;
+		}
+	}
 }

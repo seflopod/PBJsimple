@@ -65,20 +65,20 @@ namespace scene
 		
 		//accessors, these will expand as the class gains more component
 		//possiblities
-		const Transform* getTransform() const;
+		Transform* getTransform() const;
 		void setTransform(const Transform&);
 		
 		GLuint getTextureId() const;
 		void setTextureId(const GLuint);
 		
-		void addRigidbody(Rigidbody::BodyType);
+		void addRigidbody(Rigidbody::BodyType, b2World*);
 		Rigidbody* getRigidbody() const;
 
 		U32 getSceneId() const;
 		void setSceneId(U32);
 
 		EntityType getType() const;
-		void setType(EntityType, b2World*);
+		void setType(EntityType);
 	private:
 		bool _initialized;
 				

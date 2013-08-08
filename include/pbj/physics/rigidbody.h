@@ -19,6 +19,9 @@ public:
 	{
 		Player = -1,
 		Terrain = -2,
+		SpawnPoint = -4,
+		Pickup = 8,
+		Other = 16
 	};
 
 	enum ForceMode
@@ -33,8 +36,7 @@ public:
 		Dynamic = 0x02
 	};
 
-	//Rigidbody(Rigidbody::BodyType, const b2Shape*, b2World*, Entity&);
-	Rigidbody(Rigidbody::BodyType, const b2Shape*, b2World*);
+	Rigidbody(Rigidbody::BodyType, const b2Shape*, b2World*, void*);
 	virtual ~Rigidbody();
 
 	b2Fixture* getFixtureList();
@@ -64,13 +66,13 @@ public:
 	int getCollisionGroup();
 	void setCollisionGroup(CollisionGroup); ///< negative for no collision with group members
 	
-	//class Entity* getOwner();
-	//void moveOwner();
+	void* getOwner();
+	void updateOwnerTransform();
 
 	void destroy();
 private:
 	b2Body* _body;
-	//Entity* const _owner;
+	void* _owner;
 };
 
 } //namespace physics
