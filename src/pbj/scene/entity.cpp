@@ -71,8 +71,6 @@ void Entity::destroy()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Entity::draw()
-///
 /// \brief	draws this object.
 ///
 /// \author	Peter Bartosch / Josh Douglas
