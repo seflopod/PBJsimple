@@ -31,9 +31,9 @@ public:
 	void move(F32, F32, F32);
 	void move(const vec3&);
 
-	const vec3& getPosition() const;
-	void setPosition(F32, F32, F32);
-	void setPosition(const vec3&);
+	const vec2& getPosition() const;
+	void setPosition(F32, F32);
+	void setPosition(const vec2&);
 
 	F32 getRotation() const;
 	void setRotation(F32 rotation);
@@ -47,7 +47,7 @@ public:
 	//Entity* getOwner();
 private:
 	//Entity* _owner
-	vec4 _position;	///< The position.
+	vec2 _position;	///< The position.
 	F32 _rotation;	///< Rotation stored as a quaternion.
 	vec2 _scale;	///< Scale.
 };

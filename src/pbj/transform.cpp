@@ -73,9 +73,9 @@ void Transform::move(const vec3& deltas)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief The position of the Transform.
 /// \return The position of the Transform as a glm::vec3 (x,y,z).
-const vec3& Transform::getPosition() const
+const vec2& Transform::getPosition() const
 {
-	return _position.xyz;
+	return _position;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,9 +83,9 @@ const vec3& Transform::getPosition() const
 /// \param x The x position
 /// \param y The y position
 /// \param z The z position
-void Transform::setPosition(F32 x, F32 y, F32 z)
+void Transform::setPosition(F32 x, F32 y)
 {
-	_position = vec4(x, y, z, 1.0f);
+	_position = vec2(x, y);
 	/*
 	if(_owner->rigidbody!=0)
 		_owner->rigidbody->moveBody(_position.x, _position.y);
@@ -95,11 +95,10 @@ void Transform::setPosition(F32 x, F32 y, F32 z)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Sets the position of the Transform
 /// \param pos The new position as a glm::vec3.
-void Transform::setPosition(const vec3& pos)
+void Transform::setPosition(const vec2& pos)
 {
-	setPosition(pos.x, pos.y, pos.z);
+	setPosition(pos.x, pos.y);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Get the rotation of the Transform as a quaternion
@@ -111,6 +110,9 @@ F32 Transform::getRotation() const
 	return _rotation;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Sets the rotation of the Transform
+/// \param rotation The new rotation as a F32.
 void Transform::setRotation(F32 rotation)
 {
 	_rotation = rotation;
