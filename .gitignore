@@ -22,6 +22,8 @@ stage/*.exe
 # Build results
 [Dd]ebug/
 [Rr]elease/
+EditorDebug/
+EditorRelease/
 Test/
 *_i.c
 *_p.c

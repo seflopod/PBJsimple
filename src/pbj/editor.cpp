@@ -9,7 +9,6 @@
 #include "pbj/gfx/texture_font.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/ui_button.h"
-#include "pbj/scene/ui_listbox.h"
 #include "pbj/input_controller.h"
 
 #include "pbj/sw/sandwich_open.h"
@@ -22,13 +21,9 @@ namespace pbj {
 ///////////////////////////////////////////////////////////////////////////////
 Editor::Editor()
     : engine_(getEngine()),
-      batcher_(getEngine().getBatcher()),
-      builtins_(getEngine().getBuiltIns()),
       window_(*getEngine().getWindow())
 {
     initUI();
-
-    setMode(MDatabases);
 
     window_.registerContextResizeListener([=](I32 width, I32 height) { onContextResized_(width, height); });
 
@@ -36,10 +31,10 @@ Editor::Editor()
     {
         if (keycode == GLFW_KEY_SPACE && action == GLFW_RELEASE && scene_.ui.getFocus() == &scene_.ui.panel)
         {
-            if (menu_->isVisible())
-                menu_->setVisible(false);
-            else if (action == GLFW_RELEASE)
-                menu_->setVisible(true);
+            //if (menu_->isVisible())
+            //    menu_->setVisible(false);
+            //else if (action == GLFW_RELEASE)
+            //    menu_->setVisible(true);
         }
     });
 
@@ -52,39 +47,11 @@ Editor::~Editor()
 {
 }
 
-class DbListboxModel : public scene::UIListboxModel
-{
-public:
-    DbListboxModel()
-    {
-        sandwiches = sw::getSandwichIds();
-    }
-
-    virtual ~DbListboxModel() {}
-
-    virtual std::string operator[](size_t index)
-    {
-        return sandwiches[index].to_string();
-    }
-
-    virtual size_t size() const
-    {
-        return sandwiches.size();
-    }
-
-    virtual bool isDirty()
-    {
-        return false;
-    }
-
-private:
-    std::vector<Id> sandwiches;
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 void Editor::initUI()
 {
-    generateButtonStateConfigs_(color3(0.5f, 0.6f, 0.65f), bsc_a_, "a");
+  /*  generateButtonStateConfigs_(color3(0.5f, 0.6f, 0.65f), bsc_a_, "a");
     generateButtonStateConfigs_(color3(0.6f, 0.5f, 0.45f), bsc_b_, "b");
 
     last_created_focusable_element_ = &scene_.ui.panel;
@@ -136,7 +103,7 @@ void Editor::initUI()
     p_world->setVisible(false);
 
     ivec2 wnd_size(window_.getSize());
-    onContextResized_(wnd_size.x, wnd_size.y);
+    onContextResized_(wnd_size.x, wnd_size.y);  */
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,13 +123,12 @@ void Editor::run()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (menu_->isVisible())
-        {
-            frame_time_label_->setText(std::to_string(1000.0f * last_frame_time) + " ms");
-        }
+        //if (menu_->isVisible())
+        //{
+        //    frame_time_label_->setText(std::to_string(1000.0f * last_frame_time) + " ms");
+        //}
 
         scene_.ui.draw();
-        batcher_.draw();
 
         GLenum gl_error;
         while ((gl_error = glGetError()) != GL_NO_ERROR)
@@ -187,105 +153,9 @@ void Editor::run()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Editor::setMode(Mode mode)
-{
-    if (mode_ != mode)
-    {
-        switch (mode_)
-        {
-            case MDatabases:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_databases")]), "a");
-                panels_[MDatabases]->setVisible(false);
-                break;
-
-            case MLevels:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_levels")]), "a");
-                panels_[MLevels]->setVisible(false);
-                break;
-
-            case MWorld:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_world")]), "a");
-                panels_[MWorld]->setVisible(false);
-                break;
-
-            case MObjects:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_objects")]), "a");
-                panels_[MObjects]->setVisible(false);
-                break;
-
-            case MTextures:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_textures")]), "a");
-                panels_[MTextures]->setVisible(false);
-                break;
-
-            case MSettings:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_settings")]), "a");
-                panels_[MSettings]->setVisible(false);
-                break;
-
-            default:
-                //assert(false);
-                // we don't care if the old mode was invalid
-                break;
-        }
-
-        mode_ = mode;
-
-        switch (mode_)
-        {
-            case MDatabases:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_databases")]), "b");
-                panels_[MDatabases]->setVisible(true);
-                break;
-
-            case MLevels:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_levels")]), "b");
-                panels_[MLevels]->setVisible(true);
-                break;
-
-            case MWorld:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_world")]), "b");
-                panels_[MWorld]->setVisible(true);
-                break;
-
-            case MObjects:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_objects")]), "b");
-                panels_[MObjects]->setVisible(true);
-                break;
-
-            case MTextures:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_textures")]), "b");
-                panels_[MTextures]->setVisible(true);
-                break;
-
-            case MSettings:
-                useButtonConfigs_(static_cast<scene::UIButton*>(ui_elements_[Id("menu_b_settings")]), "b");
-                panels_[MSettings]->setVisible(true);
-                break;
-
-            default:
-                assert(false);
-                // but we do care if the new mode is invalid
-                break;
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-Editor::Mode Editor::getMode() const
-{
-    return mode_;
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
 void Editor::onContextResized_(I32 width, I32 height)
 {
     scene_.ui.panel.setDimensions(vec2(width, height));
-
-    for (size_t i = 0; i < 6; ++i)
-        panels_[i]->setDimensions(vec2(width, height));
 
 
     // Place/scale menu panel correctly
@@ -296,203 +166,7 @@ void Editor::onContextResized_(I32 width, I32 height)
     if (menu_offset.y > menu_offset.x)
         menu_offset.y = menu_offset.x;
 
-    scene::UIPanel* menu_ = static_cast<scene::UIPanel*>(ui_elements_[Id("menu")]);
 
-    menu_->setPosition(menu_offset);
-    menu_->setScale(vec2(menu_scale, menu_scale));
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-scene::UIListbox* Editor::newListbox_(const Id& id, const color3& color,
-        const vec2& position, const vec2& dimensions, scene::UIPanel* parent)
-{
-    const gfx::TextureFont& font = builtins_.getTextureFont(Id("TextureFont.default"));
-
-    scene::UIPanelAppearance pa;
-    pa.solid = true;
-    pa.background_color = color4(color * 0.6f, 0.4f);
-    pa.border_color = color4(color, 1.0f);
-    pa.border_width_left = 0.5f;
-    pa.border_width_right = 0.5f;
-    pa.border_width_top = 0.5f;
-    pa.border_width_bottom = 0.5f;
-    pa.margin_left = 0.5f;
-    pa.margin_right = 0.5f;
-    pa.margin_top = 0.5f;
-    pa.margin_bottom = 0.5f;
-
-    scene::UIListbox* listbox = new scene::UIListbox();
-    parent->addElement(std::unique_ptr<scene::UIElement>(listbox));
-    ui_elements_[id] = listbox;
-
-    listbox->setPosition(position);
-    listbox->setDimensions(dimensions);
-    listbox->panel.setAppearance(pa);
-
-    scene::UIButtonStateConfig bsc;
-    bsc.button_state = Id("__normal__");
-    bsc.font        = font.getHandle();
-    bsc.text_scale  = vec2(1.0f, 1.0f);
-    bsc.text_color       = color4(color * 1.3f, 1.0f);
-    bsc.background_color = color4(color * 0.66f, 0.0f);
-    bsc.border_color     = color4(color * 1.1f, 0.0f);
-    bsc.border_width_left   = 0.5f;
-    bsc.border_width_right  = 0.5f;
-    bsc.border_width_top    = 0.5f;
-    bsc.border_width_bottom = 0.5f;
-    bsc.margin_left   = 0.5f;
-    bsc.margin_right  = 1.5f;
-    bsc.margin_top    = 0.5f;
-    bsc.margin_bottom = 1.5f;
-    listbox->scroll_up->setStateConfig(bsc);
-    listbox->scroll_down->setStateConfig(bsc);
-    
-
-    return listbox;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-scene::UIPanel* Editor::newRootPanel_(U32 index, const Id& id, const color3& color)
-{
-    scene::UIPanelAppearance pa;
-    pa.solid = true;
-    pa.background_color = color4(color, 1.0f);
-    pa.border_width_left = 0;
-    pa.border_width_right = 0;
-    pa.border_width_top = 0;
-    pa.border_width_bottom = 0;
-    pa.margin_left = 0;
-    pa.margin_right = 0;
-    pa.margin_top = 0;
-    pa.margin_bottom = 0;
-
-    scene::UIPanel* panel = new scene::UIPanel();
-    scene_.ui.panel.addElement(std::unique_ptr<scene::UIElement>(panel));
-    panels_[index] = panel;
-    ui_elements_[id] = panel;
-    panel->setAppearance(pa);
-    panel->setVisible(false);
-
-    return panel;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void Editor::useButtonConfigs_(scene::UIButton* btn, const std::string& affix)
-{
-    assert(btn);
-
-    btn->setNormalState(Id("__normal_" + affix + "__"));
-    btn->setHoveredState(Id("__hovered_" + affix + "__"));
-    btn->setActiveState(Id("__active_" + affix + "__"));
-    btn->setDisabledState(Id("__disabled_" + affix + "__"));
-    btn->setFocusedState(Id("__focused_" + affix + "__"));
-    btn->setFocusedHoveredState(Id("__focused_hovered_" + affix + "__"));
-    btn->setFocusedActiveState(Id("__focused_active_" + affix + "__"));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-void Editor::generateButtonStateConfigs_(const color3& color, scene::UIButtonStateConfig* configs, const std::string& affix)
-{
-    const gfx::TextureFont& font = builtins_.getTextureFont(Id("TextureFont.default"));
-    
-    configs[0].button_state = Id("__normal_" + affix + "__");
-
-    configs[0].font        = font.getHandle();
-    configs[0].text_scale  = vec2(1.0f, 1.0f);
-    configs[0].text_color       = color4(color * 1.3f, 1.0f);
-    configs[0].background_color = color4(color * 0.66f, 0.5f);
-    configs[0].border_color     = color4(color * 1.1f, 0.75f);
-    configs[0].border_width_left   = 0.5f;
-    configs[0].border_width_right  = 0.5f;
-    configs[0].border_width_top    = 0.5f;
-    configs[0].border_width_bottom = 0.5f;
-    configs[0].margin_left   = 0.5f;
-    configs[0].margin_right  = 1.5f;
-    configs[0].margin_top    = 0.5f;
-    configs[0].margin_bottom = 1.5f;
-
-    configs[1] = configs[0];
-    configs[1].button_state = Id("__hovered_" + affix + "__");
-    configs[1].background_color.a = 0.7f;
-    configs[1].text_color = color4(color * 1.4f, 1.0f);
-    configs[1].border_color = color4(color * 1.2f, 1.0f);
-
-    configs[2] = configs[1];
-    configs[2].button_state = Id("__active_" + affix + "__");
-    configs[2].background_color.a = 0.6f;
-    configs[2].text_color = color4(color * 1.3f, 1.0f);
-
-    configs[2].border_width_left = 0.0f;
-    configs[2].border_width_right = 0.0f;
-    configs[2].border_width_top = 0.0f;
-    configs[2].border_width_bottom = 0.0f;
-    configs[2].margin_left = 1.0f;
-    configs[2].margin_right = 0.0f;
-    configs[2].margin_top = 1.0f;
-    configs[2].margin_bottom = 0.0f;
-
-    configs[3] = configs[0];
-    configs[3].button_state = Id("__disabled_" + affix + "__");
-    configs[3].background_color.a = 0.3f;
-    configs[3].text_color *= 0.6f;
-    configs[3].text_color.a = 1.0f;
-    configs[3].border_width_left = 0.0f;
-    configs[3].border_width_right = 0.0f;
-    configs[3].border_width_top = 0.0f;
-    configs[3].border_width_bottom = 0.0f;
-    configs[3].margin_left = 0.0f;
-    configs[3].margin_right = 0.0f;
-    configs[3].margin_top = 0.0f;
-    configs[3].margin_bottom = 0.0f;
-
-    configs[4] = configs[0];
-    configs[4].button_state = Id("__focused_" + affix + "__");
-    configs[4].border_color = color4(color * 1.2f, 1.0f);
-
-    configs[5] = configs[1];
-    configs[5].button_state = Id("__focused_hovered_" + affix + "__");
-
-    configs[6] = configs[2];
-    configs[6].button_state = Id("__focused_active_" + affix + "__");
-}
-
-///////////////////////////////////////////////////////////////////////////////
-scene::UIButton* Editor::newButton_(const Id& id,
-                                    const std::string& text,
-                                    const vec2& position,
-                                    const vec2& dimensions,
-                                    const std::function<void()>& callback,
-                                    scene::UIPanel* parent)
-{
-    scene::UIButton* btn = new scene::UIButton();
-    parent->addElement(std::unique_ptr<scene::UIElement>(btn));
-
-    ui_elements_[id] = btn;
-    if (last_created_focusable_element_)
-        last_created_focusable_element_->setNextFocusElement(btn);
-
-    last_created_focusable_element_ = btn;
-
-    btn->setText(text);
-    btn->setPosition(position);
-    btn->setDimensions(dimensions);
-    
-    useButtonConfigs_(btn, "a");
-
-    for (int i = 0; i < 7; ++i)
-    {
-        scene::UIButtonStateConfig bsc = bsc_a_[i];
-        bsc.click_callback = callback;
-        btn->setStateConfig(bsc);
-
-        bsc = bsc_b_[i];
-        bsc.click_callback = callback;
-        btn->setStateConfig(bsc);
-    }
-
-    return btn;
 }
 
 } // namespace pbj

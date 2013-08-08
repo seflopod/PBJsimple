@@ -45,7 +45,7 @@ const gfx::TextureFont& ResourceManager::getTextureFont(const ResourceId& id)
     // if we get to here, the resource is not loaded yet.
     Sandwich& sandwich = getSandwich(id.sandwich);
 
-    std::unique_ptr<gfx::TextureFont> ptr = gfx::loadTextureFont(sandwich, id.resource);
+    std::unique_ptr<gfx::TextureFont> ptr = gfx::loadTextureFont(sandwich, id.resource, *this);
 
     if (ptr)
     {

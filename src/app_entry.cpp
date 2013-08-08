@@ -24,17 +24,12 @@
 #include <catch.hpp>
 #else
 
-#include "pbj/game.h"
-
-#include <iostream>
-#include <fstream>
-#include <random>
-
+///////////////////////////////////////////////////////////////////////////////
+// Workaround for WinMain entry point
 #if defined(_WIN32) && !defined(DEBUG)
 #include <windows.h>
 int main(int argc, char* argv[]);
 
-///////////////////////////////////////////////////////////////////////////////
 /// \brief  Win32 API entry point; redirects to main().
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
 {
@@ -43,6 +38,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
 
 #endif // defined(_WIN32) && !defined(DEBUG)
 
+#include "pbj/game.h"
+#include "pbj/editor.h"
+
+#include <iostream>
+#include <fstream>
+#include <random>
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Application entry point
@@ -81,6 +82,12 @@ int main(int argc, char* argv[])
    // Initialize game engine
 	pbj::Engine e;
 
+#ifdef PBJ_EDITOR
+
+    pbj::Editor editor;
+
+#else
+
 	//Start and run game
 	pbj::Game::instance()->init(30);
 	pbj::I32 exitCode = pbj::Game::instance()->run();
@@ -88,8 +95,9 @@ int main(int argc, char* argv[])
 	//Do teardown
 	pbj::Game::instance()->stop();
 	pbj::Game::destroyInstance();
-	
+
 	return exitCode;
+#endif
 };
 
 #endif
