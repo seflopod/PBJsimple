@@ -41,6 +41,7 @@ namespace pbj
 		static void destroyInstance();
 
 		~Game();
+      void help();
 
 		bool init(U32);
 		I32 run();

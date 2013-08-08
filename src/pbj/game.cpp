@@ -85,6 +85,10 @@ bool Game::init(U32 fps)
 		[&](I32 keycode, I32 scancode, I32 modifiers) {
 		
         _instance->_running = !(keycode == GLFW_KEY_ESCAPE);
+        if(keycode == GLFW_KEY_H)
+        {
+            help();
+        }
     });
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -263,4 +267,22 @@ void Game::initTestScene()
 	e->setType(scene::Entity::EntityType::Terrain);
 	e->enableDraw();
 	_scene.addEntity(std::unique_ptr<scene::Entity>(e));
+}
+
+void Game::help()
+{
+   std::cerr << std::endl << std::endl;
+   std::cerr << "HELP MENU" << std::endl;
+   std::cerr << std::endl << std::endl;
+   std::cerr << "--Controls--" << std::endl;
+   std::cerr << std::endl;
+   std::cerr << "w - Press w to jump" << std::endl;
+   std::cerr << "a - Press a to move left" << std::endl;
+   std::cerr << "s - Press s to duck(tentative)" << std::endl;
+   std::cerr << "d - Press d to move right" << std::endl;
+   std::cerr << "h - Press h to display help menu" << std::endl;
+   std::cerr << "ESC - Press ESC to exit the game" << std::endl;
+   std::cerr << std::endl << std::endl;
+   std::cerr << "Move the mouse to change the fire direction" << std::endl;
+   std::cerr << "Press the left mouse button to fire the weapon" << std::endl;
 }
