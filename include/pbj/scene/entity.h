@@ -7,10 +7,13 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
+#include <Box2D/Box2D.h>
+
 #include "pbj/_pbj.h"
 #include "pbj/transform.h"
 #include "pbj/gfx/texture.h"
 #include "pbj/gfx/shape_square.h"
+#include "pbj/physics/rigidbody.h"
 //too lazy to check which if these actually need to be a part of this
 //I figure it's worth including the possibility that an entity might be text
 //though for our current purposes this might be a bit overboard.
@@ -20,6 +23,7 @@
 using pbj::gfx::ComponentCallback;
 using pbj::gfx::Texture;
 using pbj::gfx::ShapeSquare;
+using pbj::physics::Rigidbody;
 
 namespace pbj
 {
@@ -37,6 +41,18 @@ namespace scene
 	class Entity
 	{
 	public:
+		////////////////////////////////////////////////////////////////////////
+		/// \enum EntityType
+		///
+		/// \brief Values that represent EntityType.
+		////////////////////////////////////////////////////////////////////////
+		enum EntityType
+		{
+			Terrain = 0x01,
+			Player = 0x02,
+			SpawnPoint = 0x04
+		};
+
 		Entity();
 		
 		~Entity();
@@ -55,15 +71,24 @@ namespace scene
 		GLuint getTextureId() const;
 		void setTextureId(const GLuint);
 		
-		
+		void addRigidbody(Rigidbody::BodyType);
+		Rigidbody* getRigidbody() const;
+
+		U32 getSceneId() const;
+		void setSceneId(U32);
+
+		EntityType getType() const;
+		void setType(EntityType, b2World*);
 	private:
 		bool _initialized;
 				
 		U32 _transformCallbackId;
-		
+		U32 _sceneId;
+		EntityType _type;
 		//components
 		Transform _transform;
 		GLuint _textureId;
+		Rigidbody* _rigidbody;
 
 		Entity(const Entity&);
 		void operator=(const Entity&);

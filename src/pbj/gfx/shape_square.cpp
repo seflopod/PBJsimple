@@ -43,10 +43,10 @@ namespace gfx
 		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 		glBegin(GL_QUADS);
 			glColor4f(color.r, color.g, color.b, color.a);
-			glTexCoord2d(0.0, 0.0); glVertex2f(0.0f, 0.0f);
-			glTexCoord2d(1.0, 0.0); glVertex2f(1.0f, 0.0f);
-			glTexCoord2d(1.0, 1.0); glVertex2f(1.0f, 1.0f);
-			glTexCoord2d(0.0, 1.0); glVertex2f(0.0f, 1.0f);
+			glTexCoord2d(0.0, 0.0); glVertex2f(-0.5f, -0.5f);
+			glTexCoord2d(1.0, 0.0); glVertex2f(0.5f, -0.5f);
+			glTexCoord2d(1.0, 1.0); glVertex2f(0.5f, 0.5f);
+			glTexCoord2d(0.0, 1.0); glVertex2f(-0.5f, 0.5f);
 			glColor4fv(curColor);
 		glEnd();
 		glDisable(GL_TEXTURE_2D);

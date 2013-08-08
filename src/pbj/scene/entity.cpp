@@ -19,7 +19,8 @@ using namespace pbj::scene;
 /// \author	Peter Bartosch
 /// \date	2013-08-05
 ////////////////////////////////////////////////////////////////////////////////
-Entity::Entity()
+Entity::Entity() :
+		_rigidbody(nullptr)
 {
 	_initialized = false;
 }
@@ -52,6 +53,7 @@ void Entity::init()
 	_transformCallbackId = U32(-1);
 	
 	_textureId = 0;
+
 	_initialized = true;
 }
 
@@ -67,6 +69,7 @@ void Entity::init()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::destroy()
 {
+
 	_initialized = false;
 }
 
@@ -131,4 +134,30 @@ GLuint Entity::getTextureId() const
 void Entity::setTextureId(const GLuint newId)
 {
 	_textureId = newId;
+}
+
+void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
+{
+	vec2 scale = _transform.getScale();
+	vec2 pos = _transform.getPosition();
+	b2PolygonShape shape;
+	shape.Set(verts,4);
+	shape.SetAsBox(scale.x, scale.y, b2Vec2(pos.x, pos.y), _transform.getRotation());
+
+	_rigidbody = new Rigidbody(bodyType, shape, world);
+}
+
+Rigidbody* Entity::getRigidbody() const
+{
+	return _rigidbody;
+}
+
+U32 Entity::getSceneId() const
+{
+	return _sceneId;
+}
+
+void Entity::setSceneId(U32 id)
+{
+	_sceneId = id;
 }

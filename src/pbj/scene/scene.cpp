@@ -54,62 +54,52 @@ void Scene::draw()
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		it->second.draw();
+		it->second->draw();
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		it->second.draw();
+		it->second->draw();
 
 	//I assume the ui drawing goes like this.
 	ui.draw();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn U32 Scene::addEntity(const Entity& e, EntityType et)
+/// \fn U32 Scene::addEntity(unique_ptr<Entity>&& e)
 ///
-/// \brief Adds an Entity to the EntityMap for its EntityType
+/// \brief Adds an entity to the scene
 ///
 /// \author Peter Bartosch
 /// \date 2013-08-08
 ///
-/// \param e  A reference to the Entity to add to the scene.
-/// \param et The type of Entity.
-///
-/// \return The id of the Entity in the EntityMap for its type.
-/// 
-/// \sa Entity, Scene::EntityType
+/// \param [in] e A unique pointer to the Entity to add.
 ////////////////////////////////////////////////////////////////////////////////
-U32 Scene::addEntity(const Entity& e, EntityType et)
+void Scene::addEntity(unique_ptr<Entity>&& e)
 {
 	U32 ret = _nextEntityId;
 
 	//this seems a little overdone.  Think this could be better.
-	switch(et)
+	switch(e->getType())
 	{
-	case Terrain:
-		_terrain[_nextEntityId].init();
-		_terrain[_nextEntityId].setTransform(*(e.getTransform()));
-		_terrain[_nextEntityId].setTextureId(e.getTextureId());
+	case Entity::EntityType::Terrain:
+		_terrain[_nextEntityId] = std::move(e);
+		_terrain[_nextEntityId]->setSceneId(_nextEntityId);
 		_nextEntityId++;
 		break;
-	case Player:
-		_players[_nextEntityId].init();
-		_players[_nextEntityId].setTransform(*(e.getTransform()));
-		_players[_nextEntityId].setTextureId(e.getTextureId());
+	case Entity::EntityType::Player:
+		_players[_nextEntityId] = std::move(e);
+		_players[_nextEntityId]->setSceneId(_nextEntityId);
 		_nextEntityId++;
 		break;
-	case SpawnPoint:
-		_spawnPoints[_nextEntityId].init();
-		_spawnPoints[_nextEntityId].setTransform(*(e.getTransform()));
-		_spawnPoints[_nextEntityId].setTextureId(e.getTextureId());
+	case Entity::EntityType::SpawnPoint:
+		_spawnPoints[_nextEntityId] = std::move(e);
+		_players[_nextEntityId]->setSceneId(_nextEntityId);
 		_nextEntityId++;
 		break;
 	default:
 		break;
 	}
-
-	return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,17 +116,17 @@ U32 Scene::addEntity(const Entity& e, EntityType et)
 /// \details The id for the Entity was returned when it was added with
 /// 		 Scene::addEntity.
 ////////////////////////////////////////////////////////////////////////////////
-void Scene::removeEntity(U32 id, EntityType et)
+void Scene::removeEntity(U32 id, Entity::EntityType et)
 {
 	switch(et)
 	{
-	case Terrain:
+	case Entity::EntityType::Terrain:
 		_terrain.erase(id);
 		break;
-	case Player:
+	case Entity::EntityType::Player:
 		_players.erase(id);
 		break;
-	case SpawnPoint:
+	case Entity::EntityType::SpawnPoint:
 		_spawnPoints.erase(id);
 		break;
 	default:

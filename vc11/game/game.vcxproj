@@ -38,7 +38,7 @@
     <ClCompile Include="..\..\src\pbj\gfx\texture_font.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture_font_character.cpp" />
     <ClCompile Include="..\..\src\pbj\input_controller.cpp" />
-    <ClCompile Include="..\..\src\pbj\rigidbody.cpp" />
+    <ClCompile Include="..\..\src\pbj\physics\rigidbody.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\camera.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\entity.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\scene.cpp" />
@@ -78,7 +78,7 @@
     <ClInclude Include="..\..\include\pbj\gfx\texture_font.h" />
     <ClInclude Include="..\..\include\pbj\gfx\texture_font_character.h" />
     <ClInclude Include="..\..\include\pbj\input_controller.h" />
-    <ClInclude Include="..\..\include\pbj\rigidbody.h" />
+    <ClInclude Include="..\..\include\pbj\physics\rigidbody.h" />
     <ClInclude Include="..\..\include\pbj\scene\camera.h" />
     <ClInclude Include="..\..\include\pbj\scene\entity.h" />
     <ClInclude Include="..\..\include\pbj\scene\scene.h" />

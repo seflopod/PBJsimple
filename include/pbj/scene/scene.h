@@ -15,7 +15,7 @@
 
 using std::vector;
 using std::unordered_map;
-
+using std::unique_ptr;
 
 namespace pbj {
 namespace scene {
@@ -39,18 +39,6 @@ class Scene
 {
 public:
 
-	////////////////////////////////////////////////////////////////////////////
-	/// \enum EntityType
-	///
-	/// \brief Values that represent EntityType.
-	////////////////////////////////////////////////////////////////////////////
-	enum EntityType
-	{
-		Terrain = 0x01,
-		Player = 0x02,
-		SpawnPoint = 0x04
-	};
-
     Scene();
 	~Scene();
 
@@ -58,8 +46,8 @@ public:
 
 	void draw();
 
-	U32 addEntity(const Entity&, EntityType);
-	void removeEntity(U32, EntityType);
+	void addEntity(unique_ptr<Entity>&&);
+	void removeEntity(U32, Entity::EntityType);
 
 private:
 
@@ -68,7 +56,7 @@ private:
 	///
 	/// \brief An alias for an unordered map used for id->Entity
 	////////////////////////////////////////////////////////////////////////////
-	typedef unordered_map<U32,Entity> EntityMap;
+	typedef unordered_map<U32,unique_ptr<Entity>> EntityMap;
 
 	U32 _nextEntityId;
 
