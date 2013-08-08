@@ -28,8 +28,8 @@ public:
 
 	void rotate(F32);
 
-	void move(F32, F32, F32);
-	void move(const vec3&);
+	void move(F32, F32);
+	void move(const vec2&);
 
 	const vec2& getPosition() const;
 	void setPosition(F32, F32);

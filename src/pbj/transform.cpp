@@ -15,7 +15,7 @@ namespace pbj {
 ///          identity quaternion, and for scale 1.0.
 Transform::Transform()
 {
-	_position = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	_position = vec2(0.0f, 0.0f);
 	_rotation = 0.0;
 	_scale = vec2(1.0f);
 }
@@ -51,23 +51,21 @@ void Transform::rotate(F32 angle)
 /// \param dx The distance to move along the x-axis.
 /// \param dy The distance to move along the y-axis.
 /// \param dz The distance to move along the z-axis.
-void Transform::move(F32 dx, F32 dy, F32 dz)
+void Transform::move(F32 dx, F32 dy)
 {
-	vec3 v = _position.xyz;
-	mat4 m = glm::translate(mat4(), v);
-	_position = m * vec4(dx, dy, dz, 1.0f);
-	/*
-	if(_owner->rigidbody!=0)
-		_owner->rigidbody->moveBody(_position.x, _position.y);
-	*/
+	move(vec2(dx, dy));	
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Move the transform
 /// \param deltas A glm::vec3 containing the distance to move along each axis.
-void Transform::move(const vec3& deltas)
+void Transform::move(const vec2& deltas)
 {
-	move(deltas.x, deltas.y, deltas.z);
+	_position += deltas;
+	/*
+	if(_owner->rigidbody!=0)
+		_owner->rigidbody->moveBody(_position.x, _position.y);
+	*/
 }
 
 ///////////////////////////////////////////////////////////////////////////////
