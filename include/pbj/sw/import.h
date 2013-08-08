@@ -14,7 +14,7 @@
 namespace pbj {
 namespace sw {
 
-std::unique_ptr<gfx::TextureFont> parseBmFontXml(const sw::ResourceId& id, const be::ConstHandle<gfx::Texture> texture, const void* data, size_t size);
+std::unique_ptr<gfx::TextureFont> parseBmFontXml(const gfx::Texture& texture, const void* data, size_t size);
 
 } // namespace pbj::sw
 } // namespace pbj

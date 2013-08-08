@@ -30,6 +30,10 @@
 namespace pbj {
 namespace gfx {
 
+bool Texture::texture_enabled_(false);
+GLuint Texture::active_texture_(0);
+GLenum Texture::active_blend_mode_(0);
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Constructs a texture object and uploads it to the GPU.
 ///
@@ -47,9 +51,8 @@ namespace gfx {
 ///         the texture appears larger on-screen than the texture size.
 /// \param  min_mode Determines the type of sampler interpolation used when
 ///         the texture appears smaller on-screen than the texture size.
-Texture::Texture(const sw::ResourceId& id, const GLubyte* data, size_t size, InternalFormat format, bool srgb_color, FilterMode mag_mode, FilterMode min_mode)
-    : resource_id_(id),
-      gl_id_(0)
+Texture::Texture(const GLubyte* data, size_t size, InternalFormat format, bool srgb_color, FilterMode mag_mode, FilterMode min_mode)
+    : gl_id_(0)
 {
     GLenum error_status;
     while ((error_status = glGetError()) != GL_NO_ERROR)
@@ -96,9 +99,7 @@ Texture::Texture(const sw::ResourceId& id, const GLubyte* data, size_t size, Int
     if (stbi_data == nullptr)
     {
         PBJ_LOG(VWarning) << "OpenGL error while parsing texture data!" << PBJ_LOG_NL
-                          << "   Sandwich ID: " << resource_id_.sandwich << PBJ_LOG_NL
-                          << "    Texture ID: " << resource_id_.resource << PBJ_LOG_NL
-                          << "    STBI Error: " << stbi_failure_reason() << PBJ_LOG_END;
+                          << "STBI Error: " << stbi_failure_reason() << PBJ_LOG_END;
 
         throw std::runtime_error("Failed to upload texture data to GPU!");
     }
@@ -142,8 +143,6 @@ Texture::Texture(const sw::ResourceId& id, const GLubyte* data, size_t size, Int
     if (error_status != GL_NO_ERROR)
     {
         PBJ_LOG(VWarning) << "OpenGL error while uploading texture data!" << PBJ_LOG_NL
-                          << "   Sandwich ID: " << resource_id_.sandwich << PBJ_LOG_NL
-                          << "    Texture ID: " << resource_id_.resource << PBJ_LOG_NL
                           << "    Error Code: " << error_status << PBJ_LOG_NL
                           << "         Error: " << pbj::getGlErrorString(error_status) << PBJ_LOG_END;
 
@@ -158,18 +157,15 @@ Texture::~Texture()
 {
     if (gl_id_ != 0)
     {
+        if (active_texture_ == gl_id_)
+        {
+            glBindTexture(GL_TEXTURE_2D, 0);
+            active_texture_ = 0;
+        }
+
         glDeleteTextures(1, &gl_id_);
         gl_id_ = 0;
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief  Retrieves this texture's ResourceId
-///
-/// \return A ResourceId defining the location of this texture in a database.
-const sw::ResourceId& Texture::getId() const
-{
-    return resource_id_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,6 +184,44 @@ GLuint Texture::getGlId() const
 const ivec2& Texture::getDimensions() const
 {
     return dimensions_;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Enables this texture object and sets the texture environment mode
+///         to the specified mode.
+///
+/// \param  blend_mode The texture blending mode to use, eg. GL_MODULATE,
+///         GL_REPLACE, etc.
+void Texture::enable(GLenum blend_mode) const
+{
+    if (active_texture_ != gl_id_)
+    {
+        glBindTexture(GL_TEXTURE_2D, gl_id_);
+        active_texture_ = gl_id_;
+    }
+
+    if (active_blend_mode_ != blend_mode)
+    {
+        glTexEnvi(GL_TEXTURE_2D, GL_TEXTURE_ENV_MODE, blend_mode);
+        active_blend_mode_ = blend_mode;
+    }
+
+    if (!texture_enabled_)
+    {
+        glEnable(GL_TEXTURE_2D);
+        texture_enabled_ = true;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Disables any active texturing.
+void Texture::disable()
+{
+    if (texture_enabled_)
+    {
+        glDisable(GL_TEXTURE_2D);
+        texture_enabled_ = false;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -221,7 +255,7 @@ std::unique_ptr<Texture> loadTexture(sw::Sandwich& sandwich, const Id& texture_i
             Texture::FilterMode min_mode = static_cast<Texture::FilterMode>(get_texture.getInt(6));
 
 
-            result.reset(new Texture(sw::ResourceId(sandwich.getId(), texture_id), static_cast<const GLubyte*>(data), data_length, internal_format, srgb, mag_mode, min_mode));
+            result.reset(new Texture(static_cast<const GLubyte*>(data), data_length, internal_format, srgb, mag_mode, min_mode));
         }
         else
             throw std::runtime_error("Texture not found!");

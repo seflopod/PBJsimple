@@ -23,8 +23,6 @@ UIRoot::UIRoot()
       order_index_offset_(1000),
       input_handlers_active_(true)
 {
-    handle_.associate(this);
-
     mouse_motion_listener_id_ = InputController::registerMouseMotionListener(
         [&](F64 x, F64 y)
         {
@@ -57,8 +55,8 @@ UIRoot::UIRoot()
         }
     );
 
+    
     Window* window = getEngine().getWindow();
-    assert(window);
 
     context_resize_listener_id_ = window->registerContextResizeListener(
         [&](I32 width, I32 height)
@@ -68,11 +66,6 @@ UIRoot::UIRoot()
         }
     );
 
-    projection_matrix_ = glm::ortho(0.0f, F32(window->getContextSize().x), F32(window->getContextSize().y), 0.0f);
-
-    panel.scissor_ = nullptr;
-    panel.order_index_offset_ = &order_index_offset_;
-    panel.projection_ = &projection_matrix_;
     panel.view_ = &view_matrix_;
     panel.inv_view_ = &view_matrix_;
     panel.focused_element_ = &focused_element_;
@@ -90,6 +83,12 @@ UIRoot::~UIRoot()
 
 void UIRoot::draw()
 {
+    Window* window = getEngine().getWindow();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.0f, F32(window->getContextSize().x), F32(window->getContextSize().y), 0.0f, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+
     panel.draw();
 }
 

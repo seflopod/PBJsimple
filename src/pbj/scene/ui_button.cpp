@@ -7,8 +7,6 @@
 #include "pbj/scene/ui_button.h"
 
 #include "pbj/engine.h"
-#include "pbj/gfx/built_ins.h"
-#include "pbj/gfx/shader_program.h"
 
 #include "pbj/_math.h"
 
@@ -34,8 +32,7 @@ UIButtonStateConfig::UIButtonStateConfig()
 }
 
 UIButton::UIButton()
-    : btn_mesh_(getEngine().getBuiltIns().getMesh(Id("Mesh.std_quad"))),
-      current_config_(nullptr),
+    : current_config_(nullptr),
       normal_state_("__normal__"),
       hovered_state_("__hovered__"),
       active_state_("__active__"),
@@ -49,43 +46,6 @@ UIButton::UIButton()
       hovered_(false)
 {
     label_.setAlign(UILabel::AlignCenter);
-
-    const gfx::BuiltIns& builtins = getEngine().getBuiltIns();
-
-    btask_.program_id = builtins.getProgram(Id("ShaderProgram.UIBox")).getGlId();
-
-    btask_.vao_id = btn_mesh_.getVaoId();
-    btask_.n_indices = btn_mesh_.getIndexCount();
-    btask_.index_data_type = btn_mesh_.getIndexType();
-
-    btask_.samplers = nullptr;
-    btask_.n_samplers = 0;
-    btask_.uniforms = uniforms_;
-    btask_.n_uniforms = 5;
-
-    uniforms_[u_transform_].location = glGetUniformLocation(btask_.program_id, "transform");
-    uniforms_[u_transform_].type = gfx::UniformConfig::UM4f;
-    uniforms_[u_transform_].array_size = 1;
-    uniforms_[u_transform_].data = glm::value_ptr(btn_transform_);
-
-    uniforms_[u_border_bounds_].location = glGetUniformLocation(btask_.program_id, "border_bounds");
-    uniforms_[u_border_bounds_].type = gfx::UniformConfig::U2f;
-    uniforms_[u_border_bounds_].array_size = 4;
-    uniforms_[u_border_bounds_].data = glm::value_ptr(border_bounds_[0]);
-
-    uniforms_[u_border_color_].location = glGetUniformLocation(btask_.program_id, "border_color");
-    uniforms_[u_border_color_].type = gfx::UniformConfig::U4f;
-    uniforms_[u_border_color_].array_size = 1;
-
-    uniforms_[u_background_color_].location = glGetUniformLocation(btask_.program_id, "background_color");
-    uniforms_[u_background_color_].type = gfx::UniformConfig::U4f;
-    uniforms_[u_background_color_].array_size = 1;
-
-    uniforms_[u_outside_color_].location = glGetUniformLocation(btask_.program_id, "outside_color");
-    uniforms_[u_outside_color_].type = gfx::UniformConfig::U4f;
-    uniforms_[u_outside_color_].array_size = 1;
-
-    btask_.depth_tested = false;
 }
 
 UIButton::~UIButton()
@@ -197,11 +157,49 @@ const Id& UIButton::getDisabledState() const
 
 void UIButton::draw()
 {
-    if (isVisible() && projection_ && view_)
+    if (isVisible() && view_)
     {
         refreshConfig_();
 
-        getEngine().getBatcher().submit(btask_);
+        glLoadMatrixf(glm::value_ptr(*view_));
+        gfx::Texture::disable();
+        
+        glColor4fv(glm::value_ptr(current_config_->background_color));
+        glBegin(GL_QUADS);
+            glVertex2fv(glm::value_ptr(border_bounds_[0]));
+            glVertex2f(border_bounds_[0].x, border_bounds_[1].y);
+            glVertex2fv(glm::value_ptr(border_bounds_[1]));
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
+        glEnd();
+
+        glColor4fv(glm::value_ptr(current_config_->border_color));
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
+            glVertex2f(border_bounds_[3].x, border_bounds_[3].y);
+            glVertex2f(border_bounds_[1].x, border_bounds_[1].y);
+            glVertex2f(border_bounds_[2].x, border_bounds_[3].y);
+            glVertex2f(border_bounds_[0].x, border_bounds_[1].y);
+            glVertex2f(border_bounds_[2].x, border_bounds_[2].y);
+            glVertex2f(border_bounds_[0].x, border_bounds_[0].y);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
+        glEnd();
+
+        glColor4fv(glm::value_ptr(current_config_->margin_color));
+        glBegin(GL_TRIANGLE_STRIP);
+            glVertex2f(1, 0);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+            glVertex2f(1, 1);
+            glVertex2f(border_bounds_[3].x, border_bounds_[3].y);
+            glVertex2f(0, 1);
+            glVertex2f(border_bounds_[2].x, border_bounds_[3].y);
+            glVertex2f(0, 0);
+            glVertex2f(border_bounds_[2].x, border_bounds_[2].y);
+            glVertex2f(1, 0);
+            glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
+        glEnd();
+
         label_.draw();
     }
 }
@@ -292,12 +290,6 @@ void UIButton::onKeyPressed(I32 keycode, I32 modifiers)
 void UIButton::onBoundsChange_()
 {
     current_config_ = nullptr;
-    btask_.order_index = *order_index_offset_;
-    btask_.scissor = scissor_;
-
-    label_.order_index_offset_ = order_index_offset_;
-    label_.scissor_ = scissor_;
-    label_.projection_ = projection_;
     label_.view_ = view_;
     label_.inv_view_ = inv_view_;
     label_.focused_element_ = focused_element_;
@@ -345,7 +337,7 @@ void UIButton::refreshConfig_()
 
     if (current_config_ != &cfg)
     {
-        if (!(projection_ && view_))
+        if (!view_)
             return;
 
         current_config_ = &cfg;
@@ -358,13 +350,9 @@ void UIButton::refreshConfig_()
         label_.setDimensions(getDimensions() - vec2(I32(cfg.margin_left + cfg.border_width_left + cfg.border_width_right + cfg.margin_right),
                                                     I32(cfg.margin_top + cfg.border_width_top + cfg.border_width_bottom + cfg.margin_bottom)));
 
-        uniforms_[u_background_color_].data = glm::value_ptr(cfg.background_color);
-        uniforms_[u_border_color_].data = glm::value_ptr(cfg.border_color);
-        uniforms_[u_outside_color_].data = glm::value_ptr(cfg.margin_color);
-
         vec3 scale(getDimensions(), 1);
         vec3 translate(getPosition(), 0);
-        btn_transform_ = glm::scale(glm::translate(*projection_ * *view_, translate), scale);
+        btn_transform_ = glm::scale(glm::translate(*view_, translate), scale);
 
         vec2 inv_scale(1.0f / scale.x, 1.0f / scale.y);
 

@@ -13,7 +13,7 @@
 namespace pbj {
 namespace sw {
 
-std::unique_ptr<gfx::TextureFont> parseBmFontXml(const sw::ResourceId& id, const be::ConstHandle<gfx::Texture> texture, const void* data, size_t size)
+std::unique_ptr<gfx::TextureFont> parseBmFontXml(const gfx::Texture& texture, const void* data, size_t size)
 {
     pugi::xml_document doc;
 
@@ -116,7 +116,7 @@ std::unique_ptr<gfx::TextureFont> parseBmFontXml(const sw::ResourceId& id, const
         }
     }
 
-    gfx::TextureFont* font = new gfx::TextureFont(id, texture, cap_height, chars.begin(), chars.end());
+    gfx::TextureFont* font = new gfx::TextureFont(texture, cap_height, chars);
 
     return std::unique_ptr<gfx::TextureFont>(font);
 }

@@ -126,9 +126,6 @@
     <ClCompile Include="..\..\src\pbj\scene\ui_label.cpp">
       <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pbj\scene\ui_listbox.cpp">
-      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pbj\scene\ui_panel.cpp">
       <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
     </ClCompile>
@@ -154,12 +151,6 @@
       <Filter>Source Files\be</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\be\bed\transaction.cpp">
-      <Filter>Source Files\be\be::bed</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\be\bed\bed.cpp">
-      <Filter>Source Files\be\be::bed</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\be\bed\bed_open.cpp">
       <Filter>Source Files\be\be::bed</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\be\bed\cached_stmt.cpp">
@@ -281,9 +272,6 @@
     <ClInclude Include="..\..\include\pbj\scene\ui_label.h">
       <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pbj\scene\ui_listbox.h">
-      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\ui_panel.h">
       <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
     </ClInclude>
@@ -292,12 +280,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\game.h">
       <Filter>Header Files\pbj</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\be\bed\bed.h">
-      <Filter>Header Files\be\be::bed</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\be\bed\bed_open.h">
-      <Filter>Header Files\be\be::bed</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\be\bed\cached_stmt.h">
       <Filter>Header Files\be\be::bed</Filter>
@@ -339,9 +321,6 @@
   <ItemGroup>
     <None Include="..\..\include\pbj\sw\resource_id.inl">
       <Filter>Header Files\pbj\pbj::sw</Filter>
-    </None>
-    <None Include="..\..\include\pbj\gfx\texture_font.inl">
-      <Filter>Header Files\pbj\pbj::gfx</Filter>
     </None>
     <None Include="..\..\include\be\id.inl">
       <Filter>Header Files\be</Filter>

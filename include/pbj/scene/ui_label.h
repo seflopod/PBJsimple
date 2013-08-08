@@ -9,8 +9,6 @@
 
 #include "pbj/scene/ui_element.h"
 #include "pbj/gfx/texture_font.h"
-#include "pbj/gfx/texture_font_text.h"
-#include "be/const_handle.h"
 
 namespace pbj {
 namespace scene {
@@ -45,8 +43,8 @@ public:
     void setTextColor(const color4& color);
     const color4& getTextColor() const;
 
-    void setFont(const be::ConstHandle<gfx::TextureFont>& font);
-    const be::ConstHandle<gfx::TextureFont>& getFont() const;
+    void setFont(const gfx::TextureFont* font);
+    const gfx::TextureFont* getFont() const;
 
     void setAlign(Align align);
     Align getAlign() const;
@@ -58,8 +56,10 @@ private:
 
     void calculateTextTransform_();
 
+    const gfx::TextureFont* font_;
+    std::string text_;
+    color4 text_color_;
     vec2 text_scale_;
-    gfx::TextureFontText tf_text_;
     Align align_;
 
     mat4 text_transform_;

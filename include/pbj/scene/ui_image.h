@@ -9,7 +9,6 @@
 
 #include "pbj/scene/ui_element.h"
 #include "pbj/gfx/texture.h"
-#include "be/const_handle.h"
 
 namespace pbj {
 namespace scene {
@@ -21,11 +20,11 @@ class UIImage : public UIElement
 public:
 	UIImage();
 	virtual ~UIImage();
-	void setTexture(const be::ConstHandle<gfx::Texture> &texture);
-    const be::ConstHandle<gfx::Texture> &getTexture() const;
+	void setTexture(const gfx::Texture* texture);
+    const gfx::Texture* getTexture() const;
 
 private:
-	be::ConstHandle<gfx::Texture> texture_;
+	gfx::Texture* texture_;
 };
 
 } // namespace pbj::scene

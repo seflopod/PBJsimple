@@ -38,13 +38,13 @@ UIElement* UILabel::getElementAt(const ivec2& screen_position)
 
 void UILabel::setText(const std::string& text)
 {
-    tf_text_.setText(text);
+    text_ = text;
     text_transform_valid_ = false;
 }
 
 const std::string& UILabel::getText() const
 {
-    return tf_text_.getText();
+    return text_;
 }
 
 void UILabel::setTextScale(const vec2& scale)
@@ -63,26 +63,26 @@ const vec2& UILabel::getTextScale() const
 
 void UILabel::setTextColor(const color4& color)
 {
-    tf_text_.setColor(color);
+    text_color_ = color;
 }
 
 const color4& UILabel::getTextColor() const
 {
-    return tf_text_.getColor();
+    return text_color_;
 }
 
-void UILabel::setFont(const be::ConstHandle<gfx::TextureFont>& font)
+void UILabel::setFont(const gfx::TextureFont* font)
 {
-    if (font != tf_text_.getFont())
+    if (font != font_)
     {
-        tf_text_.setFont(font);
+        font_ = font;
         text_transform_valid_ = false;
     }
 }
 
-const be::ConstHandle<gfx::TextureFont>& UILabel::getFont() const
+const gfx::TextureFont* UILabel::getFont() const
 {
-    return tf_text_.getFont();
+    return font_;
 }
 
 void UILabel::setAlign(Align align)
@@ -101,30 +101,28 @@ UILabel::Align UILabel::getAlign() const
 
 void UILabel::draw()
 {
-    if (isVisible() && view_ && projection_)
+    if (isVisible() && view_ && font_)
     {
         if (!text_transform_valid_)
             calculateTextTransform_();
 
-        tf_text_.draw(&text_transform_, scissor_);
+        glLoadMatrixf(glm::value_ptr(*view_));
+        font_->print(text_, text_color_);
     }
 }
 
 void UILabel::onBoundsChange_()
 {
-    tf_text_.setOrderIndex(*order_index_offset_ + 8);
     text_transform_valid_ = false;
 }
 
 void UILabel::calculateTextTransform_()
 {
-    if (!(projection_ && view_))
+    if (!(view_ && font_))
         return;
 
-    const gfx::TextureFont* font = tf_text_.getFont().get();
-
     vec2 extra_space(getDimensions());
-    extra_space -= vec2(tf_text_.getTextWidth() * text_scale_.x, font ? font->getCapHeight() * text_scale_.y : 0);
+    extra_space -= vec2(font_->calculateTextWidth(text_) * text_scale_.x, font_->getCapHeight() * text_scale_.y);
 
     extra_space *= 0.5f;
 
@@ -141,7 +139,7 @@ void UILabel::calculateTextTransform_()
     translation.y += getDimensions().y - bottom_spacing;
     translation.x += left_spacing;
 
-    text_transform_ = glm::scale(glm::translate(*projection_ * *view_, translation), vec3(text_scale_.x, -text_scale_.y, 1));
+    text_transform_ = glm::scale(glm::translate(*view_, translation), vec3(text_scale_.x, -text_scale_.y, 1));
     text_transform_valid_ = true;
 }
 

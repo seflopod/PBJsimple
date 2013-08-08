@@ -13,7 +13,6 @@
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
 #include "pbj/_gl.h"
-#include "be/source_handle.h"
 #include "pbj/sw/resource_id.h"
 
 #include "pbj/sw/sandwich.h"
@@ -46,13 +45,14 @@ public:
     GLuint getGlId() const;
     const ivec2& getDimensions() const;
 
-    void bind(GLenum blend_mode) const;
-    static void unbind();
+    void enable(GLenum blend_mode) const;
+    static void disable();
 
 private:
     ivec2 dimensions_;
     GLuint gl_id_;
 
+    static bool texture_enabled_;
     static GLuint active_texture_;
     static GLenum active_blend_mode_;
     

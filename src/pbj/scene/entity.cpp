@@ -73,18 +73,25 @@ void Entity::destroy()
 	_initialized = false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::draw()
+///
+/// \brief	draws this object.
+///
+/// \author	Peter Bartosch / Josh Douglas
+/// \date	2013-08-08
+////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
-	vec3 glmPos = _transform.getPosition();
-	vec4 glmRot = _transform.getAngleAxis();
-	vec3 glmSca = _transform.getScale();
-	GLfloat pos[3] = { glmPos.x, glmPos.y, glmPos.z };
-	GLfloat rot[4] = { glmRot.x, glmRot.y, glmRot.z, glmRot.w };
-	GLfloat sca[3] = { glmSca.x, glmSca.y, glmSca.z };
+	vec2 glmPos = _transform.getPosition();
+	F32 glmRot = _transform.getRotation();
+	vec2 glmSca = _transform.getScale();
+	GLfloat pos[3] = { glmPos.x, glmPos.y};
+	GLfloat sca[2] = { glmSca.x, glmSca.y};
 
 	glPushMatrix();
 		glTranslatef(pos[0], pos[1], pos[2]);
-		glRotatef(rot[0], rot[1], rot[2], rot[3]);
+		glRotatef(glmRot, 0, 0, 1);
 		glScalef(sca[0], sca[1], sca[2]);
 		//if colors are being done, use material.h  for now
 		//this solid color works with no textures loaded.

@@ -659,9 +659,9 @@ Window::Window(const WindowSettings& window_settings)
     glfwWindowHint(GLFW_STENCIL_BITS, window_settings.stencil_bits);
     glfwWindowHint(GLFW_SAMPLES, window_settings.msaa_level);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
    
 
     glfw_window_ = glfwCreateWindow(width, height, "bengine", monitor, nullptr);

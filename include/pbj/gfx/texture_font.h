@@ -28,8 +28,8 @@ public:
 
     const TextureFontCharacter& operator[](U32 codepoint) const;
 
-    void print(const std::string& text) const;
-    F32 getTextWidth(const std::string& text) const;
+    void print(const std::string& text, const color4& color) const;
+    F32 calculateTextWidth(const std::string& text) const;
 
 private:
     const Texture& texture_;
