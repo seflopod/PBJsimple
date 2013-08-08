@@ -201,6 +201,9 @@
     <ClCompile Include="..\..\src\pbj\sw\resource_manager.cpp">
       <Filter>Source Files\pbj\pbj::sw</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pbj\editor.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\pbj\engine.h">
@@ -322,6 +325,9 @@
 	</ClInclude>
     <ClInclude Include="..\..\include\pbj\sw\resource_manager.h">
       <Filter>Header Files\pbj\pbj::sw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\editor.h">
+      <Filter>Header Files\pbj</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

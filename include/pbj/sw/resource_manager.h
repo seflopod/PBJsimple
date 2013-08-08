@@ -8,6 +8,7 @@
 #define PBJ_SW_RESOURCE_MANAGER_H_
 
 #include "pbj/sw/resource_id.h"
+#include "pbj/sw/sandwich.h"
 #include "pbj/_pbj.h"
 
 #include <unordered_map>
