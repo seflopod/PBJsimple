@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \file   pbj/transform.cpp
-/// \author Peter Bartosch
+/// \author Peter Bartosch / Josh Douglas
 /// \date   2013-07-18
 /// \brief  Implementation for Transform class
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \file   pbj/transform.h
-/// \author Peter Bartosch
+/// \author Peter Bartosch / Josh Douglas
 /// \date   2013-07-18
 /// \brief  A class for representing the transformation of an object.
 /// \details This class is mostly a wrapper for glm calls.  It stores the
