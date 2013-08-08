@@ -6,6 +6,33 @@
 
 #include "pbj/gfx/texture_font.h"
 
+#include "pbj/sw/resource_manager.h"
+#include <algorithm>
+#include <iostream>
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load a texture font from a sandwich.
+/// \param  1 The id of the texture font.
+#define PBJ_GFX_TEXTURE_FONT_SQL_LOAD "SELECT texture_id, cap_height " \
+            "FROM sw_texture_fonts WHERE id = ?"
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load character data for a texture font.
+/// \param  1 The id of the texture font.
+#define PBJ_GFX_TEXTURE_FONT_SQL_LOAD_CHARS "SELECT codepoint, " \
+            "tc_x, tc_y, tc_width, tc_height, " \
+            "offset_x, offset_y, advance " \
+            "FROM sw_texture_font_chars WHERE font_id = ?"
+
+#ifdef BE_ID_NAMES_ENABLED
+#define PBJ_GFX_TEXTURE_FONT_SQLID_LOAD         PBJ_GFX_TEXTURE_FONT_SQL_LOAD
+#define PBJ_GFX_TEXTURE_FONT_SQLID_LOAD_CHARS   PBJ_GFX_TEXTURE_FONT_SQL_LOAD_CHARS
+#else
+// TODO: precalculate ids.
+#define PBJ_GFX_TEXTURE_FONT_SQLID_LOAD         PBJ_GFX_TEXTURE_FONT_SQL_LOAD
+#define PBJ_GFX_TEXTURE_FONT_SQLID_LOAD_CHARS   PBJ_GFX_TEXTURE_FONT_SQL_LOAD_CHARS
+#endif
+
 namespace pbj {
 namespace gfx {
 
@@ -161,6 +188,69 @@ F32 TextureFont::calculateTextWidth(const std::string& text) const
         cursor.x += ch.character_advance;
     }
     return cursor.x;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Loads a texture font from the specified sandwich database.
+std::unique_ptr<TextureFont> loadTextureFont(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
+{
+    std::unique_ptr<TextureFont> result;
+   
+    try
+    {
+        db::StmtCache& cache = sandwich.getStmtCache();
+        db::CachedStmt get_font = cache.hold(Id(PBJ_GFX_TEXTURE_FONT_SQLID_LOAD), PBJ_GFX_TEXTURE_FONT_SQL_LOAD);
+
+        get_font.bind(1, id.value());
+        if (get_font.step())
+        {
+            Id texture_id = Id(get_font.getUInt64(0));
+            F32 cap_height = float(get_font.getDouble(1));
+            std::vector<TextureFontCharacter> chars;
+
+            db::CachedStmt get_chars = cache.hold(Id(PBJ_GFX_TEXTURE_FONT_SQLID_LOAD_CHARS), PBJ_GFX_TEXTURE_FONT_SQL_LOAD_CHARS);
+
+            get_chars.bind(1, id.value());
+            while (get_chars.step())
+            {
+                TextureFontCharacter ch;
+                ch.codepoint = get_chars.getInt(0);
+                ch.texture_offset.x = float(get_chars.getDouble(1));
+                ch.texture_offset.y = float(get_chars.getDouble(2));
+                ch.texture_dimensions.x = float(get_chars.getDouble(3));
+                ch.texture_dimensions.y = float(get_chars.getDouble(4));
+                ch.character_offset.x = float(get_chars.getDouble(5));
+                ch.character_offset.y = float(get_chars.getDouble(6));
+                ch.character_advance = float(get_chars.getDouble(7));
+
+                chars.push_back(ch);
+            }
+
+            const Texture& texture = rm.getTexture(sw::ResourceId(sandwich.getId(), texture_id));
+            
+
+            result.reset(new TextureFont(texture, cap_height, chars));
+        }
+        else
+            throw std::runtime_error("Texture not found!");
+    }
+    catch (const db::Db::error& err)
+    {
+        PBJ_LOG(VWarning) << "Database error while loading texture font!" << PBJ_LOG_NL
+                          << "   Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "TextureFont ID: " << id << PBJ_LOG_NL
+                          << "     Exception: " << err.what() << PBJ_LOG_NL
+                          << "           SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::exception& err)
+   {
+      PBJ_LOG(VWarning) << "Exception while loading texture font!" << PBJ_LOG_NL
+                          << "   Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "TextureFont ID: " << id << PBJ_LOG_NL
+                          << "     Exception: " << err.what() << PBJ_LOG_END;
+   }
+
+   return result;
 }
 
 } // namespace pbj::gfx

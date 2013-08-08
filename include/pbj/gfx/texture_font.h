@@ -11,6 +11,12 @@
 #include "pbj/gfx/texture_font_character.h"
 
 namespace pbj {
+namespace sw {
+
+class ResourceManager;
+
+}
+
 namespace gfx {
 
 class TextureFontText;
@@ -42,9 +48,10 @@ private:
 	std::vector<TextureFontCharacter> ext_chars_;
 };
 
+
+std::unique_ptr<TextureFont> loadTextureFont(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm);
+
 } // namespace pbj::gfx
 } // namespace pbj
-
-#include "pbj/gfx/texture_font.inl"
 
 #endif

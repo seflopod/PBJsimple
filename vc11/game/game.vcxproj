@@ -48,6 +48,7 @@
     <ClCompile Include="..\..\src\pbj\scene\ui_root.cpp" />
     <ClCompile Include="..\..\src\pbj\sw\import.cpp" />
     <ClCompile Include="..\..\src\pbj\sw\resource_id.cpp" />
+    <ClCompile Include="..\..\src\pbj\sw\resource_manager.cpp" />
     <ClCompile Include="..\..\src\pbj\sw\sandwich.cpp" />
     <ClCompile Include="..\..\src\pbj\sw\sandwich_open.cpp" />
     <ClCompile Include="..\..\src\pbj\transform.cpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="..\..\include\pbj\scene\ui_root.h" />
     <ClInclude Include="..\..\include\pbj\sw\import.h" />
     <ClInclude Include="..\..\include\pbj\sw\resource_id.h" />
+    <ClInclude Include="..\..\include\pbj\sw\resource_manager.h" />
     <ClInclude Include="..\..\include\pbj\sw\sandwich.h" />
     <ClInclude Include="..\..\include\pbj\sw\sandwich_open.h" />
     <ClInclude Include="..\..\include\pbj\transform.h" />
