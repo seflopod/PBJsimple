@@ -16,8 +16,8 @@ namespace pbj {
 Transform::Transform()
 {
 	_position = vec2(0.0f, 0.0f);
-	_rotation = 0.0;
-	_scale = vec2(1.0f);
+	_rotation = 0.0f;
+	_scale = vec2(1.0f, 1.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,19 +31,18 @@ Transform::~Transform()
 void Transform::rotate(F32 angle)
 {
 	while (_rotation >= 360)
-	{
 		_rotation -= 360 + angle;
-	}
 
 	while (_rotation < 0)
-	{
 		_rotation += 360 + angle;
-	}
 
 	/*
 	if(_owner->rigidbody!=0)
+	{
 		//convert y rotation to euler angles and set the rigidbody accordingly
+	}
 	*/
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

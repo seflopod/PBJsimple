@@ -8,6 +8,18 @@ using namespace pbj;
 /// \brief	The client instance pointer.
 Game* Game::_instance = 0;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Game* Game::instance()
+///
+/// \brief Returns a pointer to the single instance of Game.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+///
+/// \return A pointer to a Game instance.  If \c _instance is null when this
+/// 		is called, a new instance of Game is created and a pointer to that
+/// 		is returned.
+////////////////////////////////////////////////////////////////////////////////
 Game* Game::instance()
 {
 	if(_instance == 0) //no instance yet
@@ -15,6 +27,14 @@ Game* Game::instance()
 	return _instance;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Game::destroyInstance()
+///
+/// \brief Destroys the static instance of Game.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+////////////////////////////////////////////////////////////////////////////////
 void Game::destroyInstance()
 {
 	if(_instance != 0)
@@ -177,6 +197,7 @@ void Game::onContextResized(I32 width, I32 height)
 void Game::initTestScene()
 {
 	scene::Entity* e = new scene::Entity();
-	e->init();
+	e->setType(scene::Entity::EntityType::Terrain);
+	e->enableDraw();
 	_scene.addEntity(std::unique_ptr<scene::Entity>(e));
 }

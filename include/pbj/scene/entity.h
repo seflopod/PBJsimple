@@ -54,12 +54,7 @@ namespace scene
 		};
 
 		Entity();
-		
 		~Entity();
-		
-		//intialization and destruction funcs
-		void init();
-		void destroy();
 		
 		void draw();
 		
@@ -79,8 +74,13 @@ namespace scene
 
 		EntityType getType() const;
 		void setType(EntityType);
+
+		bool isDrawable() const;
+		void enableDraw();
+		void disableDraw();
 	private:
 		bool _initialized;
+		bool _drawable;
 				
 		U32 _transformCallbackId;
 		U32 _sceneId;
