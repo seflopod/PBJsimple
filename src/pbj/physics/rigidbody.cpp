@@ -368,3 +368,12 @@ void Rigidbody::destroy()
 	_body = 0;
 	_owner = 0;
 }
+
+Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
+{
+	return Other;
+}
+
+void Rigidbody::setCollisionGroup(CollisionGroup cg)
+{
+}

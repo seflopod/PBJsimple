@@ -176,7 +176,7 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
-	scene::Entity e;
-	e.init();
-	_scene.addEntity(e);
+	scene::Entity* e = new scene::Entity();
+	e->init();
+	_scene.addEntity(std::unique_ptr<scene::Entity>(e));
 }

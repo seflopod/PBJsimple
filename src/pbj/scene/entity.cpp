@@ -107,7 +107,7 @@ void Entity::draw()
 ///
 /// \return	null if it fails, else the transform.
 ////////////////////////////////////////////////////////////////////////////////
-Transform* Entity::getTransform() const
+Transform* Entity::getTransform()
 {
 	if(_initialized)
 		return &_transform;

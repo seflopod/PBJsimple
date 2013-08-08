@@ -9,12 +9,15 @@
 // Auto-link with libraries
 #ifdef _WIN32
 #pragma comment (lib, "opengl32.lib")
+#pragma comment (lib, "Box2D.lib")
+#pragma comment (lib, "alut.lib")
 #ifdef DEBUG
 #pragma comment (lib, "glew32sd.lib")
 #pragma comment (lib, "glfw3sd.lib")
 #else
 #pragma comment (lib, "glew32s.lib")
 #pragma comment (lib, "glfw3s.lib")
+
 #endif // DEBUG
 #endif // _WIN32
 

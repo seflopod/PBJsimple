@@ -63,7 +63,7 @@ public:
 	bool isAwake();
 	bool isActive();
 
-	int getCollisionGroup();
+	CollisionGroup getCollisionGroup();
 	void setCollisionGroup(CollisionGroup); ///< negative for no collision with group members
 	
 	void* getOwner();

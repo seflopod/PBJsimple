@@ -65,7 +65,7 @@ namespace scene
 		
 		//accessors, these will expand as the class gains more component
 		//possiblities
-		Transform* getTransform() const;
+		Transform* getTransform();
 		void setTransform(const Transform&);
 		
 		GLuint getTextureId() const;
