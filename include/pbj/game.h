@@ -12,6 +12,7 @@
 #include <random>
 #include <string>
 #include <thread>
+//#include <b2WorldCallbacks.h>
 
 #include "pbj/_pbj.h"
 #include "pbj/engine.h"
@@ -25,6 +26,19 @@ using pbj::InputController;
 
 namespace pbj
 {
+	struct PhysicsSettings
+	{
+		PhysicsSettings():
+			dt(1.0f/60.0f),
+			velocityIterations(8),
+			positionIterations(3)
+		{}
+		
+		F32 dt;
+		I32 velocityIterations;
+		I32 positionIterations;
+	};
+	
 	////////////////////////////////////////////////////////////////////////////
 	/// \class		Game
 	///
@@ -32,9 +46,10 @@ namespace pbj
 	///
 	/// \author		Peter Bartosch
 	/// \date		2013-08-05
-	/// \details	The Game class manages and runs the game.
+	/// \details	The Game class manages and runs the game.  It inherits from
+    ///             b2ContactListener so that it can capture collision events.
 	////////////////////////////////////////////////////////////////////////////
-	class Game
+	class Game : b2ContactListener
 	{
 	public:
 		static Game* instance();
@@ -45,7 +60,13 @@ namespace pbj
 		bool init(U32);
 		I32 run();
 		void stop();
-		
+        
+	protected:
+        virtual void BeginContact(b2Contact*);
+        virtual void EndContact(b2Contact*);
+        //virtual void PreSolve(b2Contact*, cosnt b2Manifold*);
+        //virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
+    
 	private:
 		static Game* _instance;
 
@@ -61,11 +82,11 @@ namespace pbj
 
 		//Enginey stuff
 		F32 _dt;
-		F32 _physDt;
 		bool _running;
 		Engine& _engine;
 		Window& _window;
 		b2World* _world;
+		PhysicsSettings _physSettings;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

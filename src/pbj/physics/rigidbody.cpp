@@ -31,6 +31,10 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
 					 b2World* physWorld, void* owner) :
 					_owner(owner)
 {
+	b2FixtureDef fd;
+	fd.shape = shape;
+	fd.density = 1.0f;
+
 	b2BodyDef bd;
 	///< An enum constant representing the bd.type option
 	bd.type = (b2BodyType)bodyType;
@@ -42,7 +46,7 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
 	bd.bullet = false;
 	bd.active = true;
 	_body = physWorld->CreateBody(&bd);
-	_body->CreateFixture(shape, 1.0f);
+	_body->CreateFixture(&fd);
 
 	_body->SetUserData(_owner);
 }

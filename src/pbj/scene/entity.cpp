@@ -121,26 +121,30 @@ void Entity::setTextureId(const GLuint newId)
 
 void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 {
-	vec2 scale = _transform.getScale();
-	vec2 pos = _transform.getPosition();
-	b2PolygonShape shape;
-	shape.SetAsBox(scale.x, scale.y, b2Vec2(pos.x, pos.y), _transform.getRotation());
-
-	_rigidbody = new Rigidbody(bodyType, &shape, world, this);
-	switch(_type)
+	if(!_rigidbody)
 	{
-	case Player:
-		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
-		break;
-	case Terrain:
-		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
-		break;
-	case SpawnPoint:
-		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
-		break;
-	default:
-		_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
-		break;
+		vec2 scale = _transform.getScale();
+		vec2 pos = _transform.getPosition();
+		b2PolygonShape shape;
+		shape.SetAsBox(scale.x, scale.y, b2Vec2(pos.x, pos.y),
+						_transform.getRotation());
+
+		_rigidbody = new Rigidbody(bodyType, &shape, world, this);
+		switch(_type)
+		{
+		case Player:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+			break;
+		case Terrain:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+			break;
+		case SpawnPoint:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+			break;
+		default:
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+			break;
+		}
 	}
 }
 

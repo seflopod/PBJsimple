@@ -73,6 +73,27 @@ void Scene::draw()
 	//ui.draw();
 }
 
+void Scene::update()
+{
+	for(EntityMap::iterator it=_others.begin();
+		it!=_others.end();
+		it++)
+		if(it->second->getRigidbody())
+			it->second->getRigidbody()->updateOwnerTransform();
+
+	for(EntityMap::iterator it=_terrain.begin();
+		it!=_terrain.end();
+		it++)
+		if(it->second->getRigidbody())
+			it->second->getRigidbody()->updateOwnerTransform();
+
+	for(EntityMap::iterator it=_players.begin();
+		it!=_players.end();
+		it++)
+		if(it->second->getRigidbody())
+			it->second->getRigidbody()->updateOwnerTransform();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn U32 Scene::addEntity(unique_ptr<Entity>&& e)
 ///

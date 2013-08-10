@@ -45,6 +45,7 @@ public:
     UIRoot ui;
 
 	void draw();
+	void update();
 
 	void addEntity(unique_ptr<Entity>&&);
 	void removeEntity(U32, Entity::EntityType);
