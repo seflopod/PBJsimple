@@ -49,7 +49,6 @@ void Transform::rotate(F32 angle)
 /// \brief Move the Transform.
 /// \param dx The distance to move along the x-axis.
 /// \param dy The distance to move along the y-axis.
-/// \param dz The distance to move along the z-axis.
 void Transform::move(F32 dx, F32 dy)
 {
 	move(vec2(dx, dy));	
