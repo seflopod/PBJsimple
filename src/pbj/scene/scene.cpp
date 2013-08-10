@@ -23,6 +23,7 @@ Scene::Scene()
 	_terrain = EntityMap();
 	_players = EntityMap();
 	_others = EntityMap();
+    _localPlayerId = U32(-1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,6 +166,35 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
 		_others.erase(id);
 		break;
 	}
+}
+
+void Scene::setLocalPlayer(U32 newId)
+{
+    if(_players.count(newId) == 0)
+    {
+        PBJ_LOG(pbj::VError) << "Could not find referenced id in player map"
+                            << PBJ_LOG_END;
+        return
+    }
+    
+    if(_localPlayerId != U32(-1))
+    {
+        PBJ_LOG(pbj::VWarning) << "Overwriting already stored local player id"
+                                << PBJ_LOG_END;
+    }
+    _localPlayerId = newId;
+}
+
+void Scene::clearLocalPlayer()
+{
+    //not perfect, but I think it is unlikely that we will have this many
+    //players in the game at a time.
+    _localPlayerId = U32(-1);
+}
+
+unique_ptr<Entity> Scene::getLocalPlayer()
+{
+    return _players[_localPlayerId];
 }
 
 } // namespace pbj::scene
