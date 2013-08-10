@@ -41,12 +41,13 @@ namespace pbj
 		static void destroyInstance();
 
 		~Game();
-      void help();
+		void help();
 
 		bool init(U32);
 		I32 run();
 		void stop();
-		
+		void move();
+
 	private:
 		static Game* _instance;
 
@@ -67,6 +68,7 @@ namespace pbj
 		Engine& _engine;
 		Window& _window;
 		b2World* _world;
+		Transform _trans;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

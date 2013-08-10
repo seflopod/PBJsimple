@@ -7,7 +7,7 @@ using namespace pbj;
 #pragma region statics
 /// \brief	The client instance pointer.
 Game* Game::_instance = 0;
-
+scene::Entity* p = new scene::Entity();
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Game* Game::instance()
 ///
@@ -89,6 +89,11 @@ bool Game::init(U32 fps)
         {
             help();
         }
+
+		if(keycode == GLFW_KEY_D)
+		{
+			move();
+		}
     });
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -263,10 +268,14 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
-	scene::Entity* e = new scene::Entity();
-	e->setType(scene::Entity::EntityType::Terrain);
-	e->enableDraw();
-	_scene.addEntity(std::unique_ptr<scene::Entity>(e));
+	//scene::Entity* e = new scene::Entity();
+	//e->setType(scene::Entity::EntityType::Terrain);
+	//e->enableDraw();
+	//_scene.addEntity(std::unique_ptr<scene::Entity>(e));
+
+	p->setType(scene::Entity::EntityType::Player);
+	p->enableDraw();
+	_scene.addEntity(std::unique_ptr<scene::Entity>(p));
 }
 
 void Game::help()
@@ -285,4 +294,11 @@ void Game::help()
    std::cerr << std::endl << std::endl;
    std::cerr << "Move the mouse to change the fire direction" << std::endl;
    std::cerr << "Press the left mouse button to fire the weapon" << std::endl;
+}
+
+void Game::move()
+{
+	vec2 moveP = _trans.getPosition();
+	p->getTransform()->move(moveP.x += 0.1, moveP.y);
+	//moveP.x += 1;
 }
