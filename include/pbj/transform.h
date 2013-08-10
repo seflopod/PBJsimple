@@ -23,7 +23,7 @@ namespace pbj {
 class Transform
 {
 public:
-	Transform();
+	Transform(void*);
 	~Transform();
 
 	void rotate(F32);
@@ -44,9 +44,11 @@ public:
 
 	//mat4 getMatrix() const;
 
-	//Entity* getOwner();
+	void* getOwner();
+
+	void updateOwnerRigidbody();
 private:
-	//Entity* _owner
+	void* _owner;
 	vec2 _position;	///< The position.
 	F32 _rotation;	///< Rotation stored as a quaternion.
 	vec2 _scale;	///< Scale.

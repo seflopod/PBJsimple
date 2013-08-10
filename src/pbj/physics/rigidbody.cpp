@@ -45,10 +45,12 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
 	bd.awake = true;
 	bd.bullet = false;
 	bd.active = true;
+
 	_body = physWorld->CreateBody(&bd);
 	_body->CreateFixture(&fd);
 
-	_body->SetUserData(_owner);
+	if(_owner)
+		_body->SetUserData(_owner);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -380,4 +382,60 @@ Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 
 void Rigidbody::setCollisionGroup(CollisionGroup cg)
 {
+}
+
+void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
+{
+	_body->SetTransform(pos, rot);
+	for(b2Fixture* fix=_body->GetFixtureList();
+		fix;
+		fix = fix->GetNext())
+	{
+		b2Shape* s = fix->GetShape();
+		switch(s->GetType())
+		{
+		case b2Shape::e_chain:
+			break;
+		case b2Shape::e_circle:
+			break;
+		case b2Shape::e_edge:
+			break;
+		case b2Shape::e_polygon:
+		{
+			b2PolygonShape* p = (b2PolygonShape*)s;
+			I32 nVert = p->GetVertexCount();
+			F32 lowX,lowY,maxX,maxY;
+			lowX = p->GetVertex(0).x;
+			lowY = p->GetVertex(1).y;
+			b2Vec2* newVerts = new b2Vec2[nVert];
+			for(I32 i=1;i<nVert;++i)
+			{
+				if(p->GetVertex(i).x < lowX)
+					lowX = p->GetVertex(i).x;
+				if(p->GetVertex(i).y < lowY)
+					lowY = p->GetVertex(i).y;
+
+				if(p->GetVertex(i).x > maxX)
+					maxX = p->GetVertex(i).x;
+				if(p->GetVertex(i).y > maxY)
+					maxY = p->GetVertex(i).y;
+			}
+			F32 h = maxY - lowY;
+			F32 w = maxX - lowX;
+
+			for(I32 i=0;i<nVert;++i)
+			{
+				F32 newX, newY;
+				newX = scale.x/2 * (p->GetVertex(i).x-lowX) + 2*lowX;
+				newVerts[i] = b2Vec2(p->GetVertex(i).x-lowX,
+										p->GetVertex(i).y-lowY);
+			}
+
+
+			break;
+		}
+		default:
+			break;
+		}
+	}
 }

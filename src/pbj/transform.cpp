@@ -5,6 +5,9 @@
 /// \brief  Implementation for Transform class
 
 #include "pbj/transform.h"
+#include "pbj/scene/entity.h"
+
+using pbj::scene::Entity;
 
 namespace pbj {
 
@@ -13,7 +16,8 @@ namespace pbj {
 /// \details Sets the position, rotation and scale for the Transform to
 ///          defaults.  For position this is the origin, rotation the
 ///          identity quaternion, and for scale 1.0.
-Transform::Transform()
+Transform::Transform(void* owner) :
+	_owner(owner)
 {
 	_position = vec2(0.0f, 0.0f);
 	_rotation = 0.0f;
@@ -156,10 +160,20 @@ void Transform::setScale(const vec2& scale)
 //	return ret;
 //}
 
-/*
-Entity* Transform::getOwner()
+
+void* Transform::getOwner()
 {
 	return _owner;
 }
-*/
+
+void Transform::updateOwnerRigidbody()
+{
+	
+	Entity* e = (Entity*)_owner;
+	if(e)
+	{
+		
+	}
+}
+
 } // namespace pbj

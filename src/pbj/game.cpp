@@ -101,7 +101,7 @@ bool Game::init(U32 fps)
     initTestScene();
 
     //seems like an odd place to setup gl matrices, but there we go
-	F32 oScale = 100.0f;
+	F32 oScale = 50.0f;
     ivec2 ctxtSize = _window.getContextSize();
     GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
     glViewport(0, 0, ctxtSize.x, ctxtSize.y);
@@ -189,8 +189,6 @@ void Game::stop()
 ////////////////////////////////////////////////////////////////////////////////
 bool Game::update()
 {
-    // TODO:
-    // fit game engine in here
     _scene.update();
 
     if(_window.isClosePending() && _running)
@@ -264,11 +262,21 @@ void Game::onContextResized(I32 width, I32 height)
 void Game::initTestScene()
 {
     scene::Entity* e = new scene::Entity();
-    e->setType(scene::Entity::EntityType::Terrain);
-	e->getTransform()->setPosition(vec2(0.0f, 75.0f));
+    e->setType(scene::Entity::EntityType::Player);
+	e->getTransform()->setPosition(vec2(0.0f, 49.0f));
 	e->addRigidbody(Rigidbody::BodyType::Dynamic, _world);
+	e->getRigidbody()->
     e->enableDraw();
+
+	scene::Entity* t = new scene::Entity();
+	t->setType(scene::Entity::EntityType::Terrain);
+	t->getTransform()->setPosition(0.0f, -25.0f);
+	t->getTransform()->setScale(100.0f, 10.0f);
+	t->addRigidbody(Rigidbody::BodyType::Static, _world);
+	t->enableDraw();
+
     _scene.addEntity(std::unique_ptr<scene::Entity>(e));
+	_scene.addEntity(std::unique_ptr<scene::Entity>(t));
 }
 
 void Game::BeginContact(b2Contact* contact)
