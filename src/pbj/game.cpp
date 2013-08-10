@@ -8,6 +8,7 @@ using namespace pbj;
 /// \brief	The client instance pointer.
 Game* Game::_instance = 0;
 scene::Entity* p = new scene::Entity();
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Game* Game::instance()
 ///
@@ -81,6 +82,8 @@ bool Game::init(U32 fps)
 		_instance->onContextResized(width, height);
 	});
 
+	moveP = _trans.getPosition();
+
     InputController::registerKeyUpListener(
 		[&](I32 keycode, I32 scancode, I32 modifiers) {
 		
@@ -89,12 +92,35 @@ bool Game::init(U32 fps)
         {
             help();
         }
+    });
 
+	InputController::registerKeyDownListener(
+		[&](I32 keycode, I32 scancode, I32 modifiers){
+	
 		if(keycode == GLFW_KEY_D)
 		{
+			moveP.x += 0.1;
 			move();
 		}
-    });
+
+		if(keycode == GLFW_KEY_A)
+		{
+			moveP.x -= 0.1;
+			move();
+		}
+
+		if(keycode == GLFW_KEY_W)
+		{
+			moveP.y += 0.1;
+			move();
+		}
+
+		if(keycode == GLFW_KEY_S)
+		{
+			moveP.y -= 0.1;
+			move();
+		}
+	});
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -298,7 +324,5 @@ void Game::help()
 
 void Game::move()
 {
-	vec2 moveP = _trans.getPosition();
-	p->getTransform()->move(moveP.x += 0.1, moveP.y);
-	//moveP.x += 1;
+	p->getTransform()->move(moveP.x, moveP.y);
 }

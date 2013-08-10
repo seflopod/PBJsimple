@@ -61,6 +61,8 @@ namespace pbj
 
 		void onContextResized(I32, I32);
 
+		vec2 moveP;
+
 		//Enginey stuff
 		F32 _dt;
 		F32 _physDt;
