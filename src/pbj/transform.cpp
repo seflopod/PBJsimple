@@ -169,11 +169,11 @@ void* Transform::getOwner()
 void Transform::updateOwnerRigidbody()
 {
 	
-	Entity* e = (Entity*)_owner;
+	Entity* e = 0;
+    e = (Entity*)_owner;
 	if(e)
-	{
-		
-	}
+	    e->getRigidbody()->setTransform(_position, _scale, _rotation);
+    e = 0;
 }
 
 } // namespace pbj

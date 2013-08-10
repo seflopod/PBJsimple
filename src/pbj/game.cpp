@@ -265,7 +265,7 @@ void Game::initTestScene()
     e->setType(scene::Entity::EntityType::Player);
 	e->getTransform()->setPosition(vec2(0.0f, 49.0f));
 	e->addRigidbody(Rigidbody::BodyType::Dynamic, _world);
-	e->getRigidbody()->
+	e->getTransform()->updateOwnerRigidbody();
     e->enableDraw();
 
 	scene::Entity* t = new scene::Entity();
@@ -273,6 +273,7 @@ void Game::initTestScene()
 	t->getTransform()->setPosition(0.0f, -25.0f);
 	t->getTransform()->setScale(100.0f, 10.0f);
 	t->addRigidbody(Rigidbody::BodyType::Static, _world);
+    e->getTransform()->updateOwnerRigidbody();
 	t->enableDraw();
 
     _scene.addEntity(std::unique_ptr<scene::Entity>(e));
