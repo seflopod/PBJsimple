@@ -61,11 +61,12 @@ Entity::~Entity()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
+	color = color4(1.0f, 0.0f, 1.0f, 1.0f);
 	vec2 glmPos = _transform.getPosition();
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
-	GLfloat pos[2] = { glmPos.x, glmPos.y};
-	GLfloat sca[2] = { glmSca.x, glmSca.y};
+	GLfloat pos[2] = { glmPos.x, glmPos.y };
+	GLfloat sca[2] = { glmSca.x, glmSca.y };
 
 	glPushMatrix();
 		glTranslatef(pos[0], pos[1], 0.0f);
@@ -73,7 +74,7 @@ void Entity::draw()
 		glScalef(sca[0], sca[1], 1.0f);
 		//if colors are being done, use material.h  for now
 		//this solid color works with no textures loaded.
-		ShapeSquare::draw(_textureId, color4(0.0f,1.0f,0.0f,1.0f));
+		ShapeSquare::draw(_textureId, color);
 	glPopMatrix();
 }
 

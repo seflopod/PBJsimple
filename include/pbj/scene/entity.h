@@ -78,6 +78,8 @@ namespace scene
 		bool isDrawable() const;
 		void enableDraw();
 		void disableDraw();
+		color4 color;
+
 	private:
 		bool _initialized;
 		bool _drawable;

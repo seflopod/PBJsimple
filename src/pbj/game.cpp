@@ -97,28 +97,39 @@ bool Game::init(U32 fps)
 	InputController::registerKeyDownListener(
 		[&](I32 keycode, I32 scancode, I32 modifiers){
 	
-		if(keycode == GLFW_KEY_D)
+		switch(keycode)
 		{
-			moveP.x += 0.1;
-			move();
-		}
+			case GLFW_KEY_D: 
+			{
+				moveP.x += 0.1f;
+				move();
+				std::cerr << "right" << std::endl;
+				break;
+			}
 
-		if(keycode == GLFW_KEY_A)
-		{
-			moveP.x -= 0.1;
-			move();
-		}
+			case GLFW_KEY_A: 
+			{
+				moveP.x -= 0.1f;
+				move();
+				std::cerr << "left" << std::endl;
+				break;
+			}
 
-		if(keycode == GLFW_KEY_W)
-		{
-			moveP.y += 0.1;
-			move();
-		}
+			case GLFW_KEY_W: 
+			{
+				moveP.y += 0.1f;
+				move();
+				std::cerr << "up" << std::endl;
+				break;
+			}
 
-		if(keycode == GLFW_KEY_S)
-		{
-			moveP.y -= 0.1;
-			move();
+			case GLFW_KEY_S: 
+			{
+				moveP.y -= 0.1f;
+				move();
+				std::cerr << "down" << std::endl;
+				break;
+			}
 		}
 	});
 
@@ -294,11 +305,11 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
-	//scene::Entity* e = new scene::Entity();
-	//e->setType(scene::Entity::EntityType::Terrain);
-	//e->enableDraw();
-	//_scene.addEntity(std::unique_ptr<scene::Entity>(e));
-
+	scene::Entity* e = new scene::Entity();
+	e->setType(scene::Entity::EntityType::Terrain);
+	e->enableDraw();
+	_scene.addEntity(std::unique_ptr<scene::Entity>(e));
+	
 	p->setType(scene::Entity::EntityType::Player);
 	p->enableDraw();
 	_scene.addEntity(std::unique_ptr<scene::Entity>(p));
