@@ -34,7 +34,7 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.density = 1.0f;
-	fd.restitution = 0.4f; //how much "bounce"
+	//fd.restitution = 0.4f; //how much "bounce"
 
 	b2BodyDef bd;
 	bd.type = (b2BodyType)bodyType;
