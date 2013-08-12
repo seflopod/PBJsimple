@@ -51,7 +51,8 @@ namespace scene
 		{
 			Terrain = 0x01,
 			Player = 0x02,
-			SpawnPoint = 0x04
+			SpawnPoint = 0x04,
+			Bullet = 0x08
 		};
 
 		Entity();
@@ -62,6 +63,7 @@ namespace scene
 		void init();
 		void destroy();
 		
+		void update();
 		void draw();
 		
 		//accessors, these will expand as the class gains more component
@@ -89,7 +91,6 @@ namespace scene
 		void enableDraw();
 		void disableDraw();
 		color4 color;
-
 
 	private:
 		bool _initialized;

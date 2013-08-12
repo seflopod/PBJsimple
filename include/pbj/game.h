@@ -12,6 +12,7 @@
 #include <random>
 #include <string>
 #include <thread>
+#include <queue>
 //#include <b2WorldCallbacks.h>
 
 #include "pbj/_pbj.h"
@@ -20,6 +21,7 @@
 #include "pbj/scene/entity.h"
 #include "pbj/input_controller.h"
 
+using std::queue;
 using pbj::Engine;
 using pbj::Window;
 using pbj::InputController;
@@ -96,7 +98,7 @@ namespace pbj
 	/// \details	The Game class manages and runs the game.  It inherits from
     ///             b2ContactListener so that it can capture collision events.
 	////////////////////////////////////////////////////////////////////////////
-	class Game : b2ContactListener
+	class Game : public b2ContactListener
 	{
 	public:
 		static Game* instance();
@@ -112,12 +114,10 @@ namespace pbj
         void move();
         
 	protected:
-        virtual void BeginContact(b2Contact*);
-        virtual void EndContact(b2Contact*);
-        //virtual void PreSolve(b2Contact*, cosnt b2Manifold*);
-        //virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
+        
     
 	private:
+		typedef queue<std::unique_ptr<scene::Entity>> BulletQueue;
 		static Game* _instance;
 
 		Game();
@@ -130,8 +130,13 @@ namespace pbj
 		void onContextResized(I32, I32);
 
 		void onKeyboard(I32, I32, I32, I32);
-
+		void checkMovement(I32, I32);
 		void initTestScene();
+
+		virtual void BeginContact(b2Contact*);
+        virtual void EndContact(b2Contact*);
+        virtual void PreSolve(b2Contact*, const b2Manifold*);
+        virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
 		vec2 moveP;
 
@@ -144,6 +149,7 @@ namespace pbj
 		b2World* _world;
 		PhysicsSettings _physSettings;
 		GameControls _controls;
+		BulletQueue _bullets;
 		//Transform _trans;
 
 		//this should be a container for multiple scenes.  Right now only one.

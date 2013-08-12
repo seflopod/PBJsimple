@@ -28,13 +28,14 @@ using pbj::scene::Entity;
 /// \param [in,out] owner	  If non-null, the owner.
 ////////////////////////////////////////////////////////////////////////////////
 Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
-					 const b2Shape& shape, b2World* physWorld, void* owner) :
+					 const b2Shape& shape, b2World* physWorld, F32 density,
+					 F32 restitution, void* owner) :
 					_owner(owner)
 {
 	b2FixtureDef fd;
 	fd.shape = &shape;
-	fd.density = 1.0f;
-	//fd.restitution = 0.4f; //how much "bounce"
+	fd.density = density;
+	fd.restitution = restitution;
 
 	b2BodyDef bd;
 	bd.type = (b2BodyType)bodyType;
@@ -327,6 +328,11 @@ bool Rigidbody::isAwake()
 bool Rigidbody::isActive()
 {
 	return _body->IsActive();
+}
+
+void Rigidbody::setActive(bool active)
+{
+	_body->SetActive(active);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

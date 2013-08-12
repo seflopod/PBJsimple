@@ -64,11 +64,12 @@ private:
 
 	U32 _nextEntityId;
     U32 _localPlayerId;
+	U32 _nextBulletId;
 	//as we get more Entity types this may have to expand/change entirely
 	EntityMap _spawnPoints;
 	EntityMap _terrain;
 	EntityMap _players;
-
+	EntityMap _bullets;
     Scene(const Scene&);
     void operator=(const Scene&);
 };

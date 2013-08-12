@@ -21,7 +21,7 @@ namespace scene {
 ////////////////////////////////////////////////////////////////////////////////
 Scene::Scene()
 {
-	_nextEntityId = 0;
+	_nextEntityId = 1;
     _localPlayerId = U32(-1);
 }
 
@@ -57,6 +57,11 @@ void Scene::draw()
 		it++)
 		it->second->draw();
 
+	for(EntityMap::iterator it=_bullets.begin();
+		it!=_players.end();
+		it++)
+		it->second->draw();
+
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
@@ -71,20 +76,22 @@ void Scene::update()
 	for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
-		if(it->second->getRigidbody())
-			it->second->getRigidbody()->updateOwnerTransform();
+		it->second->update();
 
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		if(it->second->getRigidbody())
-			it->second->getRigidbody()->updateOwnerTransform();
+		it->second->update();
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		if(it->second->getRigidbody())
-			it->second->getRigidbody()->updateOwnerTransform();
+		it->second->update();
+
+	for(EntityMap::iterator it=_bullets.begin();
+		it!=_bullets.end();
+		it++)
+		it->second->update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,25 +106,33 @@ void Scene::update()
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::addEntity(unique_ptr<Entity>&& e)
 {
-	U32 ret = _nextEntityId;
+	U32 id;
+	if(e->getSceneId() == 0)
+		id = e->getSceneId();
+	else
+	{
+		id = _nextEntityId;
+		++_nextEntityId;
+	}
 
 	//this seems a little overdone.  Think this could be better.
 	switch(e->getType())
 	{
 	case Entity::EntityType::Terrain:
-		_terrain[_nextEntityId] = std::move(e);
-		_terrain[_nextEntityId]->setSceneId(_nextEntityId);
-		_nextEntityId++;
+		_terrain[id] = std::move(e);
+		_terrain[id]->setSceneId(id);
 		break;
 	case Entity::EntityType::Player:
-		_players[_nextEntityId] = std::move(e);
-		_players[_nextEntityId]->setSceneId(_nextEntityId);
-		_nextEntityId++;
+		_players[id] = std::move(e);
+		_players[id]->setSceneId(id);
 		break;
 	case Entity::EntityType::SpawnPoint:
-		_spawnPoints[_nextEntityId] = std::move(e);
-		_players[_nextEntityId]->setSceneId(_nextEntityId);
-		_nextEntityId++;
+		_spawnPoints[id] = std::move(e);
+		_spawnPoints[id]->setSceneId(id);
+		break;
+	case Entity::EntityType::Bullet:
+		_bullets[id] = std::move(e);
+		_bullets[id]->setSceneId(id);
 		break;
 	default:
 		break;
@@ -150,6 +165,9 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
 		break;
 	case Entity::EntityType::SpawnPoint:
 		_spawnPoints.erase(id);
+		break;
+	case Entity::EntityType::Bullet:
+		_bullets.erase(id);
 		break;
 	default:
 		break;

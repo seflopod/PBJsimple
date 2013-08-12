@@ -85,7 +85,7 @@ Engine::Engine()
     InputController::init(wnd->getGlfwHandle());
 
     //no harm in showing a window before physics is started
-	b2World* wrld = new b2World(b2Vec2(0.0f, -9.81f));
+	b2World* wrld = new b2World(b2Vec2(0.0f, -9.822f));
 	wrld->SetAllowSleeping(true);
 	world_.reset(wrld);
 

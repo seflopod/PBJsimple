@@ -2,6 +2,8 @@
 #include "pbj/game.h"
 #endif
 
+using pbj::scene::Entity;
+
 namespace pbj {
 
 #pragma region statics
@@ -74,16 +76,7 @@ bool Game::init(U32 fps)
         _instance->onContextResized(width, height);
     });
 
-    InputController::registerKeyUpListener(
-        [&](I32 keycode, I32 scancode, I32 modifiers) {
-        
-        _instance->_running = !(keycode == GLFW_KEY_ESCAPE);
-        if(keycode == GLFW_KEY_H)
-        {
-            help();
-        }
-    });
-
+	//Register for input event handling
 	InputController::registerKeyAllListener(
 		[&](I32 keycode, I32 scancode, I32 action,I32 modifiers) {
 			onKeyboard(keycode, scancode, action, modifiers);
@@ -95,10 +88,9 @@ bool Game::init(U32 fps)
     //setup physics, using variables instead of straight numbers so I can
     //remember what does what.
     _world = getEngine().getWorld();
+	_world->SetContactListener(this);
     _physSettings = PhysicsSettings();
-
-
-
+	
     //remove when making for reals
     initTestScene();
 
@@ -113,6 +105,18 @@ bool Game::init(U32 fps)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
+	//make all the bullets we'll ever need
+	for(I32 i=0;i<50000;++i)
+	{
+		Entity* e = new Entity();
+		e->setType(Entity::EntityType::Bullet);
+		e->getTransform()->setScale(0.1f, 0.1f);
+		e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
+		e->getRigidbody()->setBullet(true);
+		e->getRigidbody()->setActive(false);
+		
+		_bullets.push(std::unique_ptr<Entity>(e));
+	}
     _running = true;
     return true;
 }
@@ -267,57 +271,65 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
-    /*
-    scene::Entity* e = new scene::Entity();
-    e->setType(scene::Entity::EntityType::Player);
-	e->getTransform()->setPosition(vec2(0.0f, 49.0f));
-	e->addRigidbody(Rigidbody::BodyType::Dynamic, _world);
-	e->getTransform()->updateOwnerRigidbody();
-    e->enableDraw();
-
-	scene::Entity* t = new scene::Entity();
-	t->setType(scene::Entity::EntityType::Terrain);
-	t->getTransform()->setPosition(0.0f, -25.0f);
-	t->getTransform()->setScale(100.0f, 10.0f);
-	t->addRigidbody(Rigidbody::BodyType::Static, _world);
-    e->getTransform()->updateOwnerRigidbody();
-	t->enableDraw();
-
-    _scene.addEntity(std::unique_ptr<scene::Entity>(e));
-	_scene.addEntity(std::unique_ptr<scene::Entity>(t));
-    */
-    scene::Entity* p = new scene::Entity();
+    Entity* p = new Entity();
 	p->init();
 	p->enableDraw();
-    p->setType(scene::Entity::Player);
+    p->setType(Entity::Player);
 	p->getTransform()->setPosition(vec2(0.0f, 25.0f));
 	p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
 	p->addPlayerComponent();
-	_scene.addEntity(std::unique_ptr<scene::Entity>(p));
+	_scene.addEntity(std::unique_ptr<Entity>(p));
     _scene.setLocalPlayer(p->getSceneId());
 
-	scene::Entity* t = new scene::Entity();
+	Entity* t = new Entity();
 	t->init();
-	t->setType(scene::Entity::EntityType::Terrain);
+	t->setType(Entity::EntityType::Terrain);
 	t->getTransform()->setPosition(0.0f, -15.0f);
 	t->getTransform()->setScale(100.0f, 10.0f);
 	t->addRigidbody(Rigidbody::BodyType::Static, _world);
     //e->getTransform()->updateOwnerRigidbody();
 	t->enableDraw();
-	_scene.addEntity(std::unique_ptr<scene::Entity>(t));
+	_scene.addEntity(std::unique_ptr<Entity>(t));
 }
 
 void Game::BeginContact(b2Contact* contact)
 {
 	//handle collisions for the entire game here
-	std::cerr<<"Collision!"<<std::endl;
+	//std::cerr<<"BeginContact"<<std::endl;
+	Entity* const a = (Entity* const)(contact->GetFixtureA()->GetBody()->GetUserData());
+	Entity* const b = (Entity* const)(contact->GetFixtureB()->GetBody()->GetUserData());
+	if(!a || !b)
+	{
+		PBJ_LOG(pbj::VError) << "Collision between untracked rigidbodies. "<< PBJ_LOG_END;
+		return;
+	}
+
+	if(a->getType() == Entity::EntityType::Player && b->getType() == Entity::EntityType::Terrain)
+	{
+		a->getPlayerComponent()->enableJump();
+	}
+	else if(b->getType() == Entity::EntityType::Player && a->getType() == Entity::EntityType::Terrain)
+	{
+		b->getPlayerComponent()->enableJump();
+	}
 }
 
 void Game::EndContact(b2Contact* contact)
 {
-	//handle end of collisions for the entire game here
+	//std::cerr<<"EndContact"<<std::endl;
 }
 
+void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
+{
+	//handle presolve
+	//std::cerr<<"PreSolve"<<std::endl;
+}
+
+void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+{
+	//handle post solve
+	//std::cerr<<"PostSolve"<<std::endl;
+}
 void Game::help()
 {
    std::cerr << std::endl << std::endl;
@@ -343,6 +355,26 @@ void Game::move()
 
 void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 {
+	if(action == GLFW_PRESS || action == GLFW_REPEAT)
+		checkMovement(keycode, action);
+	if(action == GLFW_RELEASE)
+	{
+		_instance->_running = !(keycode == GLFW_KEY_ESCAPE);
+		
+        if(keycode == GLFW_KEY_H)
+        {
+            help();
+        }
+		else if(keycode == _controls.keyJump[0] || keycode == _controls.keyJump[1])
+		{
+			_scene.getLocalPlayer()->getPlayerComponent()->endThrust();
+		}
+
+	}
+}
+
+void Game::checkMovement(I32 keycode, I32 action)
+{
 	//this is a bit simplistic (no modifiers are taken into account), but for
 	//now it will do
 	if(keycode == _controls.left[0] || keycode == _controls.left[1])
@@ -354,16 +386,22 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 	else if(keycode == _controls.right[0] || keycode == _controls.right[1])
 	{
 		vec2 vel = _scene.getLocalPlayer()->getRigidbody()->getVelocity();
-		vel.x = 1 * _scene.getLocalPlayer()->getPlayerComponent()->getMoveSpeed();
+		vel.x = _scene.getLocalPlayer()->getPlayerComponent()->getMoveSpeed();
 		_scene.getLocalPlayer()->getRigidbody()->setVelocity(vel);
 	}
 	else if(keycode == _controls.up[0] || keycode == _controls.up[1])
 	{
-		//yeah, not sure.  think this needs to change
+		if(_scene.getLocalPlayer()->getPlayerComponent()->canJump())
+		{
+			vec2 vel = _scene.getLocalPlayer()->getRigidbody()->getVelocity();
+			vel.y = _scene.getLocalPlayer()->getPlayerComponent()->getJumpSpeed();
+			_scene.getLocalPlayer()->getRigidbody()->setVelocity(vel);
+			_scene.getLocalPlayer()->getPlayerComponent()->disableJump();
+		}
 	}
 	else if(keycode == _controls.down[0] || keycode == _controls.down[1])
 	{
-		//yeah, not sure.  think this needs to change
+		
 	}
 	else if(keycode == _controls.keyFire1[0] || keycode == _controls.keyFire1[1])
 	{
@@ -373,10 +411,10 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 	}
 	else if(keycode == _controls.keyJump[0] || keycode == _controls.keyJump[1])
 	{
+		_scene.getLocalPlayer()->getPlayerComponent()->doThrust();
 	}
 	else if(keycode == _controls.keyAction[0] || keycode == _controls.keyAction[1])
 	{
 	}
 }
-
 } // namespace pbj

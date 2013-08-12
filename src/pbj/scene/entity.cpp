@@ -8,6 +8,8 @@
 #include "pbj/scene/entity.h"
 #endif
 
+#include <iostream>
+
 using namespace pbj;
 using namespace pbj::scene;
 
@@ -53,7 +55,7 @@ void Entity::init()
 {
 	
 	_transformCallbackId = U32(-1);
-	
+	_sceneId = 0;
 	_textureId = 0;
 
 	_initialized = true;
@@ -79,6 +81,17 @@ void Entity::destroy()
 	_initialized = false;
 }
 
+void Entity::update()
+{
+	if(_rigidbody)
+		_rigidbody->updateOwnerTransform();
+	
+	if(_player && !_player->isThrusting())
+		_player->regenFuel();
+
+	if(_player)
+		std::cerr << _player->getFuelRemaining() << std::endl;
+}
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	draws this object.
 ///
@@ -157,18 +170,22 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
 
-		_rigidbody = new Rigidbody(bodyType, pos, shape, world, this);
 		switch(_type)
 		{
 		case Player:
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
 			break;
 		case Terrain:
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
 			break;
 		case SpawnPoint:
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
+		case Bullet:
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.5f/(scale.x*scale.y), 0.0f, this);
 		default:
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;
