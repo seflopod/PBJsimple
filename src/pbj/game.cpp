@@ -94,43 +94,50 @@ bool Game::init(U32 fps)
         }
     });
 
-	InputController::registerKeyDownListener(
-		[&](I32 keycode, I32 scancode, I32 modifiers){
+	InputController::registerKeyAllListener(
+		[&](I32 keycode, I32 scancode, I32 action,I32 modifiers){
 	
-		switch(keycode)
-		{
-			case GLFW_KEY_D: 
+			if(action != GLFW_RELEASE)
 			{
-				moveP.x += 0.1f;
-				move();
-				std::cerr << "right" << std::endl;
-				break;
-			}
+				switch(keycode)
+				{
+					case GLFW_KEY_D: 
+					{
+						moveP.y = 0.0f;
+						moveP.x = 0.5f;
+						move();
+						std::cerr << "right" << std::endl;
+						break;
+					}
 
-			case GLFW_KEY_A: 
-			{
-				moveP.x -= 0.1f;
-				move();
-				std::cerr << "left" << std::endl;
-				break;
-			}
+					case GLFW_KEY_A: 
+					{
+						moveP.y = 0.0f;
+						moveP.x = -0.5f;
+						move();
+						std::cerr << "left" << std::endl;
+						break;
+					}
 
-			case GLFW_KEY_W: 
-			{
-				moveP.y += 0.1f;
-				move();
-				std::cerr << "up" << std::endl;
-				break;
-			}
+					case GLFW_KEY_W: 
+					{
+						moveP.x = 0.0f;
+						moveP.y = 0.5f;
+						move();
+						std::cerr << "up" << std::endl;
+						break;
+					}
 
-			case GLFW_KEY_S: 
-			{
-				moveP.y -= 0.1f;
-				move();
-				std::cerr << "down" << std::endl;
-				break;
+					case GLFW_KEY_S: 
+					{
+						moveP.x = 0.0f;
+						moveP.y = -0.5f;
+						move();
+						std::cerr << "down" << std::endl;
+						break;
+					}
+				}
 			}
-		}
 	});
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -156,7 +163,7 @@ bool Game::init(U32 fps)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-ratio, ratio, -1.0f, 1.0f, 0.1f, -0.1f);
+	glOrtho(-ratio*25, ratio*25, -1.0f*25, 1.0f*25, 0.1f, -0.1f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -305,10 +312,10 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
-	scene::Entity* e = new scene::Entity();
-	e->setType(scene::Entity::EntityType::Terrain);
-	e->enableDraw();
-	_scene.addEntity(std::unique_ptr<scene::Entity>(e));
+	//scene::Entity* e = new scene::Entity();
+	//e->setType(scene::Entity::EntityType::Terrain);
+	//e->enableDraw();
+	//_scene.addEntity(std::unique_ptr<scene::Entity>(e));`
 	
 	p->setType(scene::Entity::EntityType::Player);
 	p->enableDraw();
