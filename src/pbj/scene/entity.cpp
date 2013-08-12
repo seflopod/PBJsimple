@@ -8,8 +8,6 @@
 #include "pbj/scene/entity.h"
 #endif
 
-#include <iostream>
-
 using namespace pbj;
 using namespace pbj::scene;
 
@@ -25,13 +23,6 @@ Entity::Entity() :
 		_rigidbody(nullptr)
 {
 	_initialized = false;
-
-	_transform = Transform();
-	_transformCallbackId = U32(-1);
-	
-	_textureId = 0;
-	_drawable = false;
-	_initialized = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,12 +36,41 @@ Entity::Entity() :
 Entity::~Entity()
 {
 	if(_initialized)
-	{
-		//other destruction code goes here
-		delete _rigidbody;
-		_rigidbody = nullptr;
-		_initialized = false;
-	}
+		destroy();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::init()
+///
+/// \brief	Initialises this object.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-05
+////////////////////////////////////////////////////////////////////////////////
+void Entity::init()
+{
+	_transform = Transform();
+	_transformCallbackId = U32(-1);
+	
+	_textureId = 0;
+
+	_initialized = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::destroy()
+///
+/// \brief	Destroys this object.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-05
+/// \details    Holdover from old version.  May or may not necessary down the
+///             road.
+////////////////////////////////////////////////////////////////////////////////
+void Entity::destroy()
+{
+
+	_initialized = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,13 +84,13 @@ void Entity::draw()
 	vec2 glmPos = _transform.getPosition();
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
-	GLfloat pos[2] = { glmPos.x, glmPos.y};
+	GLfloat pos[3] = { glmPos.x, glmPos.y};
 	GLfloat sca[2] = { glmSca.x, glmSca.y};
 
 	glPushMatrix();
-		glTranslatef(pos[0], pos[1], 0.0f);
+		glTranslatef(pos[0], pos[1], pos[2]);
 		glRotatef(glmRot, 0, 0, 1);
-		glScalef(sca[0], sca[1], 1.0f);
+		glScalef(sca[0], sca[1], sca[2]);
 		//if colors are being done, use material.h  for now
 		//this solid color works with no textures loaded.
 		ShapeSquare::draw(_textureId, color4(0.0f,1.0f,0.0f,1.0f));
@@ -106,6 +126,8 @@ Transform* Entity::getTransform()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::setTransform(const Transform& transform)
 {
+	if(!_initialized)
+		init();
 	_transform = transform;
 }
 
@@ -185,19 +207,4 @@ void Entity::setType(EntityType et)
 			break;
 		}
 	}
-}
-
-bool Entity::isDrawable() const
-{
-	return _drawable;
-}
-
-void Entity::enableDraw()
-{
-	_drawable = true;
-}
-
-void Entity::disableDraw()
-{
-	_drawable = false;
 }

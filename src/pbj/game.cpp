@@ -8,18 +8,6 @@ using namespace pbj;
 /// \brief	The client instance pointer.
 Game* Game::_instance = 0;
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn Game* Game::instance()
-///
-/// \brief Returns a pointer to the single instance of Game.
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-///
-/// \return A pointer to a Game instance.  If \c _instance is null when this
-/// 		is called, a new instance of Game is created and a pointer to that
-/// 		is returned.
-////////////////////////////////////////////////////////////////////////////////
 Game* Game::instance()
 {
 	if(_instance == 0) //no instance yet
@@ -27,14 +15,6 @@ Game* Game::instance()
 	return _instance;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn void Game::destroyInstance()
-///
-/// \brief Destroys the static instance of Game.
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-////////////////////////////////////////////////////////////////////////////////
 void Game::destroyInstance()
 {
 	if(_instance != 0)
@@ -90,29 +70,8 @@ bool Game::init(U32 fps)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-	//setup physics, using variables instead of straight numbers so I can
-	//remember what does what.
-	_world = getEngine().getWorld();
-	_physDt = 1.0f/60.0f;
-	I32 velIter = 10;
-	I32 posIter = 8;
-	_world->Step((float32)_physDt, (int32)velIter, (int32)posIter);
-
-
-
 	//remove when making for reals
 	initTestScene();
-
-	//seems like an odd place to setup gl matrices, but there we go
-	ivec2 ctxtSize = _window.getContextSize();
-	GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
-	glViewport(0, 0, ctxtSize.x, ctxtSize.y);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-ratio, ratio, -1.0f, 1.0f, 0.1f, -0.1f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
 	_running = true;
 	return true;
@@ -132,29 +91,22 @@ I32 Game::run()
 {
 	F64 lastFrameTime = 0.0;
 	F64 fps = 0.0;
-	F32 nonPhysTimer = 0.0f;
 
 	while(_running)
 	{
 		F64 frameStart = glfwGetTime();
 
-		physUpdate();
-		if(nonPhysTimer >= _dt)
-		{
-			update();
-			draw();
-			nonPhysTimer-=_dt;
-		}
+		update();
+		draw();
 
 		F64 frameTime = lastFrameTime = glfwGetTime() - frameStart;
 
-		if(lastFrameTime < _physDt)
+		if(lastFrameTime < _dt)
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(I32(
-				1000000 * (_physDt- lastFrameTime))));
+				1000000 * (_dt- lastFrameTime))));
 			frameTime = glfwGetTime() - frameStart;
 		}
-		nonPhysTimer+=_physDt;
 
 		fps = 1.0/frameTime;
 	}
@@ -198,37 +150,6 @@ bool Game::update()
 	return true;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn bool Game::physUpdate()
-///
-/// \brief Does the update for the physics portion of the game
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-///
-/// \return	true if the next loop should happen; false otherwise.  This is being
-/// 		changed to a void eventually.
-/// 
-/// \details This needs to be separate loop because it is likely that the
-/// 		 physics (and thus collision) step is shorter than the normal update
-/// 		 and draw step.  This will take care of anything being done that
-/// 		 relates to physics.
-////////////////////////////////////////////////////////////////////////////////
-bool Game::physUpdate()
-{
-	//after all other physics updates, clear forces
-	_world->ClearForces();
-	return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn void Game::draw()
-///
-/// \brief Draws the game by drawing the scene.
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-////////////////////////////////////////////////////////////////////////////////
 void Game::draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -250,17 +171,12 @@ void Game::draw()
 
 void Game::onContextResized(I32 width, I32 height)
 {
-	GLdouble ratio = width/(GLdouble)height;
-	glViewport(0, 0, width, height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-ratio, ratio, -1.0f, 1.0f, 0.1f, -0.1f);
+	//nothing doing for now
 }
 
 void Game::initTestScene()
 {
 	scene::Entity* e = new scene::Entity();
-	e->setType(scene::Entity::EntityType::Terrain);
-	e->enableDraw();
+	e->init();
 	_scene.addEntity(std::unique_ptr<scene::Entity>(e));
 }

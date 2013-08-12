@@ -8,38 +8,12 @@
 #define PBJ_SCENE_UI_BUTTON_H_
 
 #include "pbj/scene/ui_label.h"
+#include "pbj/scene/ui_styles.h"
 
 #include <functional>
 
 namespace pbj {
 namespace scene {
-
-struct UIButtonStateConfig
-{
-    Id button_state;            ///< The button state under which these parameters apply
-    
-    std::function<void()> click_callback;
-
-    const gfx::TextureFont* font;
-    vec2 text_scale;
-
-    color4 background_color;    ///< The color of the inside of the button
-    color4 border_color;        ///< The color of the border of the button
-    color4 text_color;          ///< The color of the button text
-    color4 margin_color;        ///< The color of the margins of the button
-
-    F32 margin_left;            ///< The distance between the left edge of the button and the middle of the left border.
-    F32 margin_right;
-    F32 margin_top;
-    F32 margin_bottom;
-
-    F32 border_width_left;      ///< The distance between the center of the border and the edge of the border. (should actually be called 'half_width')
-    F32 border_width_right;
-    F32 border_width_top;
-    F32 border_width_bottom;
-
-    UIButtonStateConfig();
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Pushbutton UI element.
@@ -52,29 +26,22 @@ public:
     void setText(const std::string& text);
     const std::string& getText() const;
 
-    void setStateConfig(const UIButtonStateConfig& config);
-    const UIButtonStateConfig& getStateConfig(const Id& state) const;
+    void setClickCallback(const std::function<void()>& callback);
+    
+    enum State
+    {
+        SNormal = 0,
+        SHovered = 1,
+        SActive = 2,
+        SFocused = 3,
+        SFocusedHovered = 4,
+        SFocusedActive = 5,
+        SDisabled = 6,
+        STATE_MAX_VALUE = 6
+    };
 
-    void setNormalState(const Id& state);
-    const Id& getNormalState() const;
-
-    void setHoveredState(const Id& state);
-    const Id& getHoveredState() const;
-
-    void setActiveState(const Id& state);
-    const Id& getActiveState() const;
-
-    void setFocusedState(const Id& state);
-    const Id& getFocusedState() const;
-
-    void setFocusedHoveredState(const Id& state);
-    const Id& getFocusedHoveredState() const;
-
-    void setFocusedActiveState(const Id& state);
-    const Id& getFocusedActiveState() const;
-
-    void setDisabledState(const Id& state);
-    const Id& getDisabledState() const;
+    void setStyle(State state, const sw::ResourceId& button_style);
+    const sw::ResourceId& getStyle(State state) const;
 
     virtual void draw();
 
@@ -98,25 +65,17 @@ private:
     virtual void onBoundsChange_();
     virtual void onFocusChange_();
 
-    static const UIButtonStateConfig& getDefaultStateConfig_();
-    const Id& getCurrentState_();
     void refreshConfig_();
-    UIButtonStateConfig* getStateConfig_(const Id& id);
+    State getCurrentState_() const;
 
     UILabel label_;
+    std::function<void()> callback_;
 
-    std::vector<UIButtonStateConfig> state_configs_;
-    const UIButtonStateConfig* current_config_;
+    const UIButtonStyle* active_style_;
     mat4 btn_transform_;
     vec2 border_bounds_[4];
 
-    Id normal_state_;
-    Id hovered_state_;
-    Id active_state_;
-    Id disabled_state_;
-    Id focused_state_;
-    Id focused_hovered_state_;
-    Id focused_active_state_;
+    sw::ResourceId style_ids_[STATE_MAX_VALUE + 1];
 
     bool disabled_;
     bool active_;

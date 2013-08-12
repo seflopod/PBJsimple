@@ -64,7 +64,6 @@ private:
 	EntityMap _spawnPoints;
 	EntityMap _terrain;
 	EntityMap _players;
-	EntityMap _others;
 
     Scene(const Scene&);
     void operator=(const Scene&);

@@ -53,7 +53,6 @@ namespace pbj
 		
 		void initTestScene();
 		bool update();
-		bool physUpdate();
 		
 		void draw();
 
@@ -61,11 +60,9 @@ namespace pbj
 
 		//Enginey stuff
 		F32 _dt;
-		F32 _physDt;
 		bool _running;
 		Engine& _engine;
 		Window& _window;
-		b2World* _world;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

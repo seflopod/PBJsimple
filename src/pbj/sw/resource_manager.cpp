@@ -96,6 +96,32 @@ const gfx::Texture& ResourceManager::getTexture(const ResourceId& id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+const scene::UIPanelStyle& ResourceManager::getUIPanelStyle(const ResourceId& id)
+{
+    auto i = panel_styles_.find(id);
+    if (i != panel_styles_.end())
+        return i->second;
+
+    // if we get to here, the resource is not loaded yet.
+    Sandwich& sandwich = getSandwich(id.sandwich);
+
+    return panel_styles_[id] = scene::loadUIPanelStyle(sandwich, id.resource);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+const scene::UIButtonStyle& ResourceManager::getUIButtonStyle(const ResourceId& id)
+{
+    auto i = button_styles_.find(id);
+    if (i != button_styles_.end())
+        return i->second;
+
+    // if we get to here, the resource is not loaded yet.
+    Sandwich& sandwich = getSandwich(id.sandwich);
+
+    return button_styles_[id] = scene::loadUIButtonStyle(sandwich, id.resource, *this);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief  Opens a sandwich if it is not yet in use by this ResourceManager,
 ///         or returns an existing sandwich if already in use.
 ///

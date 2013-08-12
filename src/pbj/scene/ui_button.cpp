@@ -13,38 +13,21 @@
 namespace pbj {
 namespace scene {
 
-UIButtonStateConfig::UIButtonStateConfig()
-    : button_state("__unknown__"),
-      text_scale(1.0f, 1.0f),
-      background_color(0.5f, 0.5f, 0.5f, 0.5f),
-      border_color(1.0f, 1.0f, 1.0f, 1.0f),
-      text_color(1.0f, 1.0f, 1.0f, 1.0f),
-      margin_color(0.0f, 0.0f, 0.0f, 0.0f),
-      margin_left(0.5f),
-      margin_right(0.5f),
-      margin_top(0.5f),
-      margin_bottom(0.5f),
-      border_width_left(0.5f),
-      border_width_right(0.5f),
-      border_width_top(0.5f),
-      border_width_bottom(0.5f)
-{
-}
-
 UIButton::UIButton()
-    : current_config_(nullptr),
-      normal_state_("__normal__"),
-      hovered_state_("__hovered__"),
-      active_state_("__active__"),
-      disabled_state_("__disabled__"),
-      focused_state_("__hovered__"),
-      focused_hovered_state_("__hovered__"),
-      focused_active_state_("__active__"),
+    : active_style_(nullptr),
       disabled_(false),
       active_(false),
       kbd_active_(false),
       hovered_(false)
 {
+    style_ids_[SNormal]         = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.normal"));
+    style_ids_[SHovered]        = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.hovered"));
+    style_ids_[SActive]         = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.active"));
+    style_ids_[SFocused]        = style_ids_[SHovered];
+    style_ids_[SFocusedHovered] = style_ids_[SHovered];
+    style_ids_[SFocusedActive]  = style_ids_[SActive];
+    style_ids_[SDisabled]       = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.disabled"));
+
     label_.setAlign(UILabel::AlignCenter);
 }
 
@@ -62,98 +45,23 @@ const std::string& UIButton::getText() const
     return label_.getText();
 }
 
-void UIButton::setStateConfig(const UIButtonStateConfig& config)
+void UIButton::setClickCallback(const std::function<void()>& callback)
 {
-    for (UIButtonStateConfig& cfg : state_configs_)
-    {
-        if (cfg.button_state == config.button_state)
-        {
-            cfg = config;
-            if (&cfg == current_config_)
-                current_config_ = nullptr;
-            return;
-        }
-    }
-    state_configs_.push_back(config);
+    callback_ = callback;
 }
 
-const UIButtonStateConfig& UIButton::getStateConfig(const Id& state) const
+void UIButton::setStyle(State state, const sw::ResourceId& button_style)
 {
-    for (const UIButtonStateConfig& cfg : state_configs_)
-    {
-        if (cfg.button_state == state)
-            return cfg;
-    }
+    style_ids_[state] = button_style;
 
-    return getDefaultStateConfig_();
+    if (getCurrentState_() == state)
+        active_style_ = nullptr;
 }
 
-#pragma region getter/setter functions for normal/active/focused/hovered/etc.
-
-void UIButton::setNormalState(const Id& state)
+const sw::ResourceId& UIButton::getStyle(State state) const
 {
-    normal_state_ = state;
+    return style_ids_[state];
 }
-const Id& UIButton::getNormalState() const
-{
-    return normal_state_;
-}
-
-void UIButton::setHoveredState(const Id& state)
-{
-    hovered_state_ = state;
-}
-const Id& UIButton::getHoveredState() const
-{
-    return hovered_state_;
-}
-
-void UIButton::setActiveState(const Id& state)
-{
-    active_state_ = state;
-}
-const Id& UIButton::getActiveState() const
-{
-    return active_state_;
-}
-
-void UIButton::setFocusedState(const Id& state)
-{
-    focused_state_ = state;
-}
-const Id& UIButton::getFocusedState() const
-{
-    return focused_state_;
-}
-
-void UIButton::setFocusedHoveredState(const Id& state)
-{
-    focused_hovered_state_ = state;
-}
-const Id& UIButton::getFocusedHoveredState() const
-{
-    return focused_hovered_state_;
-}
-
-void UIButton::setFocusedActiveState(const Id& state)
-{
-    focused_active_state_ = state;
-}
-const Id& UIButton::getFocusedActiveState() const
-{
-    return focused_active_state_;
-}
-
-void UIButton::setDisabledState(const Id& state)
-{
-    disabled_state_ = state;
-}
-const Id& UIButton::getDisabledState() const
-{
-    return disabled_state_;
-}
-
-#pragma endregion
 
 void UIButton::draw()
 {
@@ -164,15 +72,16 @@ void UIButton::draw()
         glLoadMatrixf(glm::value_ptr(*view_));
         gfx::Texture::disable();
         
-        glColor4fv(glm::value_ptr(current_config_->background_color));
         glBegin(GL_QUADS);
+            glColor4fv(glm::value_ptr(active_style_->panel.background_color_top));
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
             glVertex2fv(glm::value_ptr(border_bounds_[0]));
+            glColor4fv(glm::value_ptr(active_style_->panel.background_color_bottom));
             glVertex2f(border_bounds_[0].x, border_bounds_[1].y);
             glVertex2fv(glm::value_ptr(border_bounds_[1]));
-            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
         glEnd();
 
-        glColor4fv(glm::value_ptr(current_config_->border_color));
+        glColor4fv(glm::value_ptr(active_style_->panel.border_color));
         glBegin(GL_TRIANGLE_STRIP);
             glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
             glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
@@ -186,7 +95,7 @@ void UIButton::draw()
             glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
         glEnd();
 
-        glColor4fv(glm::value_ptr(current_config_->margin_color));
+        glColor4fv(glm::value_ptr(active_style_->panel.margin_color));
         glBegin(GL_TRIANGLE_STRIP);
             glVertex2f(1, 0);
             glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
@@ -254,13 +163,8 @@ void UIButton::onMouseUp(I32 button)
 	
 void UIButton::onMouseClick(I32 button)
 {
-    if (!disabled_ && button == GLFW_MOUSE_BUTTON_1)
-    {
-        auto cfg = getStateConfig_(getCurrentState_());
-
-        if (cfg && cfg->click_callback)
-            cfg->click_callback();
-    }
+    if (!disabled_ && button == GLFW_MOUSE_BUTTON_1 && callback_)
+        callback_();
 }
 	
 void UIButton::onKeyUp(I32 keycode, I32 modifiers)
@@ -289,7 +193,7 @@ void UIButton::onKeyPressed(I32 keycode, I32 modifiers)
 	
 void UIButton::onBoundsChange_()
 {
-    current_config_ = nullptr;
+    active_style_ = nullptr;
     label_.view_ = view_;
     label_.inv_view_ = inv_view_;
     label_.focused_element_ = focused_element_;
@@ -302,53 +206,54 @@ void UIButton::onFocusChange_()
         kbd_active_ = false;
 }
 
-const Id& UIButton::getCurrentState_()
+UIButton::State UIButton::getCurrentState_() const
 {
-    if (disabled_)
-        return disabled_state_;
+    if (isDisabled())
+        return SDisabled;
 
     if (isFocused())
     {
         if ((hovered_ && active_) || kbd_active_)
-            return focused_active_state_;
+            return SFocusedActive;
 
         if (hovered_)
-            return focused_hovered_state_;
+            return SFocusedHovered;
 
-        return focused_state_;
+        return SFocused;
     }
     else
     {
         if (hovered_)
         {
             if (active_)
-                return active_state_;
+                return SActive;
 
-            return hovered_state_;
+            return SHovered;
         }
 
-        return normal_state_; 
+        return SNormal; 
     }
 }
 
 void UIButton::refreshConfig_()
 {
-    const UIButtonStateConfig& cfg = getStateConfig(getCurrentState_());
+    const UIButtonStyle& style = getEngine().getResourceManager().getUIButtonStyle(
+        style_ids_[getCurrentState_()]);
 
-    if (current_config_ != &cfg)
+    if (active_style_ != &style)
     {
         if (!view_)
             return;
 
-        current_config_ = &cfg;
+        active_style_ = &style;
 
-        label_.setFont(cfg.font);
-        label_.setTextScale(cfg.text_scale);
-        label_.setTextColor(cfg.text_color);
+        label_.setFont(style.font);
+        label_.setTextScale(style.text_scale);
+        label_.setTextColor(style.text_color);
 
-        label_.setPosition(getPosition() + vec2(I32(cfg.margin_left + cfg.border_width_left), I32(cfg.margin_top + cfg.border_width_top)));
-        label_.setDimensions(getDimensions() - vec2(I32(cfg.margin_left + cfg.border_width_left + cfg.border_width_right + cfg.margin_right),
-                                                    I32(cfg.margin_top + cfg.border_width_top + cfg.border_width_bottom + cfg.margin_bottom)));
+        label_.setPosition(getPosition() + vec2(I32(style.panel.margin_left + style.panel.border_width_left), I32(style.panel.margin_top + style.panel.border_width_top)));
+        label_.setDimensions(getDimensions() - vec2(I32(style.panel.margin_left + style.panel.border_width_left + style.panel.border_width_right + style.panel.margin_right),
+                                                    I32(style.panel.margin_top + style.panel.border_width_top + style.panel.border_width_bottom + style.panel.margin_bottom)));
 
         vec3 scale(getDimensions(), 1);
         vec3 translate(getPosition(), 0);
@@ -356,31 +261,13 @@ void UIButton::refreshConfig_()
 
         vec2 inv_scale(1.0f / scale.x, 1.0f / scale.y);
 
-        border_bounds_[0] = inv_scale * vec2(cfg.margin_left + cfg.border_width_left, cfg.margin_top + cfg.border_width_top);
-        border_bounds_[1] = vec2(1, 1) - inv_scale * vec2(cfg.margin_right + cfg.border_width_right, cfg.margin_bottom + cfg.border_width_bottom);
+        border_bounds_[0] = inv_scale * vec2(style.panel.margin_left + style.panel.border_width_left, style.panel.margin_top + style.panel.border_width_top);
+        border_bounds_[1] = vec2(1, 1) - inv_scale * vec2(style.panel.margin_right + style.panel.border_width_right, style.panel.margin_bottom + style.panel.border_width_bottom);
 
-        border_bounds_[2] = inv_scale * vec2(cfg.margin_left - cfg.border_width_left, cfg.margin_top - cfg.border_width_top);
-        border_bounds_[3] = vec2(1, 1) - inv_scale * vec2(cfg.margin_right - cfg.border_width_right, cfg.margin_bottom - cfg.border_width_bottom);        
+        border_bounds_[2] = inv_scale * vec2(style.panel.margin_left - style.panel.border_width_left, style.panel.margin_top - style.panel.border_width_top);
+        border_bounds_[3] = vec2(1, 1) - inv_scale * vec2(style.panel.margin_right - style.panel.border_width_right, style.panel.margin_bottom - style.panel.border_width_bottom);        
     }
 }
-
-UIButtonStateConfig* UIButton::getStateConfig_(const Id& id)
-{
-    for(UIButtonStateConfig& cfg : state_configs_)
-    {
-        if (cfg.button_state == id)
-            return &cfg;
-    }
-
-    return nullptr;
-}
-
-const UIButtonStateConfig& UIButton::getDefaultStateConfig_()
-{
-    static UIButtonStateConfig cfg;
-    return cfg;
-}
-
 
 } // namespace pbj::scene
 } // namespace pbj

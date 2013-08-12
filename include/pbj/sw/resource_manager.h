@@ -9,6 +9,7 @@
 
 #include "pbj/sw/resource_id.h"
 #include "pbj/sw/sandwich.h"
+#include "pbj/scene/ui_styles.h"
 #include "pbj/_pbj.h"
 
 #include <unordered_map>
@@ -44,6 +45,8 @@ public:
     //const gfx::Material& getMaterial(const ResourceId& id);
     const gfx::TextureFont& getTextureFont(const ResourceId& id);
     const gfx::Texture& getTexture(const ResourceId& id);
+    const scene::UIPanelStyle& getUIPanelStyle(const ResourceId& id);
+    const scene::UIButtonStyle& getUIButtonStyle(const ResourceId& id);
 
 private:
     Sandwich& getSandwich(const Id& sandwich_id);
@@ -53,6 +56,8 @@ private:
     //std::unordered_map<ResourceId, std::unique_ptr<gfx::Material> > materials_;
     std::unordered_map<ResourceId, std::unique_ptr<gfx::TextureFont> > texture_fonts_;
     std::unordered_map<ResourceId, std::unique_ptr<gfx::Texture> > textures_;
+    std::unordered_map<ResourceId, scene::UIPanelStyle> panel_styles_;
+    std::unordered_map<ResourceId, scene::UIButtonStyle> button_styles_;
 
     ResourceManager(const ResourceManager&);
     void operator=(const ResourceManager&);

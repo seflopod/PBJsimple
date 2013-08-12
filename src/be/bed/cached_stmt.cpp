@@ -273,6 +273,13 @@ int CachedStmt::getBlob(int column, const void*& dest)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \copydoc   Stmt::getColor(int)
+glm::vec4 CachedStmt::getColor(int column)
+{
+    return stmt_.getColor(column);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief  Constructs a CachedStmt.
 ///
 /// \details Called from StmtCache to create cached stmts.

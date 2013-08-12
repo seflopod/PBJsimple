@@ -69,6 +69,33 @@ CREATE TABLE sw_texture_font_chars
       PRIMARY KEY (font_id, codepoint)
 );
 
+CREATE TABLE sw_ui_panel_styles
+(
+      id                INTEGER PRIMARY KEY,
+      bg_color_top      INTEGER NOT NULL,
+      bg_color_bottom   INTEGER NOT NULL,
+      border_color      INTEGER NOT NULL,
+      margin_color      INTEGER NOT NULL,
+      margin_left       REAL NOT NULL,
+      margin_right      REAL NOT NULL,
+      margin_top        REAL NOT NULL,
+      margin_bottom     REAL NOT NULL,
+      border_left       REAL NOT NULL,
+      border_right      REAL NOT NULL,
+      border_top        REAL NOT NULL,
+      border_bottom     REAL NOT NULL
+);
+
+CREATE TABLE sw_ui_button_styles
+(
+      id                INTEGER PRIMARY KEY,
+      font_id           INTEGER NOT NULL,
+      text_color        INTEGER NOT NULL,
+      text_scale_x      REAL NOT NULL,
+      text_scale_y      REAL NOT NULL,
+      panel_style_id    INTEGER NOT NULL
+);
+
 CREATE TABLE sw_window_settings
 (
       -- Identifies this set of window settings, allowing multiple windows to

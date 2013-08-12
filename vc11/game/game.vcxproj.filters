@@ -197,12 +197,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\physics\rigidbody.cpp">
       <Filter>Source Files\pbj\pbj::physics</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="..\..\src\pbj\sw\resource_manager.cpp">
       <Filter>Source Files\pbj\pbj::sw</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\editor.cpp">
       <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ui_styles.cpp">
+      <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -322,12 +325,15 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\physics\rigidbody.h">
       <Filter>Header Files\pbj\pbj::physics</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="..\..\include\pbj\sw\resource_manager.h">
       <Filter>Header Files\pbj\pbj::sw</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\editor.h">
       <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ui_styles.h">
+      <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

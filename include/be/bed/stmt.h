@@ -8,6 +8,8 @@
 #define BE_BED_STMT_H_
 #include "be/_be.h"
 
+#include <glm/glm.hpp>
+
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -78,6 +80,7 @@ public:
    const char* getText(int column);
    std::string getBlob(int column);
    int getBlob(int column, const void*& dest);
+   glm::vec4 getColor(int column);
 
 private:
    Db& db_;

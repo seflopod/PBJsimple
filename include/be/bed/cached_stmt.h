@@ -82,6 +82,7 @@ public:
    const char* getText(int column);
    std::string getBlob(int column);
    int getBlob(int column, const void*& dest);
+   glm::vec4 getColor(int column);
 
 private:
    CachedStmt(StmtCache* cache, Stmt& stmt);

@@ -10,9 +10,9 @@
 #include "be/id.h"
 #include "pbj/_pbj.h"
 #include "pbj/window.h"
+#include "pbj/sw/resource_manager.h"
 
 #include <memory>
-#include <Box2D/Box2D.h>
 
 namespace pbj {
 
@@ -27,11 +27,11 @@ public:
    ~Engine();
 
    Window* getWindow() const;
-   b2World* getWorld() const;
+   sw::ResourceManager& getResourceManager();
 
 private:
     std::unique_ptr<Window> window_;
-	std::unique_ptr<b2World> world_;
+    sw::ResourceManager resource_mgr_;
 
     Engine(const Engine&);
     void operator=(const Engine&);

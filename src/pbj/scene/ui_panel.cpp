@@ -9,24 +9,11 @@
 namespace pbj {
 namespace scene {
 
-UIPanelAppearance::UIPanelAppearance()
-    : solid(false),
-      background_color(0.5f, 0.5f, 0.5f, 0.5f),
-      border_color(1.0f, 1.0f, 1.0f, 1.0f),
-      margin_color(0.0f, 0.0f, 0.0f, 0.0f),
-      margin_left(0.5f),
-      margin_right(0.5f),
-      margin_top(0.5f),
-      margin_bottom(0.5f),
-      border_width_left(0.5f),
-      border_width_right(0.5f),
-      border_width_top(0.5f),
-      border_width_bottom(0.5f)
-{
-}
-
 UIPanel::UIPanel()
-    : scale_(1.0f, 1.0f)
+    : scale_(1.0f, 1.0f),
+      //style_id_(Id("pbjbase"), Id("PanelStyle.default")),
+      style_(nullptr),
+      panel_transform_valid_(false)
 {
 }
 
@@ -34,15 +21,19 @@ UIPanel::~UIPanel()
 {
 }
 
-void UIPanel::setAppearance(const UIPanelAppearance& appearance)
+void UIPanel::setStyle(const sw::ResourceId& panel_style)
 {
-    appearance_ = appearance;
-    panel_transform_valid_ = false;
+    if (style_id_ != panel_style)
+    {
+        style_id_ = panel_style;
+        style_ = nullptr;
+        panel_transform_valid_ = false;
+    }
 }
 
-const UIPanelAppearance& UIPanel::getAppearance() const
+const sw::ResourceId& UIPanel::getStyle() const
 {
-    return appearance_;
+    return style_id_;
 }
 
 void UIPanel::setScale(const vec2& scale)
@@ -81,7 +72,10 @@ UIElement* UIPanel::getElementAt(const ivec2& screen_position)
             return element;
     }
 
-    if (appearance_.solid)
+    if (!panel_transform_valid_)
+        calculateTransform_();
+
+    if (style_)
     {
         vec2 pos = vec2(*inv_view_ * vec4(screen_position, 0, 1));
 
@@ -99,23 +93,24 @@ void UIPanel::draw()
     if (!isVisible())
         return;
 
-    if (appearance_.solid && view_)
-    {
-        if (!panel_transform_valid_)
+    if (!panel_transform_valid_)
             calculateTransform_();
 
+    if (style_ && view_)
+    {
         glLoadMatrixf(glm::value_ptr(*view_));
         gfx::Texture::disable();
         
-        glColor4fv(glm::value_ptr(appearance_.background_color));
         glBegin(GL_QUADS);
+            glColor4fv(glm::value_ptr(style_->background_color_top));
+            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
             glVertex2fv(glm::value_ptr(border_bounds_[0]));
+            glColor4fv(glm::value_ptr(style_->background_color_bottom));
             glVertex2f(border_bounds_[0].x, border_bounds_[1].y);
             glVertex2fv(glm::value_ptr(border_bounds_[1]));
-            glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
         glEnd();
 
-        glColor4fv(glm::value_ptr(appearance_.border_color));
+        glColor4fv(glm::value_ptr(style_->border_color));
         glBegin(GL_TRIANGLE_STRIP);
             glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
             glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
@@ -129,7 +124,7 @@ void UIPanel::draw()
             glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
         glEnd();
 
-        glColor4fv(glm::value_ptr(appearance_.margin_color));
+        glColor4fv(glm::value_ptr(style_->margin_color));
         glBegin(GL_TRIANGLE_STRIP);
             glVertex2f(1, 0);
             glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
@@ -167,28 +162,37 @@ void UIPanel::calculateTransform_()
 {
     if (!view_)
         return;
+
+    if (style_ == nullptr)
+    {
+        if (style_id_ != sw::ResourceId())
+            style_ = &getEngine().getResourceManager().getUIPanelStyle(style_id_);
+    }
     
     vec3 scale(getDimensions(), 1);
     vec3 translate(getPosition(), 0);
     panel_transform_ = glm::scale(glm::translate(*view_, translate), scale);
-        
-    vec2 inv_scale(1.0f / scale.x, 1.0f / scale.y);
+    
+    if (style_)
+    {
+        vec2 inv_scale(1.0f / scale.x, 1.0f / scale.y);
 
-    // inside top left
-    border_bounds_[0] = inv_scale * vec2(appearance_.margin_left + appearance_.border_width_left,
-                                         appearance_.margin_top + appearance_.border_width_top);
+        // inside top left
+        border_bounds_[0] = inv_scale * vec2(style_->margin_left + style_->border_width_left,
+                                             style_->margin_top + style_->border_width_top);
 
-    // inside bottom right
-    border_bounds_[1] = vec2(1, 1) - inv_scale * vec2(appearance_.margin_right + appearance_.border_width_right,
-                                                      appearance_.margin_bottom + appearance_.border_width_bottom);
+        // inside bottom right
+        border_bounds_[1] = vec2(1, 1) - inv_scale * vec2(style_->margin_right + style_->border_width_right,
+                                                          style_->margin_bottom + style_->border_width_bottom);
 
-    // outside top left
-    border_bounds_[2] = inv_scale * vec2(appearance_.margin_left - appearance_.border_width_left,
-                                         appearance_.margin_top - appearance_.border_width_top);
+        // outside top left
+        border_bounds_[2] = inv_scale * vec2(style_->margin_left - style_->border_width_left,
+                                             style_->margin_top - style_->border_width_top);
 
-    // outside bottom right
-    border_bounds_[3] = vec2(1, 1) - inv_scale * vec2(appearance_.margin_right - appearance_.border_width_right,
-                                                      appearance_.margin_bottom - appearance_.border_width_bottom);
+        // outside bottom right
+        border_bounds_[3] = vec2(1, 1) - inv_scale * vec2(style_->margin_right - style_->border_width_right,
+                                                          style_->margin_bottom - style_->border_width_bottom);
+    }
 }
 
 } // namespace pbj::scene

@@ -462,6 +462,21 @@ int Stmt::getBlob(int column, const void*& dest)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns the specified column as a int-valued 32-bit RGBA8888 value.
+///
+/// \param  column The column to retrieve.
+/// \return A glm::vec4 representing the RGBA color.
+glm::vec4 Stmt::getColor(int column)
+{
+    assert(column >= 0 && column < columns());
+    int value = sqlite3_column_int(stmt_, column);
+    return glm::vec4((value & 0xFF) / float(0xFF),
+                     ((value >> 8) & 0xFF) / float(0xFF),
+                     ((value >> 16) & 0xFF) / float(0xFF),
+                     ((value >> 24) & 0xFF) / float(0xFF));
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief  Prints the uncompiled SQL source a statement object.
 ///
 /// \param  os The \c std::ostream to output to.

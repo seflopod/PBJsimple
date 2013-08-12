@@ -22,7 +22,6 @@ Scene::Scene()
 	_spawnPoints = EntityMap();
 	_terrain = EntityMap();
 	_players = EntityMap();
-	_others = EntityMap();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,26 +50,19 @@ Scene::~Scene()
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
-	for(EntityMap::iterator it=_others.begin();
-		it!=_others.end();
-		it++)
-		if(it->second->isDrawable())
-			it->second->draw();
 
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		if(it->second->isDrawable())
-			it->second->draw();
+		it->second->draw();
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		if(it->second->isDrawable())
-			it->second->draw();
+		it->second->draw();
 
 	//I assume the ui drawing goes like this.
-	//ui.draw();
+	ui.draw();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,13 +94,10 @@ void Scene::addEntity(unique_ptr<Entity>&& e)
 		break;
 	case Entity::EntityType::SpawnPoint:
 		_spawnPoints[_nextEntityId] = std::move(e);
-		_spawnPoints[_nextEntityId]->setSceneId(_nextEntityId);
+		_players[_nextEntityId]->setSceneId(_nextEntityId);
 		_nextEntityId++;
 		break;
 	default:
-		_others[_nextEntityId] = std::move(e);
-		_others[_nextEntityId]->setSceneId(_nextEntityId);
-		_nextEntityId++;
 		break;
 	}
 }
@@ -141,7 +130,6 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
 		_spawnPoints.erase(id);
 		break;
 	default:
-		_others.erase(id);
 		break;
 	}
 }
