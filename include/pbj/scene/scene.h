@@ -52,7 +52,7 @@ public:
     
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
-	Entity& getLocalPlayer();
+	Entity* getLocalPlayer();
 private:
 
 	////////////////////////////////////////////////////////////////////////////

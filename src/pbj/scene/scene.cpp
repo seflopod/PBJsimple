@@ -180,9 +180,9 @@ void Scene::clearLocalPlayer()
     _localPlayerId = U32(-1);
 }
 
-Entity& Scene::getLocalPlayer()
+Entity* Scene::getLocalPlayer()
 {
-    return *_players[_localPlayerId];
+    return _players[_localPlayerId].get();
 }
 
 } // namespace pbj::scene
