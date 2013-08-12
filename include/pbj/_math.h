@@ -14,6 +14,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/epsilon.hpp>
+#include <Box2D\Box2D.h>
 
 /// \brief Convenience constant for converting angles
 #define DEGTORAD 0.0174532925199432957f
