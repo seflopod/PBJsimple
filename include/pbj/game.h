@@ -103,10 +103,13 @@ namespace pbj
 		static void destroyInstance();
 
 		~Game();
+		void help();
 
 		bool init(U32);
 		I32 run();
 		void stop();
+
+        void move();
         
 	protected:
         virtual void BeginContact(b2Contact*);
@@ -126,6 +129,8 @@ namespace pbj
 
 		void onContextResized(I32, I32);
 
+		vec2 moveP;
+
 		//Enginey stuff
 		F32 _dt;
 		bool _running;
@@ -134,6 +139,8 @@ namespace pbj
 
 		b2World* _world;
 		PhysicsSettings _physSettings;
+
+		Transform _trans;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

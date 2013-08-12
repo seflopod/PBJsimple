@@ -2,11 +2,12 @@
 #include "pbj/game.h"
 #endif
 
-using namespace pbj;
+namespace pbj {
 
 #pragma region statics
 /// \brief    The client instance pointer.
 Game* Game::_instance = 0;
+scene::Entity* p = new scene::Entity();
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Game* Game::instance()
@@ -73,11 +74,63 @@ bool Game::init(U32 fps)
         _instance->onContextResized(width, height);
     });
 
+	moveP = _trans.getPosition();
+
     InputController::registerKeyUpListener(
         [&](I32 keycode, I32 scancode, I32 modifiers) {
         
         _instance->_running = !(keycode == GLFW_KEY_ESCAPE);
+        if(keycode == GLFW_KEY_H)
+        {
+            help();
+        }
     });
+
+	InputController::registerKeyAllListener(
+		[&](I32 keycode, I32 scancode, I32 action,I32 modifiers){
+	
+			if(action != GLFW_RELEASE)
+			{
+				switch(keycode)
+				{
+					case GLFW_KEY_D: 
+					{
+						moveP.y = 0.0f;
+						moveP.x = 0.5f;
+						move();
+						std::cerr << "right" << std::endl;
+						break;
+					}
+
+					case GLFW_KEY_A: 
+					{
+						moveP.y = 0.0f;
+						moveP.x = -0.5f;
+						move();
+						std::cerr << "left" << std::endl;
+						break;
+					}
+
+					case GLFW_KEY_W: 
+					{
+						moveP.x = 0.0f;
+						moveP.y = 0.5f;
+						move();
+						std::cerr << "up" << std::endl;
+						break;
+					}
+
+					case GLFW_KEY_S: 
+					{
+						moveP.x = 0.0f;
+						moveP.y = -0.5f;
+						move();
+						std::cerr << "down" << std::endl;
+						break;
+					}
+				}
+			}
+	});
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -92,6 +145,7 @@ bool Game::init(U32 fps)
     //remove when making for reals
     initTestScene();
 
+<<<<<<< HEAD
     //seems like an odd place to setup gl matrices, but there we go
 	F32 oScale = 50.0f;
     ivec2 ctxtSize = _window.getContextSize();
@@ -103,6 +157,18 @@ bool Game::init(U32 fps)
     glOrtho(-ratio*oScale, ratio*oScale, -oScale, oScale, 0.1f, -0.1f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+=======
+	//seems like an odd place to setup gl matrices, but there we go
+	ivec2 ctxtSize = _window.getContextSize();
+	GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
+	glViewport(0, 0, ctxtSize.x, ctxtSize.y);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-ratio*25, ratio*25, -1.0f*25, 1.0f*25, 0.1f, -0.1f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+>>>>>>> origin/Josh
 
     _running = true;
     return true;
@@ -253,6 +319,7 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
+    /*
     scene::Entity* e = new scene::Entity();
     e->setType(scene::Entity::EntityType::Player);
 	e->getTransform()->setPosition(vec2(0.0f, 49.0f));
@@ -270,6 +337,11 @@ void Game::initTestScene()
 
     _scene.addEntity(std::unique_ptr<scene::Entity>(e));
 	_scene.addEntity(std::unique_ptr<scene::Entity>(t));
+    */
+
+    p->setType(scene::Entity::EntityType::Player);
+	p->enableDraw();
+	_scene.addEntity(std::unique_ptr<scene::Entity>(p));
 }
 
 void Game::BeginContact(b2Contact* contact)
@@ -281,3 +353,28 @@ void Game::EndContact(b2Contact* contact)
 {
 	//handle end of collisions for the entire game here
 }
+
+void Game::help()
+{
+   std::cerr << std::endl << std::endl;
+   std::cerr << "HELP MENU" << std::endl;
+   std::cerr << std::endl << std::endl;
+   std::cerr << "--Controls--" << std::endl;
+   std::cerr << std::endl;
+   std::cerr << "w - Press w to jump" << std::endl;
+   std::cerr << "a - Press a to move left" << std::endl;
+   std::cerr << "s - Press s to duck(tentative)" << std::endl;
+   std::cerr << "d - Press d to move right" << std::endl;
+   std::cerr << "h - Press h to display help menu" << std::endl;
+   std::cerr << "ESC - Press ESC to exit the game" << std::endl;
+   std::cerr << std::endl << std::endl;
+   std::cerr << "Move the mouse to change the fire direction" << std::endl;
+   std::cerr << "Press the left mouse button to fire the weapon" << std::endl;
+}
+
+void Game::move()
+{
+	p->getTransform()->move(moveP.x, moveP.y);
+}
+
+} // namespace pbj

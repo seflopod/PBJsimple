@@ -79,6 +79,14 @@ namespace scene
 
 		EntityType getType() const;
 		void setType(EntityType);
+
+
+		bool isDrawable() const;
+		void enableDraw();
+		void disableDraw();
+		color4 color;
+
+
 	private:
 		bool _initialized;
 				
