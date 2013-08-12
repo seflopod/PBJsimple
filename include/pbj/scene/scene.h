@@ -45,10 +45,14 @@ public:
     UIRoot ui;
 
 	void draw();
+	void update();
 
 	void addEntity(unique_ptr<Entity>&&);
 	void removeEntity(U32, Entity::EntityType);
-
+    
+	void setLocalPlayer(U32);
+	void clearLocalPlayer();
+	unique_ptr<Entity> getLocalPlayer();
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -59,7 +63,7 @@ private:
 	typedef unordered_map<U32,unique_ptr<Entity>> EntityMap;
 
 	U32 _nextEntityId;
-
+    U32 _localPlayerId;
 	//as we get more Entity types this may have to expand/change entirely
 	EntityMap _spawnPoints;
 	EntityMap _terrain;

@@ -3,7 +3,10 @@
 ///
 /// \brief Implements the scene class.
 ////////////////////////////////////////////////////////////////////////////////
+
 #include "pbj/scene/scene.h"
+
+#include <iostream>
 
 namespace pbj {
 namespace scene {
@@ -22,6 +25,8 @@ Scene::Scene()
 	_spawnPoints = EntityMap();
 	_terrain = EntityMap();
 	_players = EntityMap();
+	_others = EntityMap();
+    _localPlayerId = U32(-1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +68,27 @@ void Scene::draw()
 
 	//I assume the ui drawing goes like this.
 	ui.draw();
+}
+
+void Scene::update()
+{
+	for(EntityMap::iterator it=_others.begin();
+		it!=_others.end();
+		it++)
+		if(it->second->getRigidbody())
+			it->second->getRigidbody()->updateOwnerTransform();
+
+	for(EntityMap::iterator it=_terrain.begin();
+		it!=_terrain.end();
+		it++)
+		if(it->second->getRigidbody())
+			it->second->getRigidbody()->updateOwnerTransform();
+
+	for(EntityMap::iterator it=_players.begin();
+		it!=_players.end();
+		it++)
+		if(it->second->getRigidbody())
+			it->second->getRigidbody()->updateOwnerTransform();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +158,35 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
 	default:
 		break;
 	}
+}
+
+void Scene::setLocalPlayer(U32 newId)
+{
+    if(_players.count(newId) == 0)
+    {
+        PBJ_LOG(pbj::VError) << "Could not find referenced id in player map"
+                            << PBJ_LOG_END;
+        return
+    }
+    
+    if(_localPlayerId != U32(-1))
+    {
+        PBJ_LOG(pbj::VWarning) << "Overwriting already stored local player id"
+                                << PBJ_LOG_END;
+    }
+    _localPlayerId = newId;
+}
+
+void Scene::clearLocalPlayer()
+{
+    //not perfect, but I think it is unlikely that we will have this many
+    //players in the game at a time.
+    _localPlayerId = U32(-1);
+}
+
+unique_ptr<Entity> Scene::getLocalPlayer()
+{
+    return _players[_localPlayerId];
 }
 
 } // namespace pbj::scene

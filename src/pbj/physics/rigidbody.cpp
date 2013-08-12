@@ -31,6 +31,10 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
 					 b2World* physWorld, void* owner) :
 					_owner(owner)
 {
+	b2FixtureDef fd;
+	fd.shape = shape;
+	fd.density = 1.0f;
+
 	b2BodyDef bd;
 	///< An enum constant representing the bd.type option
 	bd.type = (b2BodyType)bodyType;
@@ -41,10 +45,12 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
 	bd.awake = true;
 	bd.bullet = false;
 	bd.active = true;
-	_body = physWorld->CreateBody(&bd);
-	_body->CreateFixture(shape, 1.0f);
 
-	_body->SetUserData(_owner);
+	_body = physWorld->CreateBody(&bd);
+	_body->CreateFixture(&fd);
+
+	if(_owner)
+		_body->SetUserData(_owner);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -376,4 +382,21 @@ Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 
 void Rigidbody::setCollisionGroup(CollisionGroup cg)
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
+///
+/// \brief Sets the transform on the b2Body that this object wraps.
+/// 
+/// \author Peter Bartosch
+/// \date   2013-08-10
+/// \details Because the scale paraemeter does nothing right now, this funciton
+///          just wraps the SetTransform method of b2Body.  Scaling would
+///          involve destroying the shape and the making a new one of the proper
+///          size.  Not too difficult, but difficult (and unnecessary) enough
+///          for me to ignore it.
+void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
+{
+	_body->SetTransform(pos, rot);
 }

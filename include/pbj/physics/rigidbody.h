@@ -55,6 +55,8 @@ public:
 	F32 getMass();
 	void setMass(F32);
 
+	void setTransform(b2Vec2, b2Vec2, float32);
+
 	Rigidbody::BodyType getType() const;
 
 	void setBullet(bool); ///< To turn on CCD with other dynamic bodies.
