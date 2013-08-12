@@ -48,6 +48,7 @@
     <ClCompile Include="..\..\src\pbj\physics\rigidbody.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\camera.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\entity.cpp" />
+    <ClCompile Include="..\..\src\pbj\scene\player_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\scene.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\ui_button.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\ui_element.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="..\..\include\pbj\physics\rigidbody.h" />
     <ClInclude Include="..\..\include\pbj\scene\camera.h" />
     <ClInclude Include="..\..\include\pbj\scene\entity.h" />
+    <ClInclude Include="..\..\include\pbj\scene\player_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\scene.h" />
     <ClInclude Include="..\..\include\pbj\scene\ui_button.h" />
     <ClInclude Include="..\..\include\pbj\scene\ui_element.h" />

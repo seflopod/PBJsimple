@@ -171,7 +171,7 @@ void Transform::updateOwnerRigidbody()
 	
 	Entity* e = 0;
     e = (Entity*)_owner;
-	if(e)
+	if(e && e->getRigidbody())
 	    e->getRigidbody()->setTransform(toB2(_position), toB2(_scale), _rotation);
     e = 0;
 }

@@ -21,6 +21,7 @@ using namespace pbj::scene;
 ////////////////////////////////////////////////////////////////////////////////
 Entity::Entity() :
 		_rigidbody(nullptr),
+		_player(nullptr),
         _transform(this)
 {
 	_initialized = false;
@@ -70,7 +71,11 @@ void Entity::init()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::destroy()
 {
+	delete _rigidbody;
+	delete _player;
 
+	_rigidbody = nullptr;
+	_player = nullptr;
 	_initialized = false;
 }
 
@@ -87,13 +92,10 @@ void Entity::draw()
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
 
-	GLfloat pos[2] = { glmPos.x, glmPos.y };
-	GLfloat sca[2] = { glmSca.x, glmSca.y };
-
 	glPushMatrix();
-		glTranslatef(pos[0], pos[1], 0);
+		glTranslatef(glmPos.x, glmPos.y, 0.0f);
 		glRotatef(glmRot, 0, 0, 1);
-		glScalef(sca[0], sca[1], sca[2]);
+		glScalef(glmSca.x, glmSca.y, 1.0f);
 		//if colors are being done, use material.h  for now
 		//this solid color works with no textures loaded.
 		ShapeSquare::draw(_textureId, color);
@@ -151,11 +153,11 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		vec2 scale = _transform.getScale();
 		vec2 pos = _transform.getPosition();
 		b2PolygonShape shape;
-        
-		shape.SetAsBox(scale.x, scale.y, b2Vec2(pos.x, pos.y),
+
+		shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
 
-		_rigidbody = new Rigidbody(bodyType, &shape, world, this);
+		_rigidbody = new Rigidbody(bodyType, pos, shape, world, this);
 		switch(_type)
 		{
 		case Player:
@@ -171,12 +173,26 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;
 		}
+		//_rigidbody->setTransform(b2Vec2(pos.x, pos.y),b2Vec2(1.0f, 1.0f),_transform.getRotation());
 	}
 }
 
 Rigidbody* Entity::getRigidbody() const
 {
 	return _rigidbody;
+}
+
+void Entity::addPlayerComponent()
+{
+	if(!_player)
+	{
+		_player = new PlayerComponent(PlayerStats(), this);
+	}
+}
+
+PlayerComponent* Entity::getPlayerComponent() const
+{
+	return _player;
 }
 
 U32 Entity::getSceneId() const

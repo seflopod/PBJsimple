@@ -14,6 +14,7 @@
 #include "pbj/gfx/texture.h"
 #include "pbj/gfx/shape_square.h"
 #include "pbj/physics/rigidbody.h"
+#include "pbj/scene/player_component.h"
 //too lazy to check which if these actually need to be a part of this
 //I figure it's worth including the possibility that an entity might be text
 //though for our current purposes this might be a bit overboard.
@@ -74,6 +75,9 @@ namespace scene
 		void addRigidbody(Rigidbody::BodyType, b2World*);
 		Rigidbody* getRigidbody() const;
 
+		void addPlayerComponent();
+		PlayerComponent* getPlayerComponent() const;
+
 		U32 getSceneId() const;
 		void setSceneId(U32);
 
@@ -95,10 +99,12 @@ namespace scene
 		U32 _transformCallbackId;
 		U32 _sceneId;
 		EntityType _type;
+
 		//components
 		Transform _transform;
 		GLuint _textureId;
 		Rigidbody* _rigidbody;
+		PlayerComponent* _player;
 
 		Entity(const Entity&);
 		void operator=(const Entity&);

@@ -85,50 +85,9 @@ bool Game::init(U32 fps)
     });
 
 	InputController::registerKeyAllListener(
-		[&](I32 keycode, I32 scancode, I32 action,I32 modifiers){
-	
-			if(action != GLFW_RELEASE)
-			{
-				switch(keycode)
-				{
-					case GLFW_KEY_D: 
-					{
-						moveP.y = 0.0f;
-						moveP.x = 0.5f;
-						move();
-						std::cerr << "right" << std::endl;
-						break;
-					}
-
-					case GLFW_KEY_A: 
-					{
-						moveP.y = 0.0f;
-						moveP.x = -0.5f;
-						move();
-						std::cerr << "left" << std::endl;
-						break;
-					}
-
-					case GLFW_KEY_W: 
-					{
-						moveP.x = 0.0f;
-						moveP.y = 0.5f;
-						move();
-						std::cerr << "up" << std::endl;
-						break;
-					}
-
-					case GLFW_KEY_S: 
-					{
-						moveP.x = 0.0f;
-						moveP.y = -0.5f;
-						move();
-						std::cerr << "down" << std::endl;
-						break;
-					}
-				}
-			}
-	});
+		[&](I32 keycode, I32 scancode, I32 action,I32 modifiers) {
+			onKeyboard(keycode, scancode, action, modifiers);
+		});
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -328,16 +287,30 @@ void Game::initTestScene()
 	_scene.addEntity(std::unique_ptr<scene::Entity>(t));
     */
     scene::Entity* p = new scene::Entity();
+	p->init();
 	p->enableDraw();
     p->setType(scene::Entity::Player);
-    p->init();
+	p->getTransform()->setPosition(vec2(0.0f, 25.0f));
+	p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
+	p->addPlayerComponent();
 	_scene.addEntity(std::unique_ptr<scene::Entity>(p));
     _scene.setLocalPlayer(p->getSceneId());
+
+	scene::Entity* t = new scene::Entity();
+	t->init();
+	t->setType(scene::Entity::EntityType::Terrain);
+	t->getTransform()->setPosition(0.0f, -15.0f);
+	t->getTransform()->setScale(100.0f, 10.0f);
+	t->addRigidbody(Rigidbody::BodyType::Static, _world);
+    //e->getTransform()->updateOwnerRigidbody();
+	t->enableDraw();
+	_scene.addEntity(std::unique_ptr<scene::Entity>(t));
 }
 
 void Game::BeginContact(b2Contact* contact)
 {
 	//handle collisions for the entire game here
+	std::cerr<<"Collision!"<<std::endl;
 }
 
 void Game::EndContact(b2Contact* contact)
@@ -366,6 +339,44 @@ void Game::help()
 void Game::move()
 {
     _scene.getLocalPlayer()->getTransform()->move(moveP.x, moveP.y);
+}
+
+void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
+{
+	//this is a bit simplistic (no modifiers are taken into account), but for
+	//now it will do
+	if(keycode == _controls.left[0] || keycode == _controls.left[1])
+	{
+		vec2 vel = _scene.getLocalPlayer()->getRigidbody()->getVelocity();
+		vel.x = -1 * _scene.getLocalPlayer()->getPlayerComponent()->getMoveSpeed();
+		_scene.getLocalPlayer()->getRigidbody()->setVelocity(vel);
+	}
+	else if(keycode == _controls.right[0] || keycode == _controls.right[1])
+	{
+		vec2 vel = _scene.getLocalPlayer()->getRigidbody()->getVelocity();
+		vel.x = 1 * _scene.getLocalPlayer()->getPlayerComponent()->getMoveSpeed();
+		_scene.getLocalPlayer()->getRigidbody()->setVelocity(vel);
+	}
+	else if(keycode == _controls.up[0] || keycode == _controls.up[1])
+	{
+		//yeah, not sure.  think this needs to change
+	}
+	else if(keycode == _controls.down[0] || keycode == _controls.down[1])
+	{
+		//yeah, not sure.  think this needs to change
+	}
+	else if(keycode == _controls.keyFire1[0] || keycode == _controls.keyFire1[1])
+	{
+	}
+	else if(keycode == _controls.keyFire2[0] || keycode == _controls.keyFire2[1])
+	{
+	}
+	else if(keycode == _controls.keyJump[0] || keycode == _controls.keyJump[1])
+	{
+	}
+	else if(keycode == _controls.keyAction[0] || keycode == _controls.keyAction[1])
+	{
+	}
 }
 
 } // namespace pbj

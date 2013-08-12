@@ -122,13 +122,16 @@ namespace pbj
 
 		Game();
 		
-		void initTestScene();
 		bool update();
-		
-		void draw();
         bool physUpdate();
 
+		void draw();
+
 		void onContextResized(I32, I32);
+
+		void onKeyboard(I32, I32, I32, I32);
+
+		void initTestScene();
 
 		vec2 moveP;
 
@@ -140,7 +143,7 @@ namespace pbj
 
 		b2World* _world;
 		PhysicsSettings _physSettings;
-
+		GameControls _controls;
 		//Transform _trans;
 
 		//this should be a container for multiple scenes.  Right now only one.

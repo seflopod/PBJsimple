@@ -27,18 +27,18 @@ using pbj::scene::Entity;
 /// \param [in,out] physWorld If non-null, the physical world.
 /// \param [in,out] owner	  If non-null, the owner.
 ////////////////////////////////////////////////////////////////////////////////
-Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
-					 b2World* physWorld, void* owner) :
+Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
+					 const b2Shape& shape, b2World* physWorld, void* owner) :
 					_owner(owner)
 {
 	b2FixtureDef fd;
-	fd.shape = shape;
+	fd.shape = &shape;
 	fd.density = 1.0f;
+	fd.restitution = 0.4f; //how much "bounce"
 
 	b2BodyDef bd;
-	///< An enum constant representing the bd.type option
 	bd.type = (b2BodyType)bodyType;
-	bd.position.SetZero();
+	bd.position.Set(position.x, position.y);
 	bd.angle = 0.0f;
 	bd.linearDamping = 0.0f;
 	bd.allowSleep = true;
@@ -46,8 +46,15 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
 	bd.bullet = false;
 	bd.active = true;
 
+	/*if(bodyType == Static)
+	{
+		fd.density = 0.0f;
+		fd.restitution = 0.4f;
+	}*/
+
 	_body = physWorld->CreateBody(&bd);
 	_body->CreateFixture(&fd);
+	//_body->CreateFixture(&shape, 1.0f);
 
 	if(_owner)
 		_body->SetUserData(_owner);

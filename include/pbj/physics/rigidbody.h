@@ -36,7 +36,7 @@ public:
 		Dynamic = 0x02
 	};
 
-	Rigidbody(Rigidbody::BodyType, const b2Shape*, b2World*, void*);
+	Rigidbody(Rigidbody::BodyType, vec2, const b2Shape&, b2World*, void*);
 	virtual ~Rigidbody();
 
 	b2Fixture* getFixtureList();
