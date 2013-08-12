@@ -52,7 +52,7 @@ public:
     
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
-	unique_ptr<Entity> getLocalPlayer();
+	Entity& getLocalPlayer();
 private:
 
 	////////////////////////////////////////////////////////////////////////////

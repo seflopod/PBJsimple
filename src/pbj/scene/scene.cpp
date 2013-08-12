@@ -22,10 +22,6 @@ namespace scene {
 Scene::Scene()
 {
 	_nextEntityId = 0;
-	_spawnPoints = EntityMap();
-	_terrain = EntityMap();
-	_players = EntityMap();
-	_others = EntityMap();
     _localPlayerId = U32(-1);
 }
 
@@ -72,8 +68,8 @@ void Scene::draw()
 
 void Scene::update()
 {
-	for(EntityMap::iterator it=_others.begin();
-		it!=_others.end();
+	for(EntityMap::iterator it=_spawnPoints.begin();
+		it!=_spawnPoints.end();
 		it++)
 		if(it->second->getRigidbody())
 			it->second->getRigidbody()->updateOwnerTransform();
@@ -184,9 +180,9 @@ void Scene::clearLocalPlayer()
     _localPlayerId = U32(-1);
 }
 
-unique_ptr<Entity> Scene::getLocalPlayer()
+Entity& Scene::getLocalPlayer()
 {
-    return _players[_localPlayerId];
+    return *_players[_localPlayerId];
 }
 
 } // namespace pbj::scene
