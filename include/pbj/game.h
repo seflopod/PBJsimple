@@ -41,14 +41,14 @@ namespace pbj
 	
     struct GameControls
     {
-        U8 left[2];
-        U8 right[2];
-        U8 up[2];
-        U8 down[2];
-        U8 keyFire1[2];
-        U8 keyFire2[2];
-        U8 keyJump[2];
-        U8 keyAction[2];
+        I32 left[2];
+        I32 right[2];
+        I32 up[2];
+        I32 down[2];
+        I32 keyFire1[2];
+        I32 keyFire2[2];
+        I32 keyJump[2];
+        I32 keyAction[2];
         I32 mouseFire1;
         I32 mouseFire2;
         I32 mouseJump;
@@ -56,14 +56,29 @@ namespace pbj
         
         GameControls()
         {
-            left = { GLFW_KEY_A, GLFW_KEY_LEFT };
-            right = { GLFW_KEY_D, GLFW_KEY_RIGHT };
-            up = { GLFW_KEY_W, GLFW_KEY_UP };
-            down = { GLFW_KEY_S, GLFW_KEY_DOWN };
-            keyFire1 = { GLFW_KEY_LEFT_CONTROL, GLFW_KEY_Z };
-            keyFire2 = { GLFW_KEY_LEFT_ALT, GLFW_KEY_X };
-            keyJump = { GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT };
-            keyAction = { GLFW_KEY_E, GLFW_KEY_ENTER };
+            left[0] = GLFW_KEY_A;
+            left[1] = GLFW_KEY_LEFT;
+
+            right[0] = GLFW_KEY_D;
+            right[1] = GLFW_KEY_RIGHT;
+
+            up[0] = GLFW_KEY_W;
+            up[1] = GLFW_KEY_UP;
+
+            down[0] = GLFW_KEY_S;
+            down[1] = GLFW_KEY_DOWN;
+            keyFire1[0] = GLFW_KEY_LEFT_CONTROL;
+            keyFire1[1] = GLFW_KEY_Z;
+
+            keyFire2[0] = GLFW_KEY_LEFT_ALT;
+            keyFire2[1] = GLFW_KEY_X;
+
+            keyJump[0] = GLFW_KEY_SPACE;
+            keyJump[1] = GLFW_KEY_LEFT_SHIFT;
+
+            keyAction[0] = GLFW_KEY_E;
+            keyAction[1] = GLFW_KEY_ENTER;
+
             mouseFire1 = GLFW_MOUSE_BUTTON_LEFT;
             mouseFire2 = GLFW_MOUSE_BUTTON_RIGHT;
             mouseJump = -1; //meaning undefined, I hope
