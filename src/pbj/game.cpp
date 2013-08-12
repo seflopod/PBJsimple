@@ -7,7 +7,7 @@ namespace pbj {
 #pragma region statics
 /// \brief    The client instance pointer.
 Game* Game::_instance = 0;
-scene::Entity* p = new scene::Entity();
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Game* Game::instance()
@@ -73,8 +73,6 @@ bool Game::init(U32 fps)
     _window.registerContextResizeListener([=](I32 width, I32 height) {
         _instance->onContextResized(width, height);
     });
-
-	moveP = _trans.getPosition();
 
     InputController::registerKeyUpListener(
         [&](I32 keycode, I32 scancode, I32 modifiers) {
@@ -145,19 +143,6 @@ bool Game::init(U32 fps)
     //remove when making for reals
     initTestScene();
 
-<<<<<<< HEAD
-    //seems like an odd place to setup gl matrices, but there we go
-	F32 oScale = 50.0f;
-    ivec2 ctxtSize = _window.getContextSize();
-    GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
-    glViewport(0, 0, ctxtSize.x, ctxtSize.y);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-ratio*oScale, ratio*oScale, -oScale, oScale, 0.1f, -0.1f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-=======
 	//seems like an odd place to setup gl matrices, but there we go
 	ivec2 ctxtSize = _window.getContextSize();
 	GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
@@ -168,7 +153,6 @@ bool Game::init(U32 fps)
 	glOrtho(-ratio*25, ratio*25, -1.0f*25, 1.0f*25, 0.1f, -0.1f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
->>>>>>> origin/Josh
 
     _running = true;
     return true;
@@ -292,6 +276,14 @@ bool Game::physUpdate()
 void Game::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    ivec2 ctxtSize = _window.getContextSize();
+	GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
+    glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-ratio*25, ratio*25, -1.0f*25, 1.0f*25, 0.1f, -0.1f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
     
     _scene.draw();
 
@@ -312,9 +304,6 @@ void Game::onContextResized(I32 width, I32 height)
 {
     GLdouble ratio = width/(GLdouble)height;
     glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-ratio, ratio, -1.0f, 1.0f, 0.1f, -0.1f);
 }
 
 void Game::initTestScene()
@@ -338,10 +327,12 @@ void Game::initTestScene()
     _scene.addEntity(std::unique_ptr<scene::Entity>(e));
 	_scene.addEntity(std::unique_ptr<scene::Entity>(t));
     */
-
-    p->setType(scene::Entity::EntityType::Player);
+    scene::Entity* p = new scene::Entity();
 	p->enableDraw();
+    p->setType(scene::Entity::Player);
+    p->init();
 	_scene.addEntity(std::unique_ptr<scene::Entity>(p));
+    _scene.setLocalPlayer(p->getSceneId());
 }
 
 void Game::BeginContact(b2Contact* contact)
@@ -374,7 +365,7 @@ void Game::help()
 
 void Game::move()
 {
-	p->getTransform()->move(moveP.x, moveP.y);
+    _scene.getLocalPlayer()->getTransform()->move(moveP.x, moveP.y);
 }
 
 } // namespace pbj

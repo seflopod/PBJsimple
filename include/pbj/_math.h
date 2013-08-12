@@ -38,7 +38,7 @@ typedef glm::quat quat;    ///< Quaternion type.  Used to represent an arbitrary
 typedef glm::mat3 mat3;    ///< 3x3 float-valued column-major matrix type.
 typedef glm::mat4 mat4;    ///< 4x4 float-valued column-major matrix type.
 
-b2Vec2 toB2(const glm::vec2& vec)
+inline b2Vec2 toB2(const glm::vec2& vec)
 {
     return b2Vec2(vec.x, vec.y);
 }

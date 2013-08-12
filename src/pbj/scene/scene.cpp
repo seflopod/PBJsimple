@@ -162,7 +162,7 @@ void Scene::setLocalPlayer(U32 newId)
     {
         PBJ_LOG(pbj::VError) << "Could not find referenced id in player map"
                             << PBJ_LOG_END;
-        return
+        return;
     }
     
     if(_localPlayerId != U32(-1))

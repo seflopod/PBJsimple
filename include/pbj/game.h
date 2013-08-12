@@ -126,6 +126,7 @@ namespace pbj
 		bool update();
 		
 		void draw();
+        bool physUpdate();
 
 		void onContextResized(I32, I32);
 
@@ -140,7 +141,7 @@ namespace pbj
 		b2World* _world;
 		PhysicsSettings _physSettings;
 
-		Transform _trans;
+		//Transform _trans;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

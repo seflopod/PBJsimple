@@ -20,7 +20,8 @@ using namespace pbj::scene;
 /// \date	2013-08-05
 ////////////////////////////////////////////////////////////////////////////////
 Entity::Entity() :
-		_rigidbody(nullptr)
+		_rigidbody(nullptr),
+        _transform(this)
 {
 	_initialized = false;
 }
@@ -49,7 +50,7 @@ Entity::~Entity()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::init()
 {
-	_transform = Transform();
+	
 	_transformCallbackId = U32(-1);
 	
 	_textureId = 0;
@@ -214,4 +215,20 @@ void Entity::setType(EntityType et)
 			break;
 		}
 	}
+}
+
+void Entity::enableDraw()
+{
+    _drawable = true;
+}
+
+
+void Entity::disableDraw()
+{
+    _drawable = false;
+}
+
+bool Entity::isDrawable() const
+{
+    return _drawable;
 }

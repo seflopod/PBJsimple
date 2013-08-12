@@ -59,7 +59,7 @@ Engine::Engine()
     window_settings_id = Id("__server__");
     window_title = "PBJ Server";
 #else
-    window_settings_id = Id("__client__");
+    window_settings_id = Id("__editor__");
     window_title = "PBJ Client";
 #endif    
 
@@ -84,6 +84,11 @@ Engine::Engine()
 
     InputController::init(wnd->getGlfwHandle());
 
+    //no harm in showing a window before physics is started
+	b2World* wrld = new b2World(b2Vec2(0.0f, -9.81f));
+	wrld->SetAllowSleeping(true);
+	world_.reset(wrld);
+
     wnd->show();
 }
 
@@ -94,6 +99,7 @@ Engine::~Engine()
     pbj::InputController::destroy();
 
     window_.reset();
+    world_.reset();
     glfwTerminate();
 }
 
@@ -106,6 +112,22 @@ Window* Engine::getWindow() const
     return window_.get();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn b2World* Engine::getWorld() const
+///
+/// \brief Gets the physics world.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+///
+/// \return A pointer to the b2World for Box2D simulations.
+////////////////////////////////////////////////////////////////////////////////
+b2World* Engine::getWorld() const
+{
+	return world_.get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 sw::ResourceManager& Engine::getResourceManager()
 {
     return resource_mgr_;

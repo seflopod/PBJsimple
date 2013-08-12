@@ -90,6 +90,8 @@ namespace scene
 	private:
 		bool _initialized;
 				
+        bool _drawable;
+
 		U32 _transformCallbackId;
 		U32 _sceneId;
 		EntityType _type;
