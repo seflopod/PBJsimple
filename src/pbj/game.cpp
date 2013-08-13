@@ -418,46 +418,29 @@ void Game::onMouseLeftDown(I32 mods)
 
 void Game::initBasicMaterials()
 {
-	Material* m = new Material();
-	_materials["red"] = std::shared_ptr<Material>(m);
+	_materials["red"] = std::shared_ptr<Material>((new Material()));
 	_materials["red"]->setColor(color4(1.0f, 0.0f, 0.0f, 1.0f));
 
-	m = nullptr;
-	m = new Material();
-	_materials["green"] = std::shared_ptr<Material>(m);
+	_materials["green"] = std::shared_ptr<Material>((new Material()));
 	_materials["green"]->setColor(color4(0.0f, 1.0f, 0.0f, 1.0f));
 
-	m = nullptr;
-	m = new Material();
-	_materials["blue"] = std::shared_ptr<Material>(m);
+	_materials["blue"] = std::shared_ptr<Material>((new Material()));
 	_materials["blue"]->setColor(color4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	m = nullptr;
-	m = new Material();
-	_materials["cyan"] = std::shared_ptr<Material>(m);
+	_materials["cyan"] = std::shared_ptr<Material>((new Material()));
 	_materials["cyan"]->setColor(color4(0.0f, 1.0f, 1.0f, 1.0f));
 
-	m = nullptr;
-	m = new Material();
-	_materials["magenta"] = std::shared_ptr<Material>(m);
-	_materials["magneta"]->setColor(color4(1.0f, 0.0f, 1.0f, 1.0f));
+	_materials["magenta"] = std::shared_ptr<Material>((new Material()));
+	_materials["magenta"]->setColor(color4(1.0f, 0.0f, 1.0f, 1.0f));
 
-	m = nullptr;
-	m = new Material();
-	_materials["yellow"] = std::shared_ptr<Material>(m);
+	_materials["yellow"] = std::shared_ptr<Material>((new Material()));
 	_materials["yellow"]->setColor(color4(1.0f, 1.0f, 0.0f, 1.0f));
 
-	m = nullptr;
-	m = new Material();
-	_materials["black"] = std::shared_ptr<Material>(m);
+	_materials["black"] = std::shared_ptr<Material>((new Material()));
 	_materials["black"]->setColor(color4(0.0f, 0.0f, 0.0f, 1.0f));
 
-	m = nullptr;
-	m = new Material();
-	_materials["white"] = std::shared_ptr<Material>(m);
+	_materials["white"] = std::shared_ptr<Material>((new Material()));
 	_materials["white"]->setColor(color4(1.0f, 1.0f, 1.0f, 1.0f));
-
-	m = nullptr;
 }
 
 Entity* Game::makeBullet()
