@@ -15,16 +15,11 @@ CREATE TABLE sw_map_entities
       map_id            INTEGER NOT NULL,
       id                INTEGER PRIMARY KEY,
       entity_type       INTEGER NOT NULL,
-      r                 REAL NOT NULL,
-      t_x               REAL NOT NULL,
-      t_y               REAL NOT NULL,
-      t_z               REAL NOT NULL,
-      s_x               REAL NOT NULL,
-      s_y               REAL NOT NULL,
-      s_z               REAL NOT NULL,
-      mesh_id           INTEGER,
-      program_id        INTEGER,
-      collider_id       INTEGER
+      rotation          REAL NOT NULL,
+      pos_x             REAL NOT NULL,
+      pos_y             REAL NOT NULL,
+      scale_x           REAL NOT NULL,
+      scale_y           REAL NOT NULL,
 );
 
 CREATE TABLE sw_textures

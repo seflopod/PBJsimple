@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
+/// 		PBJgame\src\pbj\gfx\shape_square.cpp
+///
+/// \brief	Implements the square class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef SHAPE_SQUARE_H_
 #include "pbj/gfx/shape_square.h"
 #endif
@@ -6,6 +12,13 @@ namespace pbj
 {
 namespace gfx
 {
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief	Default draw function
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-05
+////////////////////////////////////////////////////////////////////////////////
     void ShapeSquare::draw()
     {
         GLfloat curColor[4];
@@ -13,6 +26,12 @@ namespace gfx
         draw(0, color4((F32)curColor[0], (F32)curColor[1], (F32)curColor[2], (F32)curColor[3]));
     }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief	draw function that takes in 1 params
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-05
+////////////////////////////////////////////////////////////////////////////////
     void ShapeSquare::draw(GLuint texId)
     {
         GLfloat curColor[4];
@@ -20,11 +39,23 @@ namespace gfx
         draw(texId, color4((F32)curColor[0], (F32)curColor[1], (F32)curColor[2], (F32)curColor[3]));
     }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief	draw function that takes in 1 params
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-05
+////////////////////////////////////////////////////////////////////////////////
     void ShapeSquare::draw(color4 color)
     {
         draw(0, color);
     }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief	draw function that takes in 2 params
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-05
+////////////////////////////////////////////////////////////////////////////////
     void ShapeSquare::draw(GLuint texId, color4 color)
     {
         //probably unnecessary habit
@@ -52,6 +83,12 @@ namespace gfx
         glDisable(GL_TEXTURE_2D);
     }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief	Basic constructor / destructor
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-05
+////////////////////////////////////////////////////////////////////////////////
     ShapeSquare::ShapeSquare() {}
     ShapeSquare::~ShapeSquare() {}
 } //namespace gfx

@@ -13,6 +13,7 @@
 #include "pbj/transform.h"
 #include "pbj/gfx/texture.h"
 #include "pbj/gfx/shape_square.h"
+#include "pbj\gfx\shape_triangle.h"
 #include "pbj/physics/rigidbody.h"
 #include "pbj/scene/player_component.h"
 //too lazy to check which if these actually need to be a part of this
@@ -24,6 +25,7 @@
 using pbj::gfx::ComponentCallback;
 using pbj::gfx::Texture;
 using pbj::gfx::ShapeSquare;
+using pbj::gfx::ShapeTriangle;
 using pbj::physics::Rigidbody;
 
 namespace pbj

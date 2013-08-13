@@ -209,6 +209,11 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\scene\player_component.cpp">
       <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\shape_triangle.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -343,6 +348,8 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\bullet_queue.h">
       <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\include\pbj\gfx\shape_triangle.h">
+      <Filter>Header Files\pbj\pbj::gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,12 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
+/// 		PBJgame\include\pbj\gfx\material.h
+///
+/// \brief	Declares the Material class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef MATERIAL_H_
 #define MATERIAL_H_
-/*
+
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
 #include "pbj/gfx/texture.h"
@@ -25,5 +31,5 @@ namespace gfx
 	};
 } //namespace gfx
 } //namespace pbj
-*/
+
 #endif
