@@ -58,7 +58,7 @@ void Scene::draw()
 		it->second->draw();
 
 	for(EntityMap::iterator it=_bullets.begin();
-		it!=_players.end();
+		it!=_bullets.end();
 		it++)
 		it->second->draw();
 
@@ -71,27 +71,27 @@ void Scene::draw()
 	ui.draw();
 }
 
-void Scene::update()
+void Scene::update(F32 dt)
 {
 	for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
-		it->second->update();
+		it->second->update(dt);
 
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		it->second->update();
+		it->second->update(dt);
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		it->second->update();
+		it->second->update(dt);
 
 	for(EntityMap::iterator it=_bullets.begin();
 		it!=_bullets.end();
 		it++)
-		it->second->update();
+		it->second->update(dt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

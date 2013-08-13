@@ -63,7 +63,7 @@ namespace scene
 		void init();
 		void destroy();
 		
-		void update();
+		void update(F32);
 		void draw();
 		
 		//accessors, these will expand as the class gains more component

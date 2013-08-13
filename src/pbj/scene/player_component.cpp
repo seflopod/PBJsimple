@@ -3,6 +3,7 @@
 #endif
 
 #include "pbj/scene/entity.h"
+#include "pbj/game.h"
 
 namespace pbj
 {
@@ -16,6 +17,9 @@ PlayerComponent::PlayerComponent(PlayerStats stats, void* owner)
 	_canJump = true;
 	_thrusting = false;
 	_forceFullRegen = false;
+	_canShoot = true;
+	_reloading = false;
+	_fireCooldown = false;
 }
 
 PlayerComponent::~PlayerComponent()
@@ -111,6 +115,137 @@ void PlayerComponent::regenFuel()
 		}
 	}
 }
+
+F32 PlayerComponent::getReloadTimer() const
+{
+	return _reloadTimer;
+}
+
+F32 PlayerComponent::getFireTimer() const
+{
+	return _fireTimer;
+}
+
+bool PlayerComponent::fireOnCooldown() const
+{
+	return _fireCooldown;
+}
+
+bool PlayerComponent::canShoot() const
+{
+	return _canShoot;
+}
+
+bool PlayerComponent::reloading() const
+{
+	return _reloading;
+}
+
+void PlayerComponent::stepReloadTimer(F32 dt)
+{
+	_reloadTimer+=dt;
+	_reloading = _reloadTimer < _stats.reloadTime;
+	_canShoot = !_reloading;
+}
+
+void PlayerComponent::resetReloadTimer()
+{
+	_reloadTimer = 0.0f;
+}
+
+void PlayerComponent::stepFireTimer(F32 dt)
+{
+	_fireTimer+=dt;
+	if(_fireTimer >= _stats.rateOfFire)
+	{
+		_fireCooldown = false;
+		_canShoot = true;
+		_fireTimer = 0.0f;
+	}
+
+}
+
+void PlayerComponent::fire(F32 mouseX, F32 mouseY)
+{
+	if(_canShoot && !_fireCooldown)
+	{
+		
+		F32 bulletSpeed = 100.0f;
+		Entity* e = (Entity*)_owner;
+		vec2 pos = e->getTransform()->getPosition();
+		std::cerr<<"trying to shoot p0(x,y)=("<<pos.x<<","<<pos.y<<") p1(x,y)=("<<mouseX<<","<<mouseY<<")"<<std::endl;
+		
+		if(mouseX - pos.x < 0)
+		{
+			pos.x -= e->getTransform()->getScale().x/2 - 0.1f;
+		}
+		else if(mouseX - pos.x > 0)
+		{
+			pos.x += e->getTransform()->getScale().x/2 + 0.1f;
+		}
+		else if(mouseY - pos.y < 0)
+		{
+			pos.y -= e->getTransform()->getScale().y/2 - 0.1f;
+		}
+		else if(mouseY - pos.y > 0)
+		{
+			pos.y += e->getTransform()->getScale().y/2 + 0.1f;
+		}
+		else
+		{   //if we're here, we're clicking on the player
+			return;
+		}
+		
+		std::cerr<<"trying to shoot p0(x,y)=("<<pos.x<<","<<pos.y<<") p1(x,y)=("<<mouseX<<","<<mouseY<<")"<<std::endl;
+		vec2 velDir = vec2(mouseX,mouseY) - pos;
+		std::cerr<<velDir.y/velDir.x<<std::endl;
+		velDir = glm::normalize(velDir);
+		std::cerr<<velDir.x<<","<<velDir.y<<std::endl;
+
+		Game::instance()->spawnBullet(pos, velDir * bulletSpeed);
+		_stats.ammoRemaining -= 1;
+		_fireTimer = 0.0f;
+		_fireCooldown = true;
+		_canShoot = false;
+	}
+	
+	if(_stats.ammoRemaining <= 0)
+	{
+		_stats.ammoRemaining = 0;
+		_reloadTimer = 0.0f;
+		_reloading = true;
+		_canShoot = false;
+	}
+}
+
+void PlayerComponent::moveLeft()
+{
+	Entity* e = (Entity*)_owner;
+	vec2 vel = e->getRigidbody()->getVelocity();
+	vel.x = -1 * _stats.moveSpeed;
+	e->getRigidbody()->setVelocity(vel);
+}
+
+void PlayerComponent::moveRight()
+{
+	Entity* e = (Entity*)_owner;
+	vec2 vel = e->getRigidbody()->getVelocity();
+	vel.x = _stats.moveSpeed;
+	e->getRigidbody()->setVelocity(vel);
+}
+
+void PlayerComponent::jump()
+{
+	if(_canJump)
+	{
+		Entity* e = (Entity*)_owner;
+		vec2 vel = e->getRigidbody()->getVelocity();
+		vel.y = _stats.jumpSpeed;
+		e->getRigidbody()->setVelocity(vel);
+		_canJump = false;
+	}
+}
+
 
 } //namespace scene
 } //namespace pbj

@@ -82,6 +82,10 @@ bool Game::init(U32 fps)
 			onKeyboard(keycode, scancode, action, modifiers);
 		});
 
+	InputController::registerMouseLeftDownListener(
+		[&](I32 mods) {
+			onMouseLeftDown(mods);
+		});
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
@@ -101,16 +105,17 @@ bool Game::init(U32 fps)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-ratio*25, ratio*25, -1.0f*25, 1.0f*25, 0.1f, -0.1f);
+	glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	//make all the bullets we'll ever need
-	for(I32 i=0;i<50000;++i)
+	for(I32 i=0;i<1000;++i)
 	{
 		Entity* e = new Entity();
+		e->init();
 		e->setType(Entity::EntityType::Bullet);
-		e->getTransform()->setScale(0.1f, 0.1f);
+		e->getTransform()->setScale(0.5f, 0.5f);
 		e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
 		e->getRigidbody()->setBullet(true);
 		e->getRigidbody()->setActive(false);
@@ -163,6 +168,7 @@ I32 Game::run()
         nonPhysTimer += _physSettings.dt;
 
         fps = 1.0/frameTime;
+		//std::cerr<<fps<<std::endl;
     }
     return 0;
 }
@@ -194,7 +200,7 @@ void Game::stop()
 ////////////////////////////////////////////////////////////////////////////////
 bool Game::update()
 {
-    _scene.update();
+    _scene.update(_dt);
 
     if(_window.isClosePending() && _running)
         _running = false;
@@ -244,7 +250,7 @@ void Game::draw()
 	GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
     glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(-ratio*25, ratio*25, -1.0f*25, 1.0f*25, 0.1f, -0.1f);
+	glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
     
@@ -276,6 +282,7 @@ void Game::initTestScene()
 	p->enableDraw();
     p->setType(Entity::Player);
 	p->getTransform()->setPosition(vec2(0.0f, 25.0f));
+	p->getTransform()->setScale(vec2(1.0f, 2.0f));
 	p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
 	p->addPlayerComponent();
 	_scene.addEntity(std::unique_ptr<Entity>(p));
@@ -348,11 +355,6 @@ void Game::help()
    std::cerr << "Press the left mouse button to fire the weapon" << std::endl;
 }
 
-void Game::move()
-{
-    _scene.getLocalPlayer()->getTransform()->move(moveP.x, moveP.y);
-}
-
 void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 {
 	if(action == GLFW_PRESS || action == GLFW_REPEAT)
@@ -379,25 +381,15 @@ void Game::checkMovement(I32 keycode, I32 action)
 	//now it will do
 	if(keycode == _controls.left[0] || keycode == _controls.left[1])
 	{
-		vec2 vel = _scene.getLocalPlayer()->getRigidbody()->getVelocity();
-		vel.x = -1 * _scene.getLocalPlayer()->getPlayerComponent()->getMoveSpeed();
-		_scene.getLocalPlayer()->getRigidbody()->setVelocity(vel);
+		_scene.getLocalPlayer()->getPlayerComponent()->moveLeft();
 	}
 	else if(keycode == _controls.right[0] || keycode == _controls.right[1])
 	{
-		vec2 vel = _scene.getLocalPlayer()->getRigidbody()->getVelocity();
-		vel.x = _scene.getLocalPlayer()->getPlayerComponent()->getMoveSpeed();
-		_scene.getLocalPlayer()->getRigidbody()->setVelocity(vel);
+		_scene.getLocalPlayer()->getPlayerComponent()->moveRight();
 	}
 	else if(keycode == _controls.up[0] || keycode == _controls.up[1])
 	{
-		if(_scene.getLocalPlayer()->getPlayerComponent()->canJump())
-		{
-			vec2 vel = _scene.getLocalPlayer()->getRigidbody()->getVelocity();
-			vel.y = _scene.getLocalPlayer()->getPlayerComponent()->getJumpSpeed();
-			_scene.getLocalPlayer()->getRigidbody()->setVelocity(vel);
-			_scene.getLocalPlayer()->getPlayerComponent()->disableJump();
-		}
+		_scene.getLocalPlayer()->getPlayerComponent()->jump();
 	}
 	else if(keycode == _controls.down[0] || keycode == _controls.down[1])
 	{
@@ -417,4 +409,30 @@ void Game::checkMovement(I32 keycode, I32 action)
 	{
 	}
 }
+
+void Game::spawnBullet(vec2& position, vec2& velocity)
+{
+	if(!_bullets.empty())
+	{
+		std::unique_ptr<Entity> e(std::move(_bullets.front()));
+		e->getTransform()->setPosition(position);
+		e->getRigidbody()->setActive(true);
+		e->getTransform()->updateOwnerRigidbody();
+		e->getRigidbody()->setVelocity(velocity);
+		_scene.addEntity(std::move(e));
+		_bullets.pop();
+	}
+}
+
+void Game::onMouseLeftDown(I32 mods)
+{
+	F64 x,y;
+	glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
+	ivec2 size = getEngine().getWindow()->getContextSize();
+	double ratio = size.x/(double)size.y;
+	x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
+	y = grid_height * (1 - y/size.y) - grid_height/2;
+	_scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x,(F32)y);
+}
+
 } // namespace pbj

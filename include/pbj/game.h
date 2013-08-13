@@ -101,6 +101,8 @@ namespace pbj
 	class Game : public b2ContactListener
 	{
 	public:
+		static const int grid_height = 50;
+
 		static Game* instance();
 		static void destroyInstance();
 
@@ -110,9 +112,8 @@ namespace pbj
 		bool init(U32);
 		I32 run();
 		void stop();
-
-        void move();
-        
+		
+		void spawnBullet(vec2&, vec2&);
 	protected:
         
     
@@ -130,6 +131,7 @@ namespace pbj
 		void onContextResized(I32, I32);
 
 		void onKeyboard(I32, I32, I32, I32);
+		void onMouseLeftDown(I32);
 		void checkMovement(I32, I32);
 		void initTestScene();
 

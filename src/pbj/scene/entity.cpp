@@ -81,16 +81,26 @@ void Entity::destroy()
 	_initialized = false;
 }
 
-void Entity::update()
+void Entity::update(F32 dt)
 {
 	if(_rigidbody)
 		_rigidbody->updateOwnerTransform();
 	
-	if(_player && !_player->isThrusting())
-		_player->regenFuel();
-
 	if(_player)
-		std::cerr << _player->getFuelRemaining() << std::endl;
+	{
+		if(!_player->isThrusting())
+			_player->regenFuel();
+		
+		if(_player->reloading())
+			_player->stepReloadTimer(dt);
+
+		if(_player->fireOnCooldown())
+			_player->stepFireTimer(dt);
+
+
+		//std::cerr << _player->getFuelRemaining() << std::endl;
+	}
+		
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	draws this object.
@@ -185,7 +195,7 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
 		case Bullet:
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.5f/(scale.x*scale.y), 0.0f, this);
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.0f, this);
 		default:
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;

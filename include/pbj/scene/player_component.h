@@ -16,6 +16,7 @@ namespace scene
 		I32 ammoRemaining;
 		I32 maxAmmo;
 		F32 rateOfFire;
+		F32 reloadTime;
 		F32 jumpSpeed;
 		F32 moveSpeed;
 		F32 thrust;
@@ -26,9 +27,10 @@ namespace scene
 			maxHealth = 1000;
 			fuelRemaining = 6000;
 			maxFuel = 6000;
-			ammoRemaining = 10000;
-			maxAmmo = 10000;
+			ammoRemaining = 20;
+			maxAmmo = 20;
 			rateOfFire = 0.1f;
+			reloadTime = 1.0f;
 			jumpSpeed = 10.0f;
 			moveSpeed = 10.0f;
 			thrust = 1000.0f;
@@ -75,16 +77,35 @@ namespace scene
 		bool isThrusting() const;
 		void startThrust();
 		void endThrust();
-		//void continueThrust();
 		
 		void doThrust();
 		void regenFuel();
+
+		F32 getReloadTimer() const;
+		F32 getFireTimer() const;
+		bool fireOnCooldown() const;
+		bool canShoot() const;
+		bool reloading() const;
+		void stepReloadTimer(F32);
+		void resetReloadTimer();
+		void stepFireTimer(F32);
+		void fire(F32, F32);
+
+		void moveLeft();
+		void moveRight();
+		void jump();
+
 	private:
 		void* _owner;
 		PlayerStats _stats;
 		bool _canJump;
 		bool _thrusting;
 		bool _forceFullRegen;
+		bool _canShoot;
+		bool _reloading;
+		bool _fireCooldown;
+		F32 _fireTimer;
+		F32 _reloadTimer;
 	};
 } //namespace scene
 } //namespace pbj

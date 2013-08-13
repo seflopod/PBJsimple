@@ -341,6 +341,9 @@
     <ClInclude Include="..\..\include\pbj\scene\player_component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pbj\bullet_queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\include\pbj\sw\resource_id.inl">
