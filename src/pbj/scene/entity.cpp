@@ -115,6 +115,7 @@ void Entity::draw()
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
 	GLuint texId = _material->getTextureId();
+	color4 color = _material->getColor();
 	//probably unnecessary habit
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
@@ -134,12 +135,12 @@ void Entity::draw()
 		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 	}
 
+	
 	glPushMatrix();
 		glTranslatef(glmPos.x, glmPos.y, 0.0f);
 		glRotatef(glmRot, 0, 0, 1);
 		glScalef(glmSca.x, glmSca.y, 1.0f);
-		//if colors are being done, use material.h  for now
-		//this solid color works with no textures loaded.
+		glColor4f(color.r, color.g, color.b, color.a);
 		_shape->draw((texId!=0));
 	glPopMatrix();
 	glColor4fv(curColor);
