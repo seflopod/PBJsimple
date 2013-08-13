@@ -96,7 +96,7 @@ void Entity::draw()
 		glScalef(sca[0], sca[1], sca[2]);
 		//if colors are being done, use material.h  for now
 		//this solid color works with no textures loaded.
-		ShapeSquare::draw(_textureId, color);
+		ShapeTriangle::draw(_textureId, color);
 	glPopMatrix();
 }
 
