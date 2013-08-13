@@ -14,11 +14,11 @@ ShapeTriangle::~ShapeTriangle()
 {}
 
 void ShapeTriangle::draw()
-    {
-        GLfloat curColor[4];
-        glGetFloatv(GL_CURRENT_COLOR, curColor);
-        draw(0, color4((F32)curColor[0], (F32)curColor[1], (F32)curColor[2], (F32)curColor[3]));
-    }
+{
+    GLfloat curColor[4];
+    glGetFloatv(GL_CURRENT_COLOR, curColor);
+    draw(0, color4((F32)curColor[0], (F32)curColor[1], (F32)curColor[2], (F32)curColor[3]));
+}
 
 void ShapeTriangle::draw(GLuint texId)
 {
@@ -42,18 +42,20 @@ void ShapeTriangle::draw(GLuint texId, color4 color)
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
 
+	//So many color calls!!!!
     GLfloat curColor[4];
-    glGetFloatv(GL_CURRENT_COLOR, curColor);
+    //glGetFloatv(GL_CURRENT_COLOR, curColor);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texId);
-
+	//glScalef(10.0f, 10.0f, 1.0f);
     glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
     glBegin(GL_TRIANGLES);
-        glColor4f(color.r, color.g, color.b, color.a);
+        //glColor4f(color.r, color.g, color.b, color.a);
+		glColor4f(0.0, 0.0, 1.0, 1.0);
         glTexCoord2d(0.5, 0.0); glVertex2f(0.0f, 0.5f);
         glTexCoord2d(1.0, 0); glVertex2f(-0.325f, 0.0f);
         glTexCoord2d(0.0, 1.0); glVertex2f(0.325f, 0.0f);
-        glColor4fv(curColor);
+        //glColor4fv(curColor);
     glEnd();
     glDisable(GL_TEXTURE_2D);
 }
