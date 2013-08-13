@@ -34,6 +34,9 @@
     <Filter Include="Source Files\pbj\pbj::gfx">
       <UniqueIdentifier>{282f63bb-5be5-4d55-baef-53a8299da075}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\pbj">
+      <UniqueIdentifier>{936e7b63-bc45-4ad2-9ccb-4071a32e843f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -84,5 +87,19 @@
     <ClCompile Include="..\..\src\pbj\gfx\texture.cpp">
       <Filter>Source Files\pbj\pbj::gfx</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pbj\win_unicode.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\deps\pugixml.cpp">
+      <Filter>Source Files\_deps</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\texture_font_character.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\pbj\win_unicode.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
