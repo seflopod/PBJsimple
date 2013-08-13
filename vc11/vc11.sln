@@ -5,7 +5,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idgen", "idgen\idgen.vcxproj", "{F4291733-23AC-4A43-A2D3-921A4C82E5FE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "swtexture", "swtexture\swtexture.vcxproj", "{19DA5041-37B5-470D-9C3E-87DF45CF31BC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sw", "sw\sw.vcxproj", "{19DA5041-37B5-470D-9C3E-87DF45CF31BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
