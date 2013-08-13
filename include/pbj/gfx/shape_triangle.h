@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
+/// 		PBJgame\include\pbj\gfx\shape_triangle.h
+///
+/// \brief	Declares the triangle class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef SHAPE_TRIANGLE_
 #define SHAPE_TRIANGLE_
 
@@ -15,6 +21,8 @@ class ShapeTriangle
 public:
 	ShapeTriangle();
 	~ShapeTriangle();
+	//basically a copy and past from the square class
+	//just adjusted for a triangle
 	static void draw();
 	static void draw(GLuint);
 	static void draw(color4);
