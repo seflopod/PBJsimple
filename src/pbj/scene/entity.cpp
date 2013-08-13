@@ -22,6 +22,8 @@ using namespace pbj::scene;
 /// \date	2013-08-05
 ////////////////////////////////////////////////////////////////////////////////
 Entity::Entity() :
+		_shape(nullptr),
+		_material(nullptr),
 		_rigidbody(nullptr),
 		_player(nullptr),
         _transform(this)
@@ -56,7 +58,6 @@ void Entity::init()
 	
 	_transformCallbackId = U32(-1);
 	_sceneId = 0;
-	_textureId = 0;
 
 	_initialized = true;
 }
@@ -110,10 +111,28 @@ void Entity::update(F32 dt)
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
-	color = color4(1.0f, 0.0f, 1.0f, 1.0f);
 	vec2 glmPos = _transform.getPosition();
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
+	GLuint texId = _material->getTextureId();
+	//probably unnecessary habit
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+
+	//save the current colour to put it back when we're done
+	GLfloat curColor[4];
+	glGetFloatv(GL_CURRENT_COLOR, curColor);
+
+	if(texId)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texId);
+		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+	}
 
 	glPushMatrix();
 		glTranslatef(glmPos.x, glmPos.y, 0.0f);
@@ -121,8 +140,12 @@ void Entity::draw()
 		glScalef(glmSca.x, glmSca.y, 1.0f);
 		//if colors are being done, use material.h  for now
 		//this solid color works with no textures loaded.
-		ShapeTriangle::draw(_textureId, color);
+		_shape->draw((texId!=0));
 	glPopMatrix();
+	glColor4fv(curColor);
+
+	if(texId)
+		glDisable(GL_TEXTURE_2D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -159,14 +182,35 @@ void Entity::setTransform(const Transform& transform)
 	_transform = transform;
 }
 
-GLuint Entity::getTextureId() const
+Shape* Entity::getShape() const
 {
-	return _textureId;
+	return _shape.get();
 }
 
-void Entity::setTextureId(const GLuint newId)
+/*template<class T>
+void Entity::addShape()
 {
-	_textureId = newId;
+	if(_shape != nullptr)
+	{
+		delete _shape;
+		_shape = nullptr;
+	}
+
+	_shape = new T();
+}*/
+
+std::shared_ptr<Material> Entity::getMaterial()
+{
+	return _material;
+}
+
+void Entity::addMaterial(std::shared_ptr<Material> material)
+{
+	if(_material.get()!=nullptr)
+	{
+		_material.reset<Material>(nullptr);
+	}
+	_material = material;
 }
 
 void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)

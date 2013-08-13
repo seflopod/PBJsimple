@@ -95,6 +95,7 @@ bool Game::init(U32 fps)
 	_world->SetContactListener(this);
     _physSettings = PhysicsSettings();
 	
+	initBasicMaterials();
     //remove when making for reals
     initTestScene();
 
@@ -112,15 +113,7 @@ bool Game::init(U32 fps)
 	//make all the bullets we'll ever need
 	for(I32 i=0;i<1000;++i)
 	{
-		Entity* e = new Entity();
-		e->init();
-		e->setType(Entity::EntityType::Bullet);
-		e->getTransform()->setScale(0.5f, 0.5f);
-		e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
-		e->getRigidbody()->setBullet(true);
-		e->getRigidbody()->setActive(false);
-		
-		_bullets.push(std::unique_ptr<Entity>(e));
+		_bullets.push(std::unique_ptr<Entity>(makeBullet()));
 	}
     _running = true;
     return true;
@@ -277,26 +270,14 @@ void Game::onContextResized(I32 width, I32 height)
 
 void Game::initTestScene()
 {
-    Entity* p = new Entity();
-	p->init();
-	p->enableDraw();
-    p->setType(Entity::Player);
-	p->getTransform()->setPosition(vec2(0.0f, 25.0f));
-	p->getTransform()->setScale(vec2(1.0f, 2.0f));
-	p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
-	p->addPlayerComponent();
-	_scene.addEntity(std::unique_ptr<Entity>(p));
-    _scene.setLocalPlayer(p->getSceneId());
+   //add the local player to the scene
+	U32 id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer()));
+    _scene.setLocalPlayer(id);
+	_scene.getLocalPlayer()->getTransform()->setPosition(0.0f, 25.0f);
+	_scene.getLocalPlayer()->getTransform()->updateOwnerRigidbody();
 
-	Entity* t = new Entity();
-	t->init();
-	t->setType(Entity::EntityType::Terrain);
-	t->getTransform()->setPosition(0.0f, -15.0f);
-	t->getTransform()->setScale(100.0f, 10.0f);
-	t->addRigidbody(Rigidbody::BodyType::Static, _world);
-    //e->getTransform()->updateOwnerRigidbody();
-	t->enableDraw();
-	_scene.addEntity(std::unique_ptr<Entity>(t));
+	//add terrain to the scene
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain()));
 }
 
 void Game::BeginContact(b2Contact* contact)
@@ -433,6 +414,93 @@ void Game::onMouseLeftDown(I32 mods)
 	x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
 	y = grid_height * (1 - y/size.y) - grid_height/2;
 	_scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x,(F32)y);
+}
+
+void Game::initBasicMaterials()
+{
+	Material* m = new Material();
+	_materials["red"] = std::shared_ptr<Material>(m);
+	_materials["red"]->setColor(color4(1.0f, 0.0f, 0.0f, 1.0f));
+
+	m = nullptr;
+	m = new Material();
+	_materials["green"] = std::shared_ptr<Material>(m);
+	_materials["green"]->setColor(color4(0.0f, 1.0f, 0.0f, 1.0f));
+
+	m = nullptr;
+	m = new Material();
+	_materials["blue"] = std::shared_ptr<Material>(m);
+	_materials["blue"]->setColor(color4(0.0f, 0.0f, 1.0f, 1.0f));
+
+	m = nullptr;
+	m = new Material();
+	_materials["cyan"] = std::shared_ptr<Material>(m);
+	_materials["cyan"]->setColor(color4(0.0f, 1.0f, 1.0f, 1.0f));
+
+	m = nullptr;
+	m = new Material();
+	_materials["magenta"] = std::shared_ptr<Material>(m);
+	_materials["magneta"]->setColor(color4(1.0f, 0.0f, 1.0f, 1.0f));
+
+	m = nullptr;
+	m = new Material();
+	_materials["yellow"] = std::shared_ptr<Material>(m);
+	_materials["yellow"]->setColor(color4(1.0f, 1.0f, 0.0f, 1.0f));
+
+	m = nullptr;
+	m = new Material();
+	_materials["black"] = std::shared_ptr<Material>(m);
+	_materials["black"]->setColor(color4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	m = nullptr;
+	m = new Material();
+	_materials["white"] = std::shared_ptr<Material>(m);
+	_materials["white"]->setColor(color4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	m = nullptr;
+}
+
+Entity* Game::makeBullet()
+{
+	Entity* e = new Entity();
+	e->init();
+	e->setType(Entity::EntityType::Bullet);
+	e->getTransform()->setScale(0.5f, 0.5f);
+	e->addMaterial(_materials["cyan"]);
+	e->addShape<ShapeTriangle>(new ShapeTriangle());
+	e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
+	e->getRigidbody()->setBullet(true);
+	e->getRigidbody()->setActive(false);
+	return e;
+}
+
+Entity* Game::makePlayer()
+{
+	Entity* p = new Entity();
+	p->init();
+	p->setType(Entity::Player);
+	p->getTransform()->setPosition(vec2(0.0f, 25.0f));
+	p->getTransform()->setScale(vec2(1.0f, 2.0f));
+	p->addMaterial(_materials["magenta"]);
+	p->addShape<ShapeSquare>(new ShapeSquare());
+	p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
+	p->addPlayerComponent();
+	p->enableDraw();
+	return p;
+}
+
+Entity* Game::makeTerrain()
+{
+	Entity* t = new Entity();
+	t->init();
+	t->setType(Entity::EntityType::Terrain);
+	t->getTransform()->setPosition(0.0f, -15.0f);
+	t->getTransform()->setScale(100.0f, 10.0f);
+	t->addMaterial(_materials["green"]);
+	t->addShape<ShapeSquare>(new ShapeSquare());
+	t->addRigidbody(Rigidbody::BodyType::Static, _world);
+	t->enableDraw();
+	return t;
 }
 
 } // namespace pbj

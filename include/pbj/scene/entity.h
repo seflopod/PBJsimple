@@ -13,7 +13,8 @@
 #include "pbj/transform.h"
 #include "pbj/gfx/texture.h"
 #include "pbj/gfx/shape_square.h"
-#include "pbj\gfx\shape_triangle.h"
+#include "pbj/gfx/shape_triangle.h"
+#include "pbj/gfx/material.h"
 #include "pbj/physics/rigidbody.h"
 #include "pbj/scene/player_component.h"
 //too lazy to check which if these actually need to be a part of this
@@ -24,8 +25,10 @@
 
 using pbj::gfx::ComponentCallback;
 using pbj::gfx::Texture;
+using pbj::gfx::Shape;
 using pbj::gfx::ShapeSquare;
 using pbj::gfx::ShapeTriangle;
+using pbj::gfx::Material;
 using pbj::physics::Rigidbody;
 
 namespace pbj
@@ -73,6 +76,13 @@ namespace scene
 		Transform* getTransform();
 		void setTransform(const Transform&);
 		
+		Shape* getShape() const;
+		template<class T>
+		void addShape(T*);
+
+		std::shared_ptr<Material> getMaterial();
+		void addMaterial(std::shared_ptr<Material>);
+
 		GLuint getTextureId() const;
 		void setTextureId(const GLuint);
 		
@@ -105,13 +115,28 @@ namespace scene
 
 		//components
 		Transform _transform;
-		GLuint _textureId;
+		std::unique_ptr<Shape> _shape;
+		std::shared_ptr<Material> _material;
 		Rigidbody* _rigidbody;
 		PlayerComponent* _player;
 
 		Entity(const Entity&);
 		void operator=(const Entity&);
 	};
+
+	template<class T>
+	void Entity::addShape(T* shape)
+	{
+		if(!(Shape*)shape)
+		{
+			PBJ_LOG(pbj::VWarning) << "Attempted to make invalid shape." << PBJ_LOG_END;
+			return;
+		}
+		if(_shape.get() != nullptr)
+			_shape.release();
+
+		_shape = std::unique_ptr<T>(shape);
+	}
 } //namespace pbj::scene
 } //namespace pbj
 #endif

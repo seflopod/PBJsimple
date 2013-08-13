@@ -55,5 +55,8 @@ void Material::setTextureId(GLuint texID)
 	_texId = texID;
 }
 
+color4 Material::getColor() const { return _color; }
+void Material::setColor(color4 color) { _color = color; }
+
 } // namespace gfx
 } // namespace pbj

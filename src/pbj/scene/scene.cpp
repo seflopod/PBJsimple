@@ -104,7 +104,7 @@ void Scene::update(F32 dt)
 ///
 /// \param [in] e A unique pointer to the Entity to add.
 ////////////////////////////////////////////////////////////////////////////////
-void Scene::addEntity(unique_ptr<Entity>&& e)
+U32 Scene::addEntity(unique_ptr<Entity>&& e)
 {
 	U32 id;
 	if(e->getSceneId() == 0)
@@ -137,6 +137,7 @@ void Scene::addEntity(unique_ptr<Entity>&& e)
 	default:
 		break;
 	}
+	return id;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

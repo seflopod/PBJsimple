@@ -24,7 +24,8 @@ namespace gfx
 		GLuint getTextureId() const;
 		void setTextureId(GLuint);
 
-
+		color4 getColor() const;
+		void setColor(color4);
 	private:
 		GLuint _texId;
 		color4 _color;

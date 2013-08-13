@@ -13,18 +13,22 @@
 #include <string>
 #include <thread>
 #include <queue>
+#include <map>
 //#include <b2WorldCallbacks.h>
 
 #include "pbj/_pbj.h"
 #include "pbj/engine.h"
 #include "pbj/scene/scene.h"
 #include "pbj/scene/entity.h"
+#include "pbj/gfx/material.h"
 #include "pbj/input_controller.h"
 
 using std::queue;
 using pbj::Engine;
 using pbj::Window;
 using pbj::InputController;
+using pbj::scene::Entity;
+using pbj::gfx::Material;
 
 namespace pbj
 {
@@ -118,7 +122,9 @@ namespace pbj
         
     
 	private:
-		typedef queue<std::unique_ptr<scene::Entity>> BulletQueue;
+		typedef queue<std::unique_ptr<Entity>> BulletQueue;
+		typedef std::map<std::string,std::shared_ptr<Material>> MaterialMap;
+
 		static Game* _instance;
 
 		Game();
@@ -134,25 +140,28 @@ namespace pbj
 		void onMouseLeftDown(I32);
 		void checkMovement(I32, I32);
 		void initTestScene();
+		void initBasicMaterials();
 
 		virtual void BeginContact(b2Contact*);
         virtual void EndContact(b2Contact*);
         virtual void PreSolve(b2Contact*, const b2Manifold*);
         virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
-		vec2 moveP;
+		Entity* makeBullet();
+		Entity* makePlayer();
+		Entity* makeTerrain();
 
 		//Enginey stuff
 		F32 _dt;
 		bool _running;
 		Engine& _engine;
 		Window& _window;
-
 		b2World* _world;
 		PhysicsSettings _physSettings;
+
 		GameControls _controls;
 		BulletQueue _bullets;
-		//Transform _trans;
+		MaterialMap _materials;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

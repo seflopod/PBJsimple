@@ -47,7 +47,7 @@ public:
 	void draw();
 	void update(F32);
 
-	void addEntity(unique_ptr<Entity>&&);
+	U32 addEntity(unique_ptr<Entity>&&);
 	void removeEntity(U32, Entity::EntityType);
     
 	void setLocalPlayer(U32);
