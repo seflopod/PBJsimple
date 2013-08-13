@@ -52,6 +52,9 @@ public:
 	vec2 getVelocity() const;
 	void setVelocity(const vec2&);
 	
+	F32 getAngularVelocity() const;
+	void setAngularVelocity(F32);
+
 	F32 getMass();
 	void setMass(F32);
 

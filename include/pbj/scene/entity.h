@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJgame\include\pbj\scene\entity.h
+/// 		PBJsimple\include\pbj\scene\entity.h
 ///
 /// \brief	Declares the entity class.
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,8 +77,7 @@ namespace scene
 		void setTransform(const Transform&);
 		
 		Shape* getShape() const;
-		template<class T>
-		void addShape(T*);
+		void addShape(Shape*);
 
 		std::shared_ptr<Material> getMaterial();
 		void addMaterial(std::shared_ptr<Material>);
@@ -123,20 +122,6 @@ namespace scene
 		Entity(const Entity&);
 		void operator=(const Entity&);
 	};
-
-	template<class T>
-	void Entity::addShape(T* shape)
-	{
-		if(!(Shape*)shape)
-		{
-			PBJ_LOG(pbj::VWarning) << "Attempted to make invalid shape." << PBJ_LOG_END;
-			return;
-		}
-		if(_shape.get() != nullptr)
-			_shape.release();
-
-		_shape = std::unique_ptr<T>(shape);
-	}
 } //namespace pbj::scene
 } //namespace pbj
 #endif

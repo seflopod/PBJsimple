@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJgame\include\pbj\game.h
+/// 		PBJsimple\include\pbj\game.h
 ///
 /// \brief	Declares the game class.
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +32,15 @@ using pbj::gfx::Material;
 
 namespace pbj
 {
+	////////////////////////////////////////////////////////////////////////////
+	/// \struct	PhysicsSettings
+	///
+	/// \brief	Physics settings used for the calculations of the Box2D physics
+	/// 		engine.
+	///
+	/// \author	Peter Bartosch
+	/// \date	2013-08-13
+	////////////////////////////////////////////////////////////////////////////
 	struct PhysicsSettings
 	{
 		PhysicsSettings():
@@ -44,7 +53,17 @@ namespace pbj
 		I32 velocityIterations;
 		I32 positionIterations;
 	};
-	
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \struct	GameControls
+    ///
+    /// \brief	Game controls.
+    ///
+    /// \author	Peter Bartosch
+    /// \date	2013-08-13
+    /// \details Rather than hardcode the inputs it made sense to create a
+    /// 		 struct that could be customized.
+    ////////////////////////////////////////////////////////////////////////////
     struct GameControls
     {
         I32 left[2];
@@ -117,7 +136,7 @@ namespace pbj
 		I32 run();
 		void stop();
 		
-		void spawnBullet(vec2&, vec2&);
+		void spawnBullet(const vec2&, const vec2&);
 	protected:
         
     

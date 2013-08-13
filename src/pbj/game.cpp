@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
+/// 		PBJsimple\src\pbj\game.cpp
+///
+/// \brief	Implements the game class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef GAME_H_
 #include "pbj/game.h"
 #endif
@@ -262,12 +268,31 @@ void Game::draw()
     glfwSwapBuffers(_window.getGlfwHandle());
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::onContextResized(I32 width, I32 height)
+///
+/// \brief	Executes the context resized action.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	width 	The width.
+/// \param	height	The height.
+////////////////////////////////////////////////////////////////////////////////
 void Game::onContextResized(I32 width, I32 height)
 {
     GLdouble ratio = width/(GLdouble)height;
     glViewport(0, 0, width, height);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::initTestScene()
+///
+/// \brief	Initialises the test scene.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Game::initTestScene()
 {
    //add the local player to the scene
@@ -280,6 +305,16 @@ void Game::initTestScene()
 	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain()));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::BeginContact(b2Contact* contact)
+///
+/// \brief	Begins a contact.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param [in,out]	contact	If non-null, the contact.
+////////////////////////////////////////////////////////////////////////////////
 void Game::BeginContact(b2Contact* contact)
 {
 	//handle collisions for the entire game here
@@ -302,22 +337,64 @@ void Game::BeginContact(b2Contact* contact)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::EndContact(b2Contact* contact)
+///
+/// \brief	Ends a contact.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param [in,out]	contact	If non-null, the contact.
+////////////////////////////////////////////////////////////////////////////////
 void Game::EndContact(b2Contact* contact)
 {
 	//std::cerr<<"EndContact"<<std::endl;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
+///
+/// \brief	Pre solve.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param [in,out]	contact	If non-null, the contact.
+/// \param	manifold	   	The manifold.
+////////////////////////////////////////////////////////////////////////////////
 void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 {
 	//handle presolve
 	//std::cerr<<"PreSolve"<<std::endl;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::PostSolve(b2Contact* contact,
+/// 	const b2ContactImpulse* impulse)
+///
+/// \brief	Posts a solve.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param [in,out]	contact	If non-null, the contact.
+/// \param	impulse		   	The impulse.
+////////////////////////////////////////////////////////////////////////////////
 void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
 	//handle post solve
 	//std::cerr<<"PostSolve"<<std::endl;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::help()
+///
+/// \brief	Helps this object.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Game::help()
 {
    std::cerr << std::endl << std::endl;
@@ -336,6 +413,20 @@ void Game::help()
    std::cerr << "Press the left mouse button to fire the weapon" << std::endl;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::onKeyboard(I32 keycode, I32 scancode, I32 action,
+/// 	I32 modifiers)
+///
+/// \brief	Executes the keyboard action.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	keycode  	The keycode.
+/// \param	scancode 	The scancode.
+/// \param	action   	The action.
+/// \param	modifiers	The modifiers.
+////////////////////////////////////////////////////////////////////////////////
 void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 {
 	if(action == GLFW_PRESS || action == GLFW_REPEAT)
@@ -356,6 +447,17 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::checkMovement(I32 keycode, I32 action)
+///
+/// \brief	Check movement.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	keycode	The keycode.
+/// \param	action 	The action.
+////////////////////////////////////////////////////////////////////////////////
 void Game::checkMovement(I32 keycode, I32 action)
 {
 	//this is a bit simplistic (no modifiers are taken into account), but for
@@ -391,7 +493,18 @@ void Game::checkMovement(I32 keycode, I32 action)
 	}
 }
 
-void Game::spawnBullet(vec2& position, vec2& velocity)
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::spawnBullet(const vec2& position, const vec2& velocity)
+///
+/// \brief	Spawn bullet.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	position	The position.
+/// \param	velocity	The velocity.
+////////////////////////////////////////////////////////////////////////////////
+void Game::spawnBullet(const vec2& position, const vec2& velocity)
 {
 	if(!_bullets.empty())
 	{
@@ -400,11 +513,22 @@ void Game::spawnBullet(vec2& position, vec2& velocity)
 		e->getRigidbody()->setActive(true);
 		e->getTransform()->updateOwnerRigidbody();
 		e->getRigidbody()->setVelocity(velocity);
+		e->getRigidbody()->setAngularVelocity(60.0f);
 		_scene.addEntity(std::move(e));
 		_bullets.pop();
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::onMouseLeftDown(I32 mods)
+///
+/// \brief	Executes the mouse left down action.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	mods	The mods.
+////////////////////////////////////////////////////////////////////////////////
 void Game::onMouseLeftDown(I32 mods)
 {
 	F64 x,y;
@@ -416,6 +540,14 @@ void Game::onMouseLeftDown(I32 mods)
 	_scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x,(F32)y);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::initBasicMaterials()
+///
+/// \brief	Initialises the basic materials.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Game::initBasicMaterials()
 {
 	_materials["red"] = std::shared_ptr<Material>((new Material()));
@@ -443,6 +575,16 @@ void Game::initBasicMaterials()
 	_materials["white"]->setColor(color4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Entity* Game::makeBullet()
+///
+/// \brief	Makes the bullet.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if it fails, else.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Game::makeBullet()
 {
 	Entity* e = new Entity();
@@ -450,13 +592,23 @@ Entity* Game::makeBullet()
 	e->setType(Entity::EntityType::Bullet);
 	e->getTransform()->setScale(0.5f, 0.5f);
 	e->addMaterial(_materials["cyan"]);
-	e->addShape<ShapeTriangle>(new ShapeTriangle());
+	e->addShape(new ShapeTriangle());
 	e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
 	e->getRigidbody()->setBullet(true);
 	e->getRigidbody()->setActive(false);
 	return e;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Entity* Game::makePlayer()
+///
+/// \brief	Makes the player.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if it fails, else.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Game::makePlayer()
 {
 	Entity* p = new Entity();
@@ -465,13 +617,23 @@ Entity* Game::makePlayer()
 	p->getTransform()->setPosition(vec2(0.0f, 25.0f));
 	p->getTransform()->setScale(vec2(1.0f, 2.0f));
 	p->addMaterial(_materials["magenta"]);
-	p->addShape<ShapeSquare>(new ShapeSquare());
+	p->addShape(new ShapeSquare());
 	p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
 	p->addPlayerComponent();
 	p->enableDraw();
 	return p;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Entity* Game::makeTerrain()
+///
+/// \brief	Makes the terrain.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if it fails, else.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Game::makeTerrain()
 {
 	Entity* t = new Entity();
@@ -480,7 +642,7 @@ Entity* Game::makeTerrain()
 	t->getTransform()->setPosition(0.0f, -15.0f);
 	t->getTransform()->setScale(100.0f, 10.0f);
 	t->addMaterial(_materials["green"]);
-	t->addShape<ShapeSquare>(new ShapeSquare());
+	t->addShape(new ShapeSquare());
 	t->addRigidbody(Rigidbody::BodyType::Static, _world);
 	t->enableDraw();
 	return t;

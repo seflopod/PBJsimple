@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJgame\src\pbj\scene\entity.cpp
+/// 		PBJsimple\src\pbj\scene\entity.cpp
 ///
 /// \brief	Implements the entity class.
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +82,20 @@ void Entity::destroy()
 	_initialized = false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::update(F32 dt)
+///
+/// \brief	Updates using the given difference in time.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	dt	The difference in time.
+/// 
+/// \details This mostly checks firing states for the PlayerComponent.  It also
+/// 		 uses the Rigidbody to make sure the Transform used for drawing is
+/// 		 up-to-date.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::update(F32 dt)
 {
 	if(_rigidbody)
@@ -134,7 +148,6 @@ void Entity::draw()
 		glBindTexture(GL_TEXTURE_2D, texId);
 		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
 	}
-
 	
 	glPushMatrix();
 		glTranslatef(glmPos.x, glmPos.y, 0.0f);
@@ -183,28 +196,71 @@ void Entity::setTransform(const Transform& transform)
 	_transform = transform;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Shape* Entity::getShape() const
+///
+/// \brief	Gets the shape used by the Entity.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if the shape does not exist; a pointer to the Shape otherwise.
+////////////////////////////////////////////////////////////////////////////////
 Shape* Entity::getShape() const
 {
 	return _shape.get();
 }
 
-/*template<class T>
-void Entity::addShape()
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::addShape(Shape* shape)
+///
+/// \brief	Adds a Shape.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param [in]	shape	A pointer to the Shape to use.
+/// \details Any class the uses the Shape interface (ShapeSquare, ShapeTriangle)
+/// 		 is acceptable.  This is what will be drawn.
+////////////////////////////////////////////////////////////////////////////////
+void Entity::addShape(Shape* shape)
 {
 	if(_shape != nullptr)
 	{
-		delete _shape;
-		_shape = nullptr;
+		_shape.release();
 	}
+	_shape.reset(shape);
+}
 
-	_shape = new T();
-}*/
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	std::shared_ptr<Material> Entity::getMaterial()
+///
+/// \brief	Gets the material.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	A shared_ptr to the Material.
+////////////////////////////////////////////////////////////////////////////////
 std::shared_ptr<Material> Entity::getMaterial()
 {
 	return _material;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::addMaterial(std::shared_ptr<Material> material)
+///
+/// \brief	Adds a material.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	material	A shared_ptr to the Material for this Entity to use.
+/// \details Since a sinigle Material can be used for multiple Entitys it makes
+/// 		 the most sense to use a pointer.  I chose to use a shared_ptr
+/// 		 because I'm lazy and don't want to keep track of the pointer
+/// 		 myself.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addMaterial(std::shared_ptr<Material> material)
 {
 	if(_material.get()!=nullptr)
@@ -214,6 +270,24 @@ void Entity::addMaterial(std::shared_ptr<Material> material)
 	_material = material;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::addRigidbody(Rigidbody::BodyType bodyType,
+/// 	b2World* world)
+///
+/// \brief	Adds a rigidbody to the Entity.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	bodyType	 	Type of the body.
+/// \param [in]	world	The Box2D world that holds the Rigidbody.
+/// \details This will create a Rigidbody based on the type of Entity that is
+/// 		 using it.  Things like shape, weight and restitution (bounciness)
+/// 		 are all passed to the Rigidbody class to create a new one for this
+/// 		 particular Entity.  This is rather simple and therefore does not
+/// 		 use multiple fixtures for making complex shapes.  Simple boxes,
+/// 		 polygons and circles are used instead.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 {
 	if(!_rigidbody)
@@ -249,11 +323,29 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Rigidbody* Entity::getRigidbody() const
+///
+/// \brief	Gets a pointer to the Rigidbody.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if it none exists, else the rigidbody.
+////////////////////////////////////////////////////////////////////////////////
 Rigidbody* Entity::getRigidbody() const
 {
 	return _rigidbody;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::addPlayerComponent()
+///
+/// \brief	Adds player component.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addPlayerComponent()
 {
 	if(!_player)
@@ -262,16 +354,46 @@ void Entity::addPlayerComponent()
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	PlayerComponent* Entity::getPlayerComponent() const
+///
+/// \brief	Gets PlayerComponent.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if none exists, else the player component.
+////////////////////////////////////////////////////////////////////////////////
 PlayerComponent* Entity::getPlayerComponent() const
 {
 	return _player;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	U32 Entity::getSceneId() const
+///
+/// \brief	Gets scene identifier.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	The scene identifier.
+////////////////////////////////////////////////////////////////////////////////
 U32 Entity::getSceneId() const
 {
 	return _sceneId;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::setSceneId(U32 id)
+///
+/// \brief	Sets scene identifier.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	id	The identifier.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setSceneId(U32 id)
 {
 	_sceneId = id;
@@ -282,6 +404,16 @@ Entity::EntityType Entity::getType() const
 	return _type;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::setType(EntityType et)
+///
+/// \brief	Sets a type.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	et	The EntityType to use.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setType(EntityType et)
 {
 	_type = et;
@@ -305,17 +437,42 @@ void Entity::setType(EntityType et)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::enableDraw()
+///
+/// \brief	Enables drawing.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Entity::enableDraw()
 {
     _drawable = true;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::disableDraw()
+///
+/// \brief	Disables drawing.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Entity::disableDraw()
 {
     _drawable = false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	bool Entity::isDrawable() const
+///
+/// \brief	Query if this object is drawable.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	true if drawable, false if not.
+////////////////////////////////////////////////////////////////////////////////
 bool Entity::isDrawable() const
 {
     return _drawable;

@@ -413,3 +413,13 @@ void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
 {
 	_body->SetTransform(pos, rot);
 }
+
+F32 Rigidbody::getAngularVelocity() const
+{
+	return _body->GetAngularVelocity();
+}
+
+void Rigidbody::setAngularVelocity(F32 angVel)
+{
+	_body->SetAngularVelocity((float32)angVel);
+}
