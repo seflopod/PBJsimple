@@ -63,7 +63,7 @@ void Scene::draw()
 		it->second->draw();
 
 	//I assume the ui drawing goes like this.
-	//ui.draw();
+	ui.draw();
 }
 
 void Scene::update()
