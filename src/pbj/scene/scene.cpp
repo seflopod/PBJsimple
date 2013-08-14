@@ -107,7 +107,7 @@ void Scene::update(F32 dt)
 U32 Scene::addEntity(unique_ptr<Entity>&& e)
 {
 	U32 id;
-	if(e->getSceneId() == 0)
+	if(e->getSceneId() != 0)
 		id = e->getSceneId();
 	else
 	{

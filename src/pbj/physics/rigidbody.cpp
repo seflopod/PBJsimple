@@ -395,6 +395,12 @@ Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 
 void Rigidbody::setCollisionGroup(CollisionGroup cg)
 {
+	
+}
+
+void Rigidbody::setFixedRotation(bool isFixed)
+{
+	_body->SetFixedRotation(isFixed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

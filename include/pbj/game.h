@@ -168,7 +168,7 @@ namespace pbj
 
 		Entity* makeBullet();
 		Entity* makePlayer();
-		Entity* makeTerrain();
+		Entity* makeTerrain(F32, F32, F32, F32);
 
 		//Enginey stuff
 		F32 _dt;

@@ -86,6 +86,9 @@ Engine::Engine()
 
     //no harm in showing a window before physics is started
 	b2World* wrld = new b2World(b2Vec2(0.0f, -9.822f));
+	
+	//For testing in a world with no gravity
+	//b2World* wrld = new b2World(b2Vec2(0.0f, 0.0f));
 	wrld->SetAllowSleeping(true);
 	world_.reset(wrld);
 

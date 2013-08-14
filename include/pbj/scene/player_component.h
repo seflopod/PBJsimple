@@ -33,7 +33,7 @@ namespace scene
 			reloadTime = 1.0f;
 			jumpSpeed = 10.0f;
 			moveSpeed = 10.0f;
-			thrust = 1000.0f;
+			thrust = 500.0f;
 		}
 	};
 

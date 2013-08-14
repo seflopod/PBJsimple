@@ -307,12 +307,13 @@ void Game::initTestScene()
    //add the local player to the scene
 	U32 id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer()));
     _scene.setLocalPlayer(id);
-	_scene.getLocalPlayer()->getTransform()->setPosition(0.0f, 25.0f);
+	_scene.getLocalPlayer()->getTransform()->setPosition(0.0f, 15.0f);
 	_scene.getLocalPlayer()->getTransform()->updateOwnerRigidbody();
-
 	//add terrain to the scene
-	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain()));
-
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, -15.0f, 100.0f,
+															10.0f)));
+	id = _scene.addEntity(std::unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f,
+																25.0f, 5.0f)));
 	//add some UI to the scene
 	//This does not work due to issues with UIRoot and input registration
 	/*scene::UILabel label;
@@ -553,7 +554,7 @@ void Game::onMouseLeftDown(I32 mods)
 	double ratio = size.x/(double)size.y;
 	x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
 	y = grid_height * (1 - y/size.y) - grid_height/2;
-	_scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x,(F32)y);
+	_scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x/2.0f,(F32)y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -635,6 +636,7 @@ Entity* Game::makePlayer()
 	p->addMaterial(_materials["magenta"]);
 	p->addShape(new ShapeSquare());
 	p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
+	p->getRigidbody()->setFixedRotation(true);
 	p->addPlayerComponent();
 	p->enableDraw();
 	return p;
@@ -649,14 +651,17 @@ Entity* Game::makePlayer()
 /// \date	2013-08-13
 ///
 /// \return	null if it fails, else.
+///
+/// \details Since we can't change the size of a Rigidbody yet, this is a kind
+///          useless function unless something changes.
 ////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makeTerrain()
+Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
 {
 	Entity* t = new Entity();
 	t->init();
 	t->setType(Entity::EntityType::Terrain);
-	t->getTransform()->setPosition(0.0f, -15.0f);
-	t->getTransform()->setScale(100.0f, 10.0f);
+	t->getTransform()->setPosition(x, y);
+	t->getTransform()->setScale(width, height);
 	t->addMaterial(_materials["green"]);
 	t->addShape(new ShapeSquare());
 	t->addRigidbody(Rigidbody::BodyType::Static, _world);

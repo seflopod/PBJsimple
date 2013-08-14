@@ -603,21 +603,20 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 		F32 bulletSpeed = 500.0f;
 		Entity* e = (Entity*)_owner;
 		vec2 pos = e->getTransform()->getPosition();
-		std::cerr<<"trying to shoot p0(x,y)=("<<pos.x<<","<<pos.y<<") p1(x,y)=("<<mouseX<<","<<mouseY<<")"<<std::endl;
-		
-		if(mouseX - pos.x < 0)
+
+		if(mouseX < pos.x)
 		{
 			pos.x -= e->getTransform()->getScale().x/2 - 0.1f;
 		}
-		else if(mouseX - pos.x > 0)
+		else if(mouseX > pos.x)
 		{
 			pos.x += e->getTransform()->getScale().x/2 + 0.1f;
 		}
-		else if(mouseY - pos.y < 0)
+		else if(mouseY < pos.y)
 		{
 			pos.y -= e->getTransform()->getScale().y/2 - 0.1f;
 		}
-		else if(mouseY - pos.y > 0)
+		else if(mouseY > pos.y)
 		{
 			pos.y += e->getTransform()->getScale().y/2 + 0.1f;
 		}
@@ -625,13 +624,9 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 		{   //if we're here, we're clicking on the player
 			return;
 		}
-		
-		std::cerr<<"trying to shoot p0(x,y)=("<<pos.x<<","<<pos.y<<") p1(x,y)=("<<mouseX<<","<<mouseY<<")"<<std::endl;
-		vec2 velDir = vec2(mouseX,mouseY) - pos;
-		std::cerr<<velDir.y/velDir.x<<std::endl;
-		velDir = glm::normalize(velDir);
-		std::cerr<<velDir.x<<","<<velDir.y<<std::endl;
-
+		vec2 diff = vec2(mouseX,mouseY) - pos;
+		F32 ang = std::atan2(diff.y,diff.x);
+		vec2 velDir = vec2(std::cos(ang), std::sin(ang));
 		Game::instance()->spawnBullet(pos, velDir * bulletSpeed);
 		_stats.ammoRemaining -= 1;
 		_fireTimer = 0.0f;
