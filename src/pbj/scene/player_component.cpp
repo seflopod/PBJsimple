@@ -413,7 +413,7 @@ void PlayerComponent::doThrust()
 	{
 		if(!_thrusting && !_forceFullRegen && _stats.fuelRemaining >= 2*costPerTick)
 		{   //start thrusting
-			vec2 force = vec2(0.0f, 3*_stats.thrust);
+			vec2 force = vec2(0.0f, 20*_stats.thrust);
 			r->applyForce(force, physics::Rigidbody::ForceMode::Impulse);
 			_thrusting = true;
 			_stats.fuelRemaining -= 2 * costPerTick;

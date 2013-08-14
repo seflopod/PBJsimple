@@ -307,7 +307,7 @@ void Game::initTestScene()
    //add the local player to the scene
 	U32 id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer()));
     _scene.setLocalPlayer(id);
-	_scene.getLocalPlayer()->getTransform()->setPosition(0.0f, 15.0f);
+	_scene.getLocalPlayer()->getTransform()->setPosition(0.0f, -15.0f);
 	_scene.getLocalPlayer()->getTransform()->updateOwnerRigidbody();
 	//add terrain to the scene
 	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, -15.0f, 100.0f,
@@ -323,6 +323,10 @@ void Game::initTestScene()
 
 	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, 30.0f, 100.0f,
 															10.0f)));
+
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, 20.0f, 5.0f, 15.0f)));
+
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(-7.5f, 13.75f, 10.0f, 2.5f)));
 
 	//add some UI to the scene
 	//This does not work due to issues with UIRoot and input registration
