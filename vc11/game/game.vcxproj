@@ -38,7 +38,6 @@
     <ClCompile Include="..\..\src\be\verbosity.cpp" />
     <ClCompile Include="..\..\src\pbj\audio\audio_buffer.cpp" />
     <ClCompile Include="..\..\src\pbj\editor.cpp" />
-    <ClCompile Include="..\..\src\pbj\entity_ring.cpp" />
     <ClCompile Include="..\..\src\pbj\game.cpp" />
     <ClCompile Include="..\..\src\pbj\engine.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\material.cpp" />

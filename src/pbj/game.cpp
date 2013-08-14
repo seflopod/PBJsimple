@@ -323,8 +323,8 @@ void Game::initTestScene()
 	//add another player Entity
 	id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer(20.0f, 25.0f)));
 	//add terrain to the scene
-	//_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, -15.0f, 100.0f,
-															10.0f)));
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, -20.0f, 100.0f,
+															5.0f)));
 	//id = _scene.addEntity(std::unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f,
 	//															25.0f, 5.0f)));
 
@@ -586,27 +586,6 @@ void Game::checkMovement(I32 keycode, I32 action)
 	else if(keycode == _controls.keyAction[0] || keycode == _controls.keyAction[1])
 	{
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Game::onMouseLeftDown(I32 mods)
-///
-/// \brief	Executes the mouse left down action.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-13
-///
-/// \param	mods	The mods.
-////////////////////////////////////////////////////////////////////////////////
-void Game::onMouseLeftDown(I32 mods)
-{
-	F64 x,y;
-	glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
-	ivec2 size = getEngine().getWindow()->getContextSize();
-	double ratio = size.x/(double)size.y;
-	x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
-	y = grid_height * (1 - y/size.y) - grid_height/2;
-	_scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x/2.0f,(F32)y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

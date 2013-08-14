@@ -67,7 +67,8 @@ void Scene::draw()
 	for(EntityMap::iterator it=_bullets.begin();
 		it!=_bullets.end();
 		it++)
-		it->second->draw();
+		if(it->second->isDrawable())
+			it->second->draw();
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
@@ -90,21 +91,18 @@ void Scene::update(F32 dt)
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-
 		if(it->second->isEnabled())
 			it->second->update(dt);
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-
 		if(it->second->isEnabled())
 			it->second->update(dt);
 
 	for(EntityMap::iterator it=_bullets.begin();
 		it!=_bullets.end();
 		it++)
-
 		if(it->second->isEnabled())
 			it->second->update(dt);
 }
