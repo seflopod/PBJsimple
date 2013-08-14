@@ -301,19 +301,19 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		switch(_type)
 		{
 		case Player:
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 1.0f,this);
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
 			break;
 		case Terrain:
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 1.0f,this);
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
 			break;
 		case SpawnPoint:
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f,this);
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
 		case Bullet:
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.0f, 1.0f,this);
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this);
 		default:
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;

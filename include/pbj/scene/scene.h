@@ -8,6 +8,8 @@
 
 #include <vector>
 #include <map>
+#include <random>
+
 #include "pbj/_pbj.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/entity.h"
@@ -52,6 +54,9 @@ public:
     
 	Entity* getBullet(U32);
 	Entity* getPlayer(U32);
+	Entity* getTerrain(U32);
+	Entity* getSpawnPoint(U32);
+	Entity* getRandomSpawnPoint();
 
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
@@ -73,6 +78,7 @@ private:
 	EntityMap _terrain;
 	EntityMap _players;
 	EntityMap _bullets;
+	std::ranlux24_base _rnd;
     Scene(const Scene&);
     void operator=(const Scene&);
 };

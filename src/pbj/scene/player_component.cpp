@@ -547,6 +547,11 @@ void PlayerComponent::stepReloadTimer(F32 dt)
 	_reloadTimer+=dt;
 	_reloading = _reloadTimer < _stats.reloadTime;
 	_canShoot = !_reloading;
+	if(_canShoot)
+	{
+		_stats.ammoRemaining = _stats.maxAmmo;
+		std::cerr<<"Done reloading"<<std::endl;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -597,7 +602,7 @@ void PlayerComponent::stepFireTimer(F32 dt)
 ////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 {
-	if(_canShoot && !_fireCooldown)
+	if(_canShoot && !_fireCooldown && _stats.health > 0)
 	{
 		
 		F32 bulletSpeed = 50.0f;
@@ -609,19 +614,19 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 		//to change.
 		if(mouseX < pos.x)
 		{
-			pos.x -= (e->getTransform()->getScale().x/2 + 0.5f);
+			pos.x -= (e->getTransform()->getScale().x/2 + 0.75f);
 		}
 		else if(mouseX > pos.x)
 		{
-			pos.x += (e->getTransform()->getScale().x/2 + 0.5f);
+			pos.x += (e->getTransform()->getScale().x/2 + 0.75f);
 		}
 		else if(mouseY < pos.y)
 		{
-			pos.y -= (e->getTransform()->getScale().y/2 + 0.5f);
+			pos.y -= (e->getTransform()->getScale().y/2 + 0.75f);
 		}
 		else if(mouseY > pos.y)
 		{
-			pos.y += (e->getTransform()->getScale().y/2 + 0.5f);
+			pos.y += (e->getTransform()->getScale().y/2 + 0.75f);
 		}
 		else
 		{   //if we're here, we're clicking on the player
@@ -632,16 +637,18 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 		vec2 velDir = vec2(std::cos(ang), std::sin(ang));
 		Game::instance()->spawnBullet(pos, velDir * bulletSpeed);
 		_stats.ammoRemaining -= 1;
-		_fireTimer = 0.0f;
-		_fireCooldown = true;
-		_canShoot = false;
-	}
-	
-	if(_stats.ammoRemaining <= 0)
-	{
-		_stats.ammoRemaining = 0;
-		_reloadTimer = 0.0f;
-		_reloading = true;
+		if(_stats.ammoRemaining <= 0)
+		{
+			std::cerr<<"Reloading"<<std::endl;
+			_stats.ammoRemaining = 0;
+			_reloadTimer = 0.0f;
+			_reloading = true;
+		}
+		else
+		{
+			_fireTimer = 0.0f;
+			_fireCooldown = true;
+		}
 		_canShoot = false;
 	}
 }
@@ -703,7 +710,9 @@ void PlayerComponent::takeDamage(I32 dmg)
 	_stats.health-=dmg;
 	std::cerr<<_stats.health<<std::endl;
 	if(_stats.health <= 0)
+	{
 		std::cerr<<"Dead"<<std::endl;
+	}
 	std::cerr<<std::endl;
 }
 
@@ -714,6 +723,10 @@ void PlayerComponent::stop()
 	vel.x *= 0.8f;
 	e->getRigidbody()->setVelocity(vel);
 }
+
+bool PlayerComponent::isDead() { return _stats.health <= 0; }
+F64 PlayerComponent::getTimeOfDeath() { return _timeOfDeath; }
+void PlayerComponent::setTimeOfDeath(F64 tod) { _timeOfDeath = tod; }
 
 } //namespace scene
 } //namespace pbj

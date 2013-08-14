@@ -27,10 +27,10 @@ namespace scene
 			maxHealth = 1000;
 			fuelRemaining = 6000;
 			maxFuel = 6000;
-			ammoRemaining = 1000;
-			maxAmmo = 1000;
+			ammoRemaining = 20;
+			maxAmmo = 20;
 			rateOfFire = 0.025f;
-			reloadTime = 1.0f;
+			reloadTime = 1.5f;
 			jumpSpeed = 20.0f;
 			moveSpeed = 15.0f;
 			thrust = 500.0f;
@@ -98,6 +98,9 @@ namespace scene
 		void takeDamage(I32);
 		void stop();
 
+		bool isDead();
+		F64 getTimeOfDeath();
+		void setTimeOfDeath(F64);
 	private:
 		void* _owner;
 		PlayerStats _stats;
@@ -109,6 +112,7 @@ namespace scene
 		bool _fireCooldown;
 		F32 _fireTimer;
 		F32 _reloadTimer;
+		F64 _timeOfDeath;
 	};
 } //namespace scene
 } //namespace pbj

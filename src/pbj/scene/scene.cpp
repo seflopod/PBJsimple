@@ -23,6 +23,8 @@ Scene::Scene()
 {
 	_nextEntityId = 1;
     _localPlayerId = U32(-1);
+	std::random_device rd;
+	_rnd = std::ranlux24_base(rd());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +53,13 @@ Scene::~Scene()
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
+
+	//drawing for debug purposes
+	for(EntityMap::iterator it=_spawnPoints.begin();
+		it!=_spawnPoints.end();
+		it++)
+		if(it->second->isDrawable())
+			it->second->draw();
 
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
@@ -227,6 +236,43 @@ Entity* Scene::getPlayer(U32 id)
 		return _players[id].get();
 
 	return nullptr;
+}
+
+Entity* Scene::getTerrain(U32 id)
+{
+	EntityMap::iterator it = _terrain.find(id);
+	if(it != _terrain.end())
+		return _terrain[id].get();
+
+	return nullptr;
+}
+
+Entity* Scene::getSpawnPoint(U32 id)
+{
+	EntityMap::iterator it = _spawnPoints.find(id);
+	if(it != _spawnPoints.end())
+		return _spawnPoints[id].get();
+
+	return nullptr;
+}
+
+Entity* Scene::getRandomSpawnPoint()
+{
+	std::uniform_int_distribution<I32> dist(0, _spawnPoints.size()-1);
+	I32 stop = dist(_rnd);
+	I32 count = 0;
+	EntityMap::iterator it = _spawnPoints.begin();
+
+	while(it!=_spawnPoints.end() && count != stop)
+	{
+		it++;
+		count++;
+	}
+
+	if(it == _spawnPoints.end())
+		return nullptr;
+
+	return it->second.get();
 }
 
 } // namespace pbj::scene
