@@ -699,16 +699,7 @@ void PlayerComponent::stop()
 {
 	Entity* e = (Entity*)_owner;
 	vec2 vel = e->getRigidbody()->getVelocity();
-	if(vel.x > 0)
-	{
-		vel.x -= 1;
-	}
-
-	if (vel.x < 0)
-	{
-		vel.x += 1;
-	}
-
+	vel.x *= 0.8f;
 	e->getRigidbody()->setVelocity(vel);
 }
 
