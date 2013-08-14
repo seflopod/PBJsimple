@@ -41,8 +41,6 @@
     <ClCompile Include="..\..\src\pbj\game.cpp" />
     <ClCompile Include="..\..\src\pbj\engine.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\material.cpp" />
-    <ClCompile Include="..\..\src\pbj\gfx\shape_square.cpp" />
-    <ClCompile Include="..\..\src\pbj\gfx\shape_triangle.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture_font.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture_font_character.cpp" />
@@ -50,6 +48,7 @@
     <ClCompile Include="..\..\src\pbj\physics\rigidbody.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\camera.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\entity.cpp" />
+    <ClCompile Include="..\..\src\pbj\scene\player_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\scene.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\ui_button.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\ui_element.cpp" />
@@ -82,6 +81,7 @@
     <ClInclude Include="..\..\include\pbj\game.h" />
     <ClInclude Include="..\..\include\pbj\engine.h" />
     <ClInclude Include="..\..\include\pbj\gfx\material.h" />
+    <ClInclude Include="..\..\include\pbj\gfx\shape.h" />
     <ClInclude Include="..\..\include\pbj\gfx\shape_square.h" />
     <ClInclude Include="..\..\include\pbj\gfx\shape_triangle.h" />
     <ClInclude Include="..\..\include\pbj\gfx\texture.h" />
@@ -91,6 +91,7 @@
     <ClInclude Include="..\..\include\pbj\physics\rigidbody.h" />
     <ClInclude Include="..\..\include\pbj\scene\camera.h" />
     <ClInclude Include="..\..\include\pbj\scene\entity.h" />
+    <ClInclude Include="..\..\include\pbj\scene\player_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\scene.h" />
     <ClInclude Include="..\..\include\pbj\scene\ui_button.h" />
     <ClInclude Include="..\..\include\pbj\scene\ui_element.h" />

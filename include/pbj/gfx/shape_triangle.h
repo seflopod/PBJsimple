@@ -8,6 +8,7 @@
 #define SHAPE_TRIANGLE_
 
 #include "pbj/_pbj.h"
+#include "pbj/gfx/shape.h"
 #include "pbj/_math.h"
 #include "pbj/gfx/texture.h"
 
@@ -16,18 +17,32 @@ namespace pbj
 namespace gfx
 {
 
-class ShapeTriangle
-{
-public:
-	ShapeTriangle();
-	~ShapeTriangle();
-	//basically a copy and past from the square class
-	//just adjusted for a triangle
-	static void draw();
-	static void draw(GLuint);
-	static void draw(color4);
-	static void draw(GLuint, color4);
-};
+	class ShapeTriangle : public Shape
+	{
+	public:
+		ShapeTriangle() {}
+		~ShapeTriangle() {}
+
+		virtual void draw(bool hasTexture)
+		{
+			if(hasTexture)
+			{
+				glBegin(GL_TRIANGLES);
+					glTexCoord2d(0.0, 0.0); glVertex2f(-0.5f, -0.433f);
+					glTexCoord2d(1.0, 0.0); glVertex2f(0.5f, -0.433f);
+					glTexCoord2d(0.5, 0.866); glVertex2f(0.0f, 0.433f);
+				glEnd();
+			}
+			else
+			{
+				glBegin(GL_TRIANGLES);
+					glVertex2f(-0.5f, -0.433f);
+					glVertex2f(0.5f, -0.433f);
+					glVertex2f(0.0f, 0.433f);
+				glEnd();
+			}
+		}
+	};
 
 } // namespace gfx
 } // namespace pbj
