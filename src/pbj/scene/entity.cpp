@@ -58,7 +58,7 @@ void Entity::init()
 	
 	_transformCallbackId = U32(-1);
 	_sceneId = 0;
-
+	_enabled = true;
 	_initialized = true;
 }
 
@@ -476,4 +476,28 @@ void Entity::disableDraw()
 bool Entity::isDrawable() const
 {
     return _drawable;
+}
+
+
+bool Entity::isEnabled() const
+{
+	return _enabled;
+}
+
+void Entity::enable()
+{
+	if(_shape.get())
+		_drawable = true;
+	if(_rigidbody)
+		_rigidbody->setActive(true);
+
+	_enabled = true;
+}
+void Entity::disable()
+{
+	_drawable = false;
+	if(_rigidbody)
+		_rigidbody->setActive(false);
+
+	_enabled = false;
 }

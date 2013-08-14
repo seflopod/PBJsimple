@@ -210,15 +210,15 @@
     <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
       <Filter>Source Files\pbj\pbj::gfx</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pbj\entity_ring.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\pbj\engine.h">
       <Filter>Header Files\pbj</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\input_controller.h">
-      <Filter>Header Files\pbj</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pbj\scene\scene.h">
       <Filter>Header Files\pbj</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\transform.h">
@@ -346,6 +346,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\gfx\shape.h">
       <Filter>Header Files\pbj\pbj::gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\scene.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\entity_ring.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

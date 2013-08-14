@@ -27,9 +27,9 @@ namespace scene
 			maxHealth = 1000;
 			fuelRemaining = 6000;
 			maxFuel = 6000;
-			ammoRemaining = 20;
-			maxAmmo = 20;
-			rateOfFire = 0.1f;
+			ammoRemaining = 1000;
+			maxAmmo = 1000;
+			rateOfFire = 0.025f;
 			reloadTime = 1.0f;
 			jumpSpeed = 10.0f;
 			moveSpeed = 10.0f;
@@ -95,6 +95,7 @@ namespace scene
 		void moveRight();
 		void jump();
 
+		void takeDamage(I32);
 	private:
 		void* _owner;
 		PlayerStats _stats;

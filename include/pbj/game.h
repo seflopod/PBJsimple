@@ -141,7 +141,6 @@ namespace pbj
         
     
 	private:
-		typedef queue<std::unique_ptr<Entity>> BulletQueue;
 		typedef std::map<std::string,std::shared_ptr<Material>> MaterialMap;
 
 		static Game* _instance;
@@ -167,7 +166,7 @@ namespace pbj
         virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
 		Entity* makeBullet();
-		Entity* makePlayer();
+		Entity* makePlayer(F32, F32);
 		Entity* makeTerrain(F32, F32, F32, F32);
 
 		//Enginey stuff
@@ -177,9 +176,10 @@ namespace pbj
 		Window& _window;
 		b2World* _world;
 		PhysicsSettings _physSettings;
-
+		queue<Entity*> _toDisable;
 		GameControls _controls;
-		BulletQueue _bullets;
+		U32 _bulletRing[100];
+		I32 _curRingIdx;
 		MaterialMap _materials;
 
 		//this should be a container for multiple scenes.  Right now only one.

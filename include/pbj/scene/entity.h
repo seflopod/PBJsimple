@@ -101,12 +101,18 @@ namespace scene
 		bool isDrawable() const;
 		void enableDraw();
 		void disableDraw();
-		color4 color;
+
+		bool isEnabled() const;
+		void enable();
+		void disable();
 
 	private:
 		bool _initialized;
 				
         bool _drawable;
+		bool _enabled;
+		//bool _toDisable;
+		//bool _toEnable;
 
 		U32 _transformCallbackId;
 		U32 _sceneId;

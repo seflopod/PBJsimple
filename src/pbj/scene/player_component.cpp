@@ -432,6 +432,7 @@ void PlayerComponent::doThrust()
 		{
 			_thrusting = false;
 		}
+		std::cerr<<_stats.fuelRemaining<<std::endl;
 	}
 }
 
@@ -600,25 +601,28 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 	if(_canShoot && !_fireCooldown)
 	{
 		
-		F32 bulletSpeed = 500.0f;
+		F32 bulletSpeed = 50.0f;
 		Entity* e = (Entity*)_owner;
 		vec2 pos = e->getTransform()->getPosition();
 
+		//the 0.5f used here is supposed to take the size of the bullet into
+		//account.  Obviously if the size of the bullet changes than this needs
+		//to change.
 		if(mouseX < pos.x)
 		{
-			pos.x -= e->getTransform()->getScale().x/2 - 0.1f;
+			pos.x -= (e->getTransform()->getScale().x/2 + 0.5f);
 		}
 		else if(mouseX > pos.x)
 		{
-			pos.x += e->getTransform()->getScale().x/2 + 0.1f;
+			pos.x += (e->getTransform()->getScale().x/2 + 0.5f);
 		}
 		else if(mouseY < pos.y)
 		{
-			pos.y -= e->getTransform()->getScale().y/2 - 0.1f;
+			pos.y -= (e->getTransform()->getScale().y/2 + 0.5f);
 		}
 		else if(mouseY > pos.y)
 		{
-			pos.y += e->getTransform()->getScale().y/2 + 0.1f;
+			pos.y += (e->getTransform()->getScale().y/2 + 0.5f);
 		}
 		else
 		{   //if we're here, we're clicking on the player
@@ -695,6 +699,14 @@ void PlayerComponent::jump()
 	}
 }
 
+void PlayerComponent::takeDamage(I32 dmg)
+{
+	_stats.health-=dmg;
+	std::cerr<<_stats.health<<std::endl;
+	if(_stats.health <= 0)
+		std::cerr<<"Dead"<<std::endl;
+	std::cerr<<std::endl;
+}
 
 } //namespace scene
 } //namespace pbj

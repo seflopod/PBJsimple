@@ -120,10 +120,14 @@ bool Game::init(U32 fps)
 	glLoadIdentity();
 
 	//make all the bullets we'll ever need
-	for(I32 i=0;i<1000;++i)
+	for(I32 i=0;i<100;++i)
 	{
-		_bullets.push(std::unique_ptr<Entity>(makeBullet()));
+		//_bullets.push(std::unique_ptr<Entity>(makeBullet()));
+		_bulletRing[i] = _scene.addEntity(std::unique_ptr<Entity>(makeBullet()));
+		_scene.getBullet(_bulletRing[i])->getRigidbody()->setBullet(false);
+		_scene.getBullet(_bulletRing[i])->disable();
 	}
+	_curRingIdx = 0;
     _running = true;
     return true;
 }
@@ -239,6 +243,14 @@ bool Game::physUpdate()
     
     //after all other physics updates, clear forces
     _world->ClearForces();
+
+	//after we're done with the physics step, we need to disable anything queued
+	//for it
+	while(!_toDisable.empty())
+	{
+		_toDisable.front()->disable();
+		_toDisable.pop();
+	}
     return true;
 }
 
@@ -305,10 +317,11 @@ void Game::onContextResized(I32 width, I32 height)
 void Game::initTestScene()
 {
    //add the local player to the scene
-	U32 id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer()));
+	U32 id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer(0.0f, 15.0f)));
     _scene.setLocalPlayer(id);
-	_scene.getLocalPlayer()->getTransform()->setPosition(0.0f, 15.0f);
-	_scene.getLocalPlayer()->getTransform()->updateOwnerRigidbody();
+
+	id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer(20.0f, 25.0f)));
+
 	//add terrain to the scene
 	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, -15.0f, 100.0f,
 															10.0f)));
@@ -352,6 +365,19 @@ void Game::BeginContact(b2Contact* contact)
 	{
 		b->getPlayerComponent()->enableJump();
 	}
+	else if(a->getType() == Entity::EntityType::Player && b->getType() == Entity::EntityType::Bullet)
+	{
+		std::cerr<<"Taking damage"<<std::endl;
+		a->getPlayerComponent()->takeDamage(150);
+		_toDisable.push(b);
+	}
+	else if(b->getType() == Entity::EntityType::Player && a->getType() == Entity::EntityType::Bullet)
+	{
+		std::cerr<<"Taking damage"<<std::endl;
+		b->getPlayerComponent()->takeDamage(150);
+		_toDisable.push(a);
+	}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -523,17 +549,15 @@ void Game::checkMovement(I32 keycode, I32 action)
 ////////////////////////////////////////////////////////////////////////////////
 void Game::spawnBullet(const vec2& position, const vec2& velocity)
 {
-	if(!_bullets.empty())
-	{
-		std::unique_ptr<Entity> e(std::move(_bullets.front()));
-		e->getTransform()->setPosition(position);
-		e->getRigidbody()->setActive(true);
-		e->getTransform()->updateOwnerRigidbody();
-		e->getRigidbody()->setVelocity(velocity);
-		e->getRigidbody()->setAngularVelocity(60.0f);
-		_scene.addEntity(std::move(e));
-		_bullets.pop();
-	}
+	Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
+	bullet->enable();
+	bullet->getTransform()->setPosition(position);
+	bullet->getTransform()->updateOwnerRigidbody();
+	bullet->getRigidbody()->setVelocity(velocity);
+	bullet->getRigidbody()->setAngularVelocity(6.28318f);
+
+	if(_curRingIdx == 100)
+		_curRingIdx = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -626,12 +650,12 @@ Entity* Game::makeBullet()
 ///
 /// \return	null if it fails, else.
 ////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makePlayer()
+Entity* Game::makePlayer(F32 x, F32 y)
 {
 	Entity* p = new Entity();
 	p->init();
 	p->setType(Entity::Player);
-	p->getTransform()->setPosition(vec2(0.0f, 25.0f));
+	p->getTransform()->setPosition(vec2(x, y));
 	p->getTransform()->setScale(vec2(1.0f, 2.0f));
 	p->addMaterial(_materials["magenta"]);
 	p->addShape(new ShapeSquare());

@@ -55,17 +55,20 @@ void Scene::draw()
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		it->second->draw();
+		if(it->second->isDrawable())
+			it->second->draw();
 
 	for(EntityMap::iterator it=_bullets.begin();
 		it!=_bullets.end();
 		it++)
-		it->second->draw();
+		if(it->second->isDrawable())
+			it->second->draw();
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		it->second->draw();
+		if(it->second->isDrawable())
+			it->second->draw();
 
 	//I assume the ui drawing goes like this.
 	ui.draw();
@@ -76,22 +79,26 @@ void Scene::update(F32 dt)
 	for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
-		it->second->update(dt);
+		if(it->second->isEnabled())
+			it->second->update(dt);
 
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		it->second->update(dt);
+		if(it->second->isEnabled())
+			it->second->update(dt);
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		it->second->update(dt);
+		if(it->second->isEnabled())
+			it->second->update(dt);
 
 	for(EntityMap::iterator it=_bullets.begin();
 		it!=_bullets.end();
 		it++)
-		it->second->update(dt);
+		if(it->second->isEnabled())
+			it->second->update(dt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,14 +113,8 @@ void Scene::update(F32 dt)
 ////////////////////////////////////////////////////////////////////////////////
 U32 Scene::addEntity(unique_ptr<Entity>&& e)
 {
-	U32 id;
-	if(e->getSceneId() != 0)
-		id = e->getSceneId();
-	else
-	{
-		id = _nextEntityId;
-		++_nextEntityId;
-	}
+	U32 id = _nextEntityId;
+	++_nextEntityId;
 
 	//this seems a little overdone.  Think this could be better.
 	switch(e->getType())
@@ -202,6 +203,24 @@ void Scene::clearLocalPlayer()
 Entity* Scene::getLocalPlayer()
 {
     return _players[_localPlayerId].get();
+}
+
+Entity* Scene::getBullet(U32 id)
+{
+	EntityMap::iterator it = _bullets.find(id);
+	if(it != _bullets.end())
+		return _bullets[id].get();
+
+	return nullptr;
+}
+
+Entity* Scene::getPlayer(U32 id)
+{
+	EntityMap::iterator it = _players.find(id);
+	if(it != _players.end())
+		return _players[id].get();
+
+	return nullptr;
 }
 
 } // namespace pbj::scene

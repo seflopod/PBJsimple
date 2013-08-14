@@ -50,6 +50,9 @@ public:
 	U32 addEntity(unique_ptr<Entity>&&);
 	void removeEntity(U32, Entity::EntityType);
     
+	Entity* getBullet(U32);
+	Entity* getPlayer(U32);
+
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
 	Entity* getLocalPlayer();
@@ -64,7 +67,6 @@ private:
 
 	U32 _nextEntityId;
     U32 _localPlayerId;
-	U32 _nextBulletId;
 	//as we get more Entity types this may have to expand/change entirely
 	EntityMap _spawnPoints;
 	EntityMap _terrain;

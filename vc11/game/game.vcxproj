@@ -38,6 +38,7 @@
     <ClCompile Include="..\..\src\be\verbosity.cpp" />
     <ClCompile Include="..\..\src\pbj\audio\audio_buffer.cpp" />
     <ClCompile Include="..\..\src\pbj\editor.cpp" />
+    <ClCompile Include="..\..\src\pbj\entity_ring.cpp" />
     <ClCompile Include="..\..\src\pbj\game.cpp" />
     <ClCompile Include="..\..\src\pbj\engine.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\material.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="..\..\include\pbj\physics\rigidbody.h" />
     <ClInclude Include="..\..\include\pbj\scene\camera.h" />
     <ClInclude Include="..\..\include\pbj\scene\entity.h" />
+    <ClInclude Include="..\..\include\pbj\scene\entity_ring.h" />
     <ClInclude Include="..\..\include\pbj\scene\player_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\scene.h" />
     <ClInclude Include="..\..\include\pbj\scene\ui_button.h" />
