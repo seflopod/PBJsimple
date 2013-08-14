@@ -213,6 +213,9 @@
     <ClCompile Include="..\..\src\pbj\entity_ring.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\pbj\engine.h">

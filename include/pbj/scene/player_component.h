@@ -31,8 +31,8 @@ namespace scene
 			maxAmmo = 1000;
 			rateOfFire = 0.025f;
 			reloadTime = 1.0f;
-			jumpSpeed = 10.0f;
-			moveSpeed = 10.0f;
+			jumpSpeed = 20.0f;
+			moveSpeed = 15.0f;
 			thrust = 500.0f;
 		}
 	};
@@ -96,6 +96,8 @@ namespace scene
 		void jump();
 
 		void takeDamage(I32);
+		void stop();
+
 	private:
 		void* _owner;
 		PlayerStats _stats;

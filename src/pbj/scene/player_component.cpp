@@ -432,7 +432,6 @@ void PlayerComponent::doThrust()
 		{
 			_thrusting = false;
 		}
-		std::cerr<<_stats.fuelRemaining<<std::endl;
 	}
 }
 
@@ -706,6 +705,14 @@ void PlayerComponent::takeDamage(I32 dmg)
 	if(_stats.health <= 0)
 		std::cerr<<"Dead"<<std::endl;
 	std::cerr<<std::endl;
+}
+
+void PlayerComponent::stop()
+{
+	Entity* e = (Entity*)_owner;
+	vec2 vel = e->getRigidbody()->getVelocity();
+	vel.x *= 0.8f;
+	e->getRigidbody()->setVelocity(vel);
 }
 
 } //namespace scene

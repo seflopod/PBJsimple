@@ -320,13 +320,21 @@ void Game::initTestScene()
 	U32 id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer(0.0f, 15.0f)));
     _scene.setLocalPlayer(id);
 
+	//add another player Entity
 	id = _scene.addEntity(std::unique_ptr<Entity>(makePlayer(20.0f, 25.0f)));
-
 	//add terrain to the scene
-	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, -15.0f, 100.0f,
+	//_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, -15.0f, 100.0f,
 															10.0f)));
-	id = _scene.addEntity(std::unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f,
-																25.0f, 5.0f)));
+	//id = _scene.addEntity(std::unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f,
+	//															25.0f, 5.0f)));
+
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(37.0f, 5.0f, 10.0f, 5.0f)));
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(10.0f, -5.0f, 5.0f, 5.0f)));
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(-37.0f, 8.0f, 15.0f, 5.0f)));
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, 30.0f, 100.0f,
+															10.0f)));
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(0.0f, 20.0f, 5.0f, 15.0f)));
+	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain(-7.5f, 13.75f, 10.0f, 2.5f)));
 	//add some UI to the scene
 	//This does not work due to issues with UIRoot and input registration
 	/*scene::UILabel label;
@@ -377,7 +385,6 @@ void Game::BeginContact(b2Contact* contact)
 		b->getPlayerComponent()->takeDamage(150);
 		_toDisable.push(a);
 	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -491,6 +498,51 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::spawnBullet(const vec2& position, const vec2& velocity)
+///
+/// \brief	Spawn bullet.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	position	The position.
+/// \param	velocity	The velocity.
+////////////////////////////////////////////////////////////////////////////////
+void Game::spawnBullet(const vec2& position, const vec2& velocity)
+{
+	Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
+	bullet->enable();
+	bullet->getTransform()->setPosition(position);
+	bullet->getTransform()->updateOwnerRigidbody();
+	bullet->getRigidbody()->setVelocity(velocity);
+	bullet->getRigidbody()->setAngularVelocity(6.28318f);
+
+	if(_curRingIdx == 100)
+		_curRingIdx = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::onMouseLeftDown(I32 mods)
+///
+/// \brief	Executes the mouse left down action.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	mods	The mods.
+////////////////////////////////////////////////////////////////////////////////
+void Game::onMouseLeftDown(I32 mods)
+{
+	F64 x,y;
+	glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
+	ivec2 size = getEngine().getWindow()->getContextSize();
+	double ratio = size.x/(double)size.y;
+	x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
+	y = grid_height * (1 - y/size.y) - grid_height/2;
+	_scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x/2.0f,(F32)y);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /// \fn	void Game::checkMovement(I32 keycode, I32 action)
 ///
 /// \brief	Check movement.
@@ -519,7 +571,7 @@ void Game::checkMovement(I32 keycode, I32 action)
 	}
 	else if(keycode == _controls.down[0] || keycode == _controls.down[1])
 	{
-		
+		_scene.getLocalPlayer()->getPlayerComponent()->stop();
 	}
 	else if(keycode == _controls.keyFire1[0] || keycode == _controls.keyFire1[1])
 	{
@@ -534,30 +586,6 @@ void Game::checkMovement(I32 keycode, I32 action)
 	else if(keycode == _controls.keyAction[0] || keycode == _controls.keyAction[1])
 	{
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Game::spawnBullet(const vec2& position, const vec2& velocity)
-///
-/// \brief	Spawn bullet.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-13
-///
-/// \param	position	The position.
-/// \param	velocity	The velocity.
-////////////////////////////////////////////////////////////////////////////////
-void Game::spawnBullet(const vec2& position, const vec2& velocity)
-{
-	Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
-	bullet->enable();
-	bullet->getTransform()->setPosition(position);
-	bullet->getTransform()->updateOwnerRigidbody();
-	bullet->getRigidbody()->setVelocity(velocity);
-	bullet->getRigidbody()->setAngularVelocity(6.28318f);
-
-	if(_curRingIdx == 100)
-		_curRingIdx = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

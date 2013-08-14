@@ -180,6 +180,7 @@ namespace pbj
 		GameControls _controls;
 		U32 _bulletRing[100];
 		I32 _curRingIdx;
+
 		MaterialMap _materials;
 
 		//this should be a container for multiple scenes.  Right now only one.

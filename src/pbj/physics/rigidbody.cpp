@@ -29,19 +29,20 @@ using pbj::scene::Entity;
 ////////////////////////////////////////////////////////////////////////////////
 Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
 					 const b2Shape& shape, b2World* physWorld, F32 density,
-					 F32 restitution, void* owner) :
+					 F32 restitution, F32 friction, void* owner) :
 					_owner(owner)
 {
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.density = density;
 	fd.restitution = restitution;
+	fd.friction = friction;
 
 	b2BodyDef bd;
 	bd.type = (b2BodyType)bodyType;
 	bd.position.Set(position.x, position.y);
 	bd.angle = 0.0f;
-	bd.linearDamping = 0.0f;
+	bd.linearDamping = 0.1f;
 	bd.allowSleep = true;
 	bd.awake = true;
 	bd.bullet = false;
