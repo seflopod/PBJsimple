@@ -8,6 +8,9 @@
 #include "pbj/game.h"
 #endif
 
+#include <stdio.h>
+#include "pbj/scene/ui_label.h"
+
 using pbj::scene::Entity;
 
 namespace pbj {
@@ -166,8 +169,14 @@ I32 Game::run()
         }
         nonPhysTimer += _physSettings.dt;
 
-        fps = 1.0/frameTime;
+		fps = 1.0/frameTime;
 		//std::cerr<<fps<<std::endl;
+		//This does not work due to issues with UIRoot and input registration
+		/*I8 fpsCStr[13];
+		sprintf_s((char*)fpsCStr,12,"FPS: %.4d", fps);
+		fpsCStr[12] = '\0';
+		((scene::UILabel*)_scene.ui.panel.getElementAt(ivec2(0,0)))->setText((char*)fpsCStr);
+		*/
     }
     return 0;
 }
@@ -303,6 +312,13 @@ void Game::initTestScene()
 
 	//add terrain to the scene
 	_scene.addEntity(std::unique_ptr<Entity>(makeTerrain()));
+
+	//add some UI to the scene
+	//This does not work due to issues with UIRoot and input registration
+	/*scene::UILabel label;
+	label.setPosition(vec2(0,0));
+	_scene.ui.panel.addElement(std::unique_ptr<scene::UILabel>(&label));
+	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

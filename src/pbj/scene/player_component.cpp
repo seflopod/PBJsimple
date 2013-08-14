@@ -600,7 +600,7 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 	if(_canShoot && !_fireCooldown)
 	{
 		
-		F32 bulletSpeed = 50.0f;
+		F32 bulletSpeed = 500.0f;
 		Entity* e = (Entity*)_owner;
 		vec2 pos = e->getTransform()->getPosition();
 		std::cerr<<"trying to shoot p0(x,y)=("<<pos.x<<","<<pos.y<<") p1(x,y)=("<<mouseX<<","<<mouseY<<")"<<std::endl;
