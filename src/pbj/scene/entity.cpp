@@ -26,7 +26,8 @@ Entity::Entity() :
 		_material(nullptr),
 		_rigidbody(nullptr),
 		_player(nullptr),
-        _transform(this)
+        _transform(this),
+		_ai(nullptr)
 {
 	_initialized = false;
 }
@@ -101,6 +102,9 @@ void Entity::update(F32 dt)
 	if(_rigidbody)
 		_rigidbody->updateOwnerTransform();
 	
+	if(_ai.get())
+		_ai->update(dt);
+
 	if(_player)
 	{
 		if(!_player->isThrusting())
@@ -529,4 +533,16 @@ void Entity::disable()
 		_rigidbody->setActive(false);
 
 	_enabled = false;
+}
+
+void Entity::addAIComponent()
+{
+	if(_ai.get())
+		_ai.release();
+	_ai.reset(new AIComponent(this));
+}
+
+AIComponent* Entity::getAIComponent() const
+{
+	return _ai.get();
 }

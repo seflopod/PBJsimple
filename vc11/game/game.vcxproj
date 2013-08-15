@@ -46,6 +46,7 @@
     <ClCompile Include="..\..\src\pbj\gfx\texture_font_character.cpp" />
     <ClCompile Include="..\..\src\pbj\input_controller.cpp" />
     <ClCompile Include="..\..\src\pbj\physics\rigidbody.cpp" />
+    <ClCompile Include="..\..\src\pbj\scene\ai_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\camera.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\entity.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\player_component.cpp" />
@@ -89,6 +90,7 @@
     <ClInclude Include="..\..\include\pbj\gfx\texture_font_character.h" />
     <ClInclude Include="..\..\include\pbj\input_controller.h" />
     <ClInclude Include="..\..\include\pbj\physics\rigidbody.h" />
+    <ClInclude Include="..\..\include\pbj\scene\ai_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\camera.h" />
     <ClInclude Include="..\..\include\pbj\scene\entity.h" />
     <ClInclude Include="..\..\include\pbj\scene\player_component.h" />

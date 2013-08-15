@@ -17,6 +17,7 @@
 #include "pbj/gfx/material.h"
 #include "pbj/physics/rigidbody.h"
 #include "pbj/scene/player_component.h"
+#include "pbj/scene/ai_component.h"
 //too lazy to check which if these actually need to be a part of this
 //I figure it's worth including the possibility that an entity might be text
 //though for our current purposes this might be a bit overboard.
@@ -91,6 +92,8 @@ namespace scene
 		void addPlayerComponent();
 		PlayerComponent* getPlayerComponent() const;
 
+		void addAIComponent();
+		AIComponent* getAIComponent() const;
 		U32 getSceneId() const;
 		void setSceneId(U32);
 
@@ -124,7 +127,7 @@ namespace scene
 		std::shared_ptr<Material> _material;
 		Rigidbody* _rigidbody;
 		PlayerComponent* _player;
-
+		std::unique_ptr<AIComponent> _ai;
 		Entity(const Entity&);
 		void operator=(const Entity&);
 	};

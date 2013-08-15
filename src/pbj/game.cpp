@@ -163,7 +163,7 @@ void Game::initTestScene()
 
     //add the local player to the scene
     vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform()->getPosition();
-    U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y)));
+    U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
 	_scene.getLocalPlayer()->addMaterial(_materials["red"]);
 
@@ -171,7 +171,7 @@ void Game::initTestScene()
 	for(I32 i=0;i<4;++i)
 	{
 		spawnLoc = _scene.getRandomSpawnPoint()->getTransform()->getPosition();
-		_scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y)));
+		_scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y, true)));
 	}
     
     //add some UI to the scene
@@ -742,7 +742,7 @@ Entity* Game::makeBullet()
 ///
 /// \return    null if it fails, else.
 ////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makePlayer(F32 x, F32 y)
+Entity* Game::makePlayer(F32 x, F32 y, bool addAI)
 {
     Entity* p = new Entity();
     p->init();
@@ -754,6 +754,8 @@ Entity* Game::makePlayer(F32 x, F32 y)
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     p->getRigidbody()->setFixedRotation(true);
     p->addPlayerComponent();
+	if(addAI)
+		p->addAIComponent();
     p->enableDraw();
     return p;
 }

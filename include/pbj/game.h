@@ -168,7 +168,7 @@ namespace pbj
         virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
 		Entity* makeBullet();
-		Entity* makePlayer(F32, F32);
+		Entity* makePlayer(F32, F32, bool);
 		Entity* makeTerrain(F32, F32, F32, F32);
 		Entity* makeSpawnPoint(F32, F32);
 
