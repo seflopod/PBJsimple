@@ -2,6 +2,7 @@
 #define AI_COMPONENT_H_
 
 #include <assert.h>
+#include <time.h>
 #include <Box2D/Dynamics/b2WorldCallbacks.h>
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
@@ -24,6 +25,8 @@ namespace scene
 		vec2 _target;
 		void* _owner;
 		I32 _sweepCnt;
+		I32 _moveStart;
+		I32 _dir;
 	};
 } //namespace scene
 } //namespace pbj

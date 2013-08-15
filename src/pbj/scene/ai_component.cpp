@@ -17,10 +17,13 @@ namespace scene
 
 AIComponent::AIComponent(void* owner) :
 				_seePlayer(false),
-				_sweepCnt(0)
+				_sweepCnt(0),
+				_moveStart(0),
+				_dir(0)
 {
 	assert((Entity*)owner);
 	_owner = owner;
+	srand(time(nullptr));
 }
 
 AIComponent::~AIComponent()
@@ -52,6 +55,25 @@ void AIComponent::update(F32 dt)
 		e->getPlayerComponent()->fire(_target.x, _target.y);
 		_seePlayer = false;
 	}
+	if(_moveStart == 0 || _moveStart == _sweepCnt)
+	{
+		_dir = rand()%2;
+		_moveStart = rand()%60;
+	}
+
+	if(_dir)
+		e->getPlayerComponent()->moveLeft();
+	else
+		e->getPlayerComponent()->moveRight();
+
+	I32 jumpThrust = rand()%3;
+	switch(jumpThrust)
+	{
+	case 0: e->getPlayerComponent()->jump(); break;
+	case 1: e->getPlayerComponent()->doThrust(); break;
+	default: break;
+	}
+
 	if(++_sweepCnt == 60)
 		_sweepCnt = 0;
 }
