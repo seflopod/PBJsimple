@@ -15,6 +15,7 @@
 #pragma comment (lib, "glew32sd.lib")
 #pragma comment (lib, "glfw3sd.lib")
 #pragma comment (lib, "Box2D_d.lib")
+
 #else
 #pragma comment (lib, "glew32s.lib")
 #pragma comment (lib, "glfw3s.lib")
@@ -92,7 +93,6 @@ int main(int argc, char* argv[])
     pbj::Editor editor;
 
 #else
-
 	//Start and run game
 	pbj::Game::instance()->init(30);
 	pbj::I32 exitCode = pbj::Game::instance()->run();

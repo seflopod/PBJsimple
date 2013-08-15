@@ -18,7 +18,7 @@ namespace pbj {
 
 #pragma region statics
 /// \brief     The client instance pointer.
-Game* Game::_instance = 0;
+unique_ptr<Game> Game::_instance = unique_ptr<Game>(nullptr);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,9 @@ Game* Game::_instance = 0;
 ////////////////////////////////////////////////////////////////////////////////
 Game* Game::instance()
 {
-     if(_instance == 0) //no instance yet
-          _instance = new Game();
-     return _instance;
+     if(_instance.get() == 0) //no instance yet
+          _instance = unique_ptr<Game>(new Game());
+     return _instance.get();
 }
 
 void Game::destroyInstance()
@@ -45,8 +45,7 @@ void Game::destroyInstance()
      if(_instance != 0)
      {
           _instance->stop();
-          delete _instance;
-          _instance = 0;
+          _instance.reset();
      }
 }
 #pragma endregion
@@ -312,6 +311,7 @@ bool Game::update()
 			_toRespawn.front()->enable();
 			_toRespawn.front()->getTransform()->setPosition(spwn.x, spwn.y);
 			_toRespawn.front()->getTransform()->updateOwnerRigidbody();
+			_toRespawn.front()->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
 			_toRespawn.front()->getPlayerComponent()->setHealth(
 						_toRespawn.front()->getPlayerComponent()->getMaxHealth());
 			_toRespawn.front()->getPlayerComponent()->setAmmoRemaining(

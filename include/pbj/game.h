@@ -7,6 +7,7 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -14,7 +15,7 @@
 #include <thread>
 #include <queue>
 #include <map>
-//#include <b2WorldCallbacks.h>
+#include <Box2D/Dynamics/b2WorldCallbacks.h>
 
 #include "pbj/_pbj.h"
 #include "pbj/engine.h"
@@ -140,13 +141,11 @@ namespace pbj
 		void spawnBullet(const vec2&, const vec2&);
 		void disableBullet(Entity*);
 		void respawnPlayer(Entity*);
-	protected:
-        
-    
+
 	private:
 		typedef std::map<std::string,std::shared_ptr<Material>> MaterialMap;
 
-		static Game* _instance;
+		static unique_ptr<Game> _instance;
 
 		Game();
 		

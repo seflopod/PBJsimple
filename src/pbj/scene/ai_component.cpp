@@ -2,7 +2,6 @@
 #include "pbj/scene/ai_component.h"
 #endif
 
-#include <iostream>
 #include "pbj/scene/entity.h"
 #include "pbj/engine.h"
 
