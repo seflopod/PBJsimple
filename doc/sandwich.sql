@@ -13,13 +13,23 @@ CREATE TABLE sw_maps
 CREATE TABLE sw_map_entities
 (
       map_id            INTEGER NOT NULL,
-      id                INTEGER PRIMARY KEY,
+      entity_id         INTEGER NOT NULL,
       entity_type       INTEGER NOT NULL,
       rotation          REAL NOT NULL,
       pos_x             REAL NOT NULL,
       pos_y             REAL NOT NULL,
       scale_x           REAL NOT NULL,
       scale_y           REAL NOT NULL,
+      material_id       INTEGER NOT NULL,
+      PRIMARY KEY (map_id, entity_id)
+);
+
+CREATE TABLE sw_materials
+(
+      id                INTEGER PRIMARY KEY,
+      color             INTEGER NOT NULL,
+      texture_id        INTEGER,
+      texture_mode      INTEGER NOT NULL
 );
 
 CREATE TABLE sw_textures
