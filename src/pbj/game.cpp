@@ -299,30 +299,31 @@ void Game::stop()
 ////////////////////////////////////////////////////////////////////////////////
 bool Game::update()
 {
-     _scene.update(_dt);
-
-	 if(!_toRespawn.empty())
-	 {
-		 F64 t = glfwGetTime();
-		 while(!_toRespawn.empty() &&
+    _scene.update(_dt);
+	
+	//check for any respawns that need to be done
+	if(!_toRespawn.empty())
+	{
+		F64 t = glfwGetTime();
+		while(!_toRespawn.empty() &&
 				_toRespawn.front()->getPlayerComponent()->getTimeOfDeath() + 2 <= t)
-		 {   // five second delay to respawn
-			 vec2 spwn = _scene.getRandomSpawnPoint()->getTransform()->getPosition();
-			 _toRespawn.front()->enable();
-			 _toRespawn.front()->getTransform()->setPosition(spwn.x, spwn.y);
-			 _toRespawn.front()->getTransform()->updateOwnerRigidbody();
-			 _toRespawn.front()->getPlayerComponent()->setHealth(
-				 _toRespawn.front()->getPlayerComponent()->getMaxHealth());
-			 _toRespawn.front()->getPlayerComponent()->setAmmoRemaining(
-				 _toRespawn.front()->getPlayerComponent()->getMaxAmmo());
-			 _toRespawn.pop();
-		 }
-	 }
+		 {  // five second delay to respawn
+			vec2 spwn = _scene.getRandomSpawnPoint()->getTransform()->getPosition();
+			_toRespawn.front()->enable();
+			_toRespawn.front()->getTransform()->setPosition(spwn.x, spwn.y);
+			_toRespawn.front()->getTransform()->updateOwnerRigidbody();
+			_toRespawn.front()->getPlayerComponent()->setHealth(
+						_toRespawn.front()->getPlayerComponent()->getMaxHealth());
+			_toRespawn.front()->getPlayerComponent()->setAmmoRemaining(
+						_toRespawn.front()->getPlayerComponent()->getMaxAmmo());
+			_toRespawn.pop();
+		}
+	}
 
-     if(_window.isClosePending() && _running)
-          _running = false;
+    if(_window.isClosePending() && _running)
+         _running = false;
 
-     return true;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -673,6 +674,37 @@ void Game::spawnBullet(const vec2& position, const vec2& velocity)
 
     if(_curRingIdx == 100)
         _curRingIdx = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::disableBullet(Entity* e)
+///
+/// \brief	Disables the bullet.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-14
+///
+/// \param [in,out]	e	If non-null, the Entity* to process.
+////////////////////////////////////////////////////////////////////////////////
+void Game::disableBullet(Entity* e)
+{
+	_toDisable.push(e);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Game::respawnPlayer(Entity* e)
+///
+/// \brief	Respawn player.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-14
+///
+/// \param [in,out]	e	If non-null, the Entity* to process.
+////////////////////////////////////////////////////////////////////////////////
+void Game::respawnPlayer(Entity* e)
+{
+	_toDisable.push(e);
+	_toRespawn.push(e);
 }
 
 #pragma region entity_makes

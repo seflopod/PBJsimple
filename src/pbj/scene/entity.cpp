@@ -9,7 +9,7 @@
 #endif
 
 #include <iostream>
-
+#include "pbj/game.h"
 using namespace pbj;
 using namespace pbj::scene;
 
@@ -112,8 +112,16 @@ void Entity::update(F32 dt)
 		if(_player->fireOnCooldown())
 			_player->stepFireTimer(dt);
 
-
 		//std::cerr << _player->getFuelRemaining() << std::endl;
+	}
+
+	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 0.01f)
+		Game::instance()->disableBullet(this);
+
+	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height/2.0f)
+	{
+		_player->setTimeOfDeath(glfwGetTime());
+		Game::instance()->respawnPlayer(this);
 	}
 		
 }
@@ -295,28 +303,50 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		vec2 pos = _transform.getPosition();
 		b2PolygonShape shape;
 
-		shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-						_transform.getRotation());
+		
 
 		switch(_type)
 		{
 		case Player:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
 			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
 			break;
+		}
 		case Terrain:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
 			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
 			break;
+		}
 		case SpawnPoint:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
 			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
+		}
 		case Bullet:
+		{
+			b2Vec2 verts[3];
+			verts[0] = b2Vec2(-0.5f*scale.x, -0.433f*scale.y);
+			verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
+			verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
+			shape.Set(verts,3);
 			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this);
+		}
 		default:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;
+		}
 		}
 		//_rigidbody->setTransform(b2Vec2(pos.x, pos.y),b2Vec2(1.0f, 1.0f),_transform.getRotation());
 	}
