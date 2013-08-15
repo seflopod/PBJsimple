@@ -215,9 +215,6 @@
     <ClInclude Include="..\..\include\pbj\input_controller.h">
       <Filter>Header Files\pbj</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pbj\scene\scene.h">
-      <Filter>Header Files\pbj</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pbj\transform.h">
       <Filter>Header Files\pbj</Filter>
     </ClInclude>
@@ -334,6 +331,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\ui_styles.h">
       <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\scene.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

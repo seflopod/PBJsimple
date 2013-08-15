@@ -289,7 +289,7 @@ void UIElement::onMouseOut(const ivec2& screen_position)
 ///         pressed.
 void UIElement::onMouseDown(I32 button)
 {
-    if (next_focus_)
+    if (isFocusable())
         setFocused();
 }
 	

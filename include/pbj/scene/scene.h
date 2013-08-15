@@ -73,6 +73,8 @@ private:
     void operator=(const Scene&);
 };
 
+
+
 } // namespace pbj::scene
 } // namespace pbj
 
