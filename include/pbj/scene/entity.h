@@ -18,11 +18,6 @@
 #include "pbj/physics/rigidbody.h"
 #include "pbj/scene/player_component.h"
 #include "pbj/scene/ai_component.h"
-//too lazy to check which if these actually need to be a part of this
-//I figure it's worth including the possibility that an entity might be text
-//though for our current purposes this might be a bit overboard.
-#include "pbj/gfx/texture_font.h"
-#include "pbj/gfx/texture_font_character.h"
 
 using pbj::gfx::ComponentCallback;
 using pbj::gfx::Texture;
