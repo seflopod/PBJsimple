@@ -55,12 +55,9 @@ Engine::Engine()
 #ifdef PBJ_EDITOR
     window_settings_id = Id("__editor__");
     window_title = "PBJ Editor";
-#elif defined(PBJ_SERVER)
-    window_settings_id = Id("__server__");
-    window_title = "PBJ Server";
 #else
     window_settings_id = Id("__editor__");
-    window_title = "PBJ Client";
+    window_title = "PBJ";
 #endif    
 
     WindowSettings window_settings;
@@ -79,6 +76,9 @@ Engine::Engine()
             glViewport(0, 0, width, height);
         }
     );
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 
     PBJ_LOG(VInfo) << glGetString(GL_VERSION) << PBJ_LOG_END;
 
