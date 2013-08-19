@@ -64,6 +64,10 @@ Entity::Entity() :
 /// \date	2013-08-05
 Entity::~Entity()
 {
+	_shape.reset();
+	_rigidbody.reset();
+	_player.reset();
+	_ai.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +105,7 @@ void Entity::update(F32 dt)
 		//std::cerr << _player->getFuelRemaining() << std::endl;
 	}
 
-	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 1.0f)
+	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
 		Game::instance()->disableBullet(this);
 
 	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height/2.0f)
@@ -121,26 +125,6 @@ void Entity::draw()
 	vec2 glmPos = _transform.getPosition();
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
-	//GLuint texId = _material->getTextureId();
-	//color4 color = _material->getColor();
-	//probably unnecessary habit
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	//glMatrixMode(GL_TEXTURE);
-	//glLoadIdentity();
-	//glMatrixMode(GL_MODELVIEW);
-
-	//save the current colour to put it back when we're done
-	//GLfloat curColor[4];
-	//glGetFloatv(GL_CURRENT_COLOR, curColor);
-
-	//if(texId)
-	//{
-	//	glEnable(GL_TEXTURE_2D);
-	//	glBindTexture(GL_TEXTURE_2D, texId);
-	//	glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-	//}
 
     if (_material)
         _material->use();
@@ -151,13 +135,8 @@ void Entity::draw()
 		glTranslatef(glmPos.x, glmPos.y, 0.0f);
 		glRotatef(glmRot, 0, 0, 1);
 		glScalef(glmSca.x, glmSca.y, 1.0f);
-		//glColor4f(color.r, color.g, color.b, color.a);
-        _shape->draw((_material->getTexture() != nullptr));
+		_shape->draw((_material->getTexture() != nullptr));
 	glPopMatrix();
-	//glColor4fv(curColor);
-
-	//if(texId)
-	//	glDisable(GL_TEXTURE_2D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -277,24 +256,24 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
 			break;
 		}
 		case Terrain:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
 			break;
 		}
 		case SpawnPoint:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
 		}
 		case Bullet:
@@ -304,20 +283,18 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 			verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
 			verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
 			shape.Set(verts,3);
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this));
 		}
 		default:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-            rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;
 		}
 		}
 		//_rigidbody->setTransform(b2Vec2(pos.x, pos.y),b2Vec2(1.0f, 1.0f),_transform.getRotation());
-
-        _rigidbody.reset(rigidbody);
 	}
 }
 

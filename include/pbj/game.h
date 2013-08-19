@@ -180,7 +180,7 @@ namespace pbj
 		GameControls _controls;
 		U32 _bulletRing[100];
 		I32 _curRingIdx;
-
+		I32 _bulletNum;
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;
 	};

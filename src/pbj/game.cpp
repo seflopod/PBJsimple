@@ -129,6 +129,7 @@ bool Game::init(U32 fps)
     }
     _curRingIdx = 0;
      _running = true;
+	 _bulletNum = 0;
      return true;
 }
 
@@ -418,7 +419,6 @@ void Game::BeginContact(b2Contact* contact)
 			break;
 		case Entity::EntityType::Bullet:
 		{
-			std::cerr<<"Taking damage"<<std::endl;
 			//max bullet speed is currently 50.  50^2 = 2500.  100*1/2500 = 25
 			I32 dmg = (I32)std::floor(glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
 			p->takeDamage(dmg);
@@ -630,14 +630,13 @@ void Game::help()
 void Game::spawnBullet(const vec2& position, const vec2& velocity)
 {
     Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
-    bullet->enable();
     bullet->getTransform().setPosition(position);
     bullet->getTransform().updateOwnerRigidbody();
     bullet->getRigidbody()->setVelocity(velocity);
     bullet->getRigidbody()->setAngularVelocity(6.28318f);
-
-    if(_curRingIdx == 100)
-        _curRingIdx = 0;
+	bullet->enable();
+    if(_curRingIdx >= 100)
+        _curRingIdx -= 100;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -722,6 +721,8 @@ Entity* Game::makePlayer(F32 x, F32 y, bool addAI)
     p->addPlayerComponent();
 	if(addAI)
 		p->addAIComponent();
+	p->getPlayerComponent()->setMaxAmmo(1000);
+	p->getPlayerComponent()->setAmmoRemaining(1000);
     p->enableDraw();
     return p;
 }

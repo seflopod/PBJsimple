@@ -576,7 +576,6 @@ void PlayerComponent::stepReloadTimer(F32 dt)
 	if(_canShoot)
 	{
 		_stats.ammoRemaining = _stats.maxAmmo;
-		std::cerr<<"Done reloading"<<std::endl;
 	}
 }
 
@@ -662,7 +661,6 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 		_stats.ammoRemaining -= 1;
 		if(_stats.ammoRemaining <= 0)
 		{
-			std::cerr<<"Reloading"<<std::endl;
 			_stats.ammoRemaining = 0;
 			_reloadTimer = 0.0f;
 			_reloading = true;
@@ -729,12 +727,10 @@ void PlayerComponent::jump()
 void PlayerComponent::takeDamage(I32 dmg)
 {
 	_stats.health-=dmg;
-	std::cerr<<_stats.health<<std::endl;
 	if(_stats.health <= 0)
 	{
-		std::cerr<<"Dead"<<std::endl;
+		//std::cerr<<"Dead"<<std::endl;
 	}
-	std::cerr<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

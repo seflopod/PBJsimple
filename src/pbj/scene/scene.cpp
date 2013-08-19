@@ -103,12 +103,6 @@ void Scene::draw()
 		if(it->second->isDrawable())
 			it->second->draw();
 
-	for(EntityMap::iterator it=_bullets.begin();
-		it!=_bullets.end();
-		it++)
-		if(it->second->isDrawable())
-			it->second->draw();
-
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
