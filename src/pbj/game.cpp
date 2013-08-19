@@ -712,7 +712,10 @@ Entity* Game::makePlayer(F32 x, F32 y, bool addAI)
     p->setType(Entity::Player);
     p->getTransform().setPosition(vec2(x, y));
     p->getTransform().setScale(vec2(1.0f, 2.0f));
-    p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
+	if(addAI)
+		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bots"))));
+	else
+		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
     p->setShape(new ShapeSquare());
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     p->getRigidbody()->setFixedRotation(true);
