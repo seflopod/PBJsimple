@@ -20,7 +20,8 @@ CREATE TABLE sw_map_entities
       pos_y             REAL NOT NULL,
       scale_x           REAL NOT NULL,
       scale_y           REAL NOT NULL,
-      material_id       INTEGER NOT NULL,
+      material_sw_id    INTEGER
+      material_id       INTEGER,
       PRIMARY KEY (map_id, entity_id)
 );
 

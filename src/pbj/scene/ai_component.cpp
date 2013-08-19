@@ -9,12 +9,10 @@
 using std::sin;
 using std::cos;
 
-namespace pbj
-{
-namespace scene
-{
+namespace pbj {
+namespace scene {
 
-AIComponent::AIComponent(void* owner) :
+AIComponent::AIComponent(Entity* owner) :
 				_seePlayer(false),
 				_sweepCnt(0),
 				_moveStart(0),
@@ -33,10 +31,11 @@ AIComponent::~AIComponent()
 void AIComponent::update(F32 dt)
 {
 	F32 castDistance = 100.0f;
-	Entity* e = (Entity*)_owner;
 	
-	vec2 center = e->getTransform()->getPosition();
-	vec2 scale = e->getTransform()->getScale();
+    Transform& xf = _owner->getTransform();
+    PlayerComponent* player = _owner->getPlayerComponent();
+
+	const vec2& scale = xf.getScale();
 
 	F32 r1 = (scale.x>scale.y) ? scale.x : scale.y;
 	F32 r2 = r1 + castDistance;
@@ -49,9 +48,9 @@ void AIComponent::update(F32 dt)
 									b2Vec2(r2*cos(angle),r2*sin(angle))); //end
 	if(_seePlayer)
 	{
-		e->getPlayerComponent()->fire(_target.x, _target.y);
-		e->getPlayerComponent()->fire(_target.x, _target.y);
-		e->getPlayerComponent()->fire(_target.x, _target.y);
+		player->fire(_target.x, _target.y);
+		player->fire(_target.x, _target.y);
+		player->fire(_target.x, _target.y);
 		_seePlayer = false;
 	}
 	if(_moveStart == 0 || _moveStart == _sweepCnt)
@@ -61,15 +60,15 @@ void AIComponent::update(F32 dt)
 	}
 
 	if(_dir)
-		e->getPlayerComponent()->moveLeft();
+		player->moveLeft();
 	else
-		e->getPlayerComponent()->moveRight();
+		player->moveRight();
 
 	I32 jumpThrust = rand()%3;
 	switch(jumpThrust)
 	{
-	case 0: e->getPlayerComponent()->jump(); break;
-	case 1: e->getPlayerComponent()->doThrust(); break;
+	case 0: player->jump(); break;
+	case 1: player->doThrust(); break;
 	default: break;
 	}
 
@@ -82,11 +81,11 @@ float32 AIComponent::ReportFixture(b2Fixture* fixture, const b2Vec2& point, cons
 	Entity* e = (Entity*)(fixture->GetBody()->GetUserData());
 	if(e->getType()==Entity::EntityType::Player)
 	{
-		_target = e->getTransform()->getPosition();
+		_target = e->getTransform().getPosition();
 		_seePlayer = (e->getType() == Entity::EntityType::Player);
 	}
 	return fraction; //because we only want the closest fixture;
 }
 
-}
-}
+} // namespace pbj::scene
+} // namespace pbj

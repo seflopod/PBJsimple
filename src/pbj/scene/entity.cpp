@@ -3,15 +3,37 @@
 /// 		PBJsimple\src\pbj\scene\entity.cpp
 ///
 /// \brief	Implements the entity class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef ENTITY_H_
 #include "pbj/scene/entity.h"
 #endif
 
 #include <iostream>
 #include "pbj/game.h"
-using namespace pbj;
-using namespace pbj::scene;
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load an entity from a sandwich.
+#define PBJ_SCENE_ENTITY_SQL_LOAD "SELECT entity_type, rotation, " \
+            "pos_x, pos_y, scale_x, scale_y, material_sw_id, material_id " \
+            "FROM sw_map_entities WHERE map_id = ? AND entity_id = ?"
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to save an entity to a sandwich.
+#define PBJ_SCENE_ENTITY_SQL_SAVE "INSERT INTO sw_map_entities " \
+            "(map_id, entity_id, entity_type, rotation, " \
+            "pos_x, pos_y, scale_x, scale_y, material_sw_id, material_id) " \
+            "VALUES (?,?,?,?,?,?,?,?,?,?)"
+
+#ifdef BE_ID_NAMES_ENABLED
+#define PBJ_SCENE_ENTITY_SQLID_LOAD PBJ_SCENE_ENTITY_SQL_LOAD
+#define PBJ_SCENE_ENTITY_SQLID_SAVE PBJ_SCENE_ENTITY_SQL_SAVE
+#else
+// TODO: precalculate ids.
+#define PBJ_SCENE_ENTITY_SQLID_LOAD PBJ_SCENE_ENTITY_SQL_LOAD
+#define PBJ_SCENE_ENTITY_SQLID_SAVE PBJ_SCENE_ENTITY_SQL_SAVE
+#endif
+
+namespace pbj {
+namespace scene {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	Entity::Entity()
@@ -20,7 +42,6 @@ using namespace pbj::scene;
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-05
-////////////////////////////////////////////////////////////////////////////////
 Entity::Entity() :
 		_shape(nullptr),
 		_material(nullptr),
@@ -29,7 +50,9 @@ Entity::Entity() :
         _transform(this),
 		_ai(nullptr)
 {
-	_initialized = false;
+    _transformCallbackId = U32(-1);
+	_sceneId = 0;
+	_enabled = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,48 +62,8 @@ Entity::Entity() :
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-05
-////////////////////////////////////////////////////////////////////////////////
 Entity::~Entity()
 {
-	if(_initialized)
-		destroy();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Entity::init()
-///
-/// \brief	Initialises this object.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-////////////////////////////////////////////////////////////////////////////////
-void Entity::init()
-{
-	
-	_transformCallbackId = U32(-1);
-	_sceneId = 0;
-	_enabled = true;
-	_initialized = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Entity::destroy()
-///
-/// \brief	Destroys this object.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-/// \details    Holdover from old version.  May or may not necessary down the
-///             road.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::destroy()
-{
-	delete _rigidbody;
-	delete _player;
-
-	_rigidbody = nullptr;
-	_player = nullptr;
-	_initialized = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +79,6 @@ void Entity::destroy()
 /// \details This mostly checks firing states for the PlayerComponent.  It also
 /// 		 uses the Rigidbody to make sure the Transform used for drawing is
 /// 		 up-to-date.
-////////////////////////////////////////////////////////////////////////////////
 void Entity::update(F32 dt)
 {
 	if(_rigidbody)
@@ -132,46 +114,50 @@ void Entity::update(F32 dt)
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	draws this object.
 ///
-/// \author	Peter Bartosch / Josh Douglas
+/// \author	Peter Bartosch / Josh Douglas / Ben Crist
 /// \date	2013-08-08
-////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
 	vec2 glmPos = _transform.getPosition();
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
-	GLuint texId = _material->getTextureId();
-	color4 color = _material->getColor();
+	//GLuint texId = _material->getTextureId();
+	//color4 color = _material->getColor();
 	//probably unnecessary habit
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
+	//glEnable(GL_CULL_FACE);
+	//glMatrixMode(GL_TEXTURE);
+	//glLoadIdentity();
+	//glMatrixMode(GL_MODELVIEW);
 
 	//save the current colour to put it back when we're done
-	GLfloat curColor[4];
-	glGetFloatv(GL_CURRENT_COLOR, curColor);
+	//GLfloat curColor[4];
+	//glGetFloatv(GL_CURRENT_COLOR, curColor);
 
-	if(texId)
-	{
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texId);
-		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-	}
+	//if(texId)
+	//{
+	//	glEnable(GL_TEXTURE_2D);
+	//	glBindTexture(GL_TEXTURE_2D, texId);
+	//	glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+	//}
+
+    if (_material)
+        _material->use();
+    else
+        Texture::disable();
 	
 	glPushMatrix();
 		glTranslatef(glmPos.x, glmPos.y, 0.0f);
 		glRotatef(glmRot, 0, 0, 1);
 		glScalef(glmSca.x, glmSca.y, 1.0f);
-		glColor4f(color.r, color.g, color.b, color.a);
-		_shape->draw((texId!=0));
+		//glColor4f(color.r, color.g, color.b, color.a);
+        _shape->draw((_material->getTexture() != nullptr));
 	glPopMatrix();
-	glColor4fv(curColor);
+	//glColor4fv(curColor);
 
-	if(texId)
-		glDisable(GL_TEXTURE_2D);
+	//if(texId)
+	//	glDisable(GL_TEXTURE_2D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -182,13 +168,10 @@ void Entity::draw()
 /// \author	Peter Bartosch
 /// \date	2013-08-05
 ///
-/// \return	null if it fails, else the transform.
-////////////////////////////////////////////////////////////////////////////////
-Transform* Entity::getTransform()
+/// \return	the transform.
+Transform& Entity::getTransform()
 {
-	if(_initialized)
-		return &_transform;
-	return nullptr;
+	return _transform;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -200,11 +183,8 @@ Transform* Entity::getTransform()
 /// \date	2013-08-05
 ///
 /// \param	transform	The transform.
-////////////////////////////////////////////////////////////////////////////////
 void Entity::setTransform(const Transform& transform)
 {
-	if(!_initialized)
-		init();
 	_transform = transform;
 }
 
@@ -217,67 +197,50 @@ void Entity::setTransform(const Transform& transform)
 /// \date	2013-08-13
 ///
 /// \return	null if the shape does not exist; a pointer to the Shape otherwise.
-////////////////////////////////////////////////////////////////////////////////
 Shape* Entity::getShape() const
 {
 	return _shape.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Entity::addShape(Shape* shape)
+/// \fn	void Entity::setShape(Shape* shape)
 ///
-/// \brief	Adds a Shape.
+/// \brief	Sets the shape of the entity.
 ///
-/// \author	Peter Bartosch
+/// \author	Peter Bartosch / Ben Crist
 /// \date	2013-08-13
 ///
 /// \param [in]	shape	A pointer to the Shape to use.
 /// \details Any class the uses the Shape interface (ShapeSquare, ShapeTriangle)
 /// 		 is acceptable.  This is what will be drawn.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::addShape(Shape* shape)
+void Entity::setShape(Shape* shape)
 {
-	if(_shape != nullptr)
-	{
-		_shape.release();
-	}
 	_shape.reset(shape);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	std::shared_ptr<Material> Entity::getMaterial()
+/// \brief	Gets the entity's material.
 ///
-/// \brief	Gets the material.
-///
-/// \author	Peter Bartosch
+/// \author	Peter Bartosch / Ben Crist
 /// \date	2013-08-13
 ///
-/// \return	A shared_ptr to the Material.
-////////////////////////////////////////////////////////////////////////////////
-std::shared_ptr<Material> Entity::getMaterial()
+/// \return	A pointer to the Material.
+const Material* Entity::getMaterial()
 {
 	return _material;
 }
 
-/// \fn	void Entity::addMaterial(std::shared_ptr<Material> material)
-///
+////////////////////////////////////////////////////////////////////////////////
 /// \brief	Adds a material.
 ///
-/// \author	Peter Bartosch
+/// \author	Peter Bartosch / Ben Crist
 /// \date	2013-08-13
 ///
-/// \param	material	A shared_ptr to the Material for this Entity to use.
-/// \details Since a sinigle Material can be used for multiple Entitys it makes
-/// 		 the most sense to use a pointer.  I chose to use a shared_ptr
-/// 		 because I'm lazy and don't want to keep track of the pointer
-/// 		 myself.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::addMaterial(std::shared_ptr<Material> material)
+/// \param	material A pointer to a material object.  The object's lifetime
+///         must be at least as long as this entity's.  In the normal usage,
+///         a ResourceManager will manage the lifetime of the material object.
+void Entity::setMaterial(const Material* material)
 {
-	if(_material.get()!=nullptr)
-	{
-		_material.reset<Material>(nullptr);
-	}
 	_material = material;
 }
 
@@ -287,7 +250,7 @@ void Entity::addMaterial(std::shared_ptr<Material> material)
 ///
 /// \brief	Adds a rigidbody to the Entity.
 ///
-/// \author	Peter Bartosch
+/// \author	Peter Bartosch / Ben Crist
 /// \date	2013-08-13
 ///
 /// \param	bodyType	 	Type of the body.
@@ -298,7 +261,6 @@ void Entity::addMaterial(std::shared_ptr<Material> material)
 /// 		 particular Entity.  This is rather simple and therefore does not
 /// 		 use multiple fixtures for making complex shapes.  Simple boxes,
 /// 		 polygons and circles are used instead.
-////////////////////////////////////////////////////////////////////////////////
 void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 {
 	if(!_rigidbody)
@@ -307,7 +269,7 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		vec2 pos = _transform.getPosition();
 		b2PolygonShape shape;
 
-		
+		Rigidbody* rigidbody = nullptr;
 
 		switch(_type)
 		{
@@ -315,24 +277,24 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+			rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
+			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
 			break;
 		}
 		case Terrain:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+			rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
+			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
 			break;
 		}
 		case SpawnPoint:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+			rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
+			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
 		}
 		case Bullet:
@@ -342,17 +304,20 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 			verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
 			verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
 			shape.Set(verts,3);
-			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this);
+			rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this);
 		}
 		default:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+            rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
+			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;
 		}
 		}
 		//_rigidbody->setTransform(b2Vec2(pos.x, pos.y),b2Vec2(1.0f, 1.0f),_transform.getRotation());
+
+        _rigidbody.reset(rigidbody);
 	}
 }
 
@@ -361,14 +326,13 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 ///
 /// \brief	Gets a pointer to the Rigidbody.
 ///
-/// \author	Peter Bartosch
+/// \author	Peter Bartosch / Ben Crist
 /// \date	2013-08-13
 ///
 /// \return	null if it none exists, else the rigidbody.
-////////////////////////////////////////////////////////////////////////////////
 Rigidbody* Entity::getRigidbody() const
 {
-	return _rigidbody;
+	return _rigidbody.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -378,12 +342,11 @@ Rigidbody* Entity::getRigidbody() const
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void Entity::addPlayerComponent()
 {
 	if(!_player)
 	{
-		_player = new PlayerComponent(PlayerStats(), this);
+		_player.reset(new PlayerComponent(PlayerStats(), this));
 	}
 }
 
@@ -396,10 +359,9 @@ void Entity::addPlayerComponent()
 /// \date	2013-08-13
 ///
 /// \return	null if none exists, else the player component.
-////////////////////////////////////////////////////////////////////////////////
 PlayerComponent* Entity::getPlayerComponent() const
 {
-	return _player;
+	return _player.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -411,7 +373,6 @@ PlayerComponent* Entity::getPlayerComponent() const
 /// \date	2013-08-13
 ///
 /// \return	The scene identifier.
-////////////////////////////////////////////////////////////////////////////////
 U32 Entity::getSceneId() const
 {
 	return _sceneId;
@@ -426,7 +387,6 @@ U32 Entity::getSceneId() const
 /// \date	2013-08-13
 ///
 /// \param	id	The identifier.
-////////////////////////////////////////////////////////////////////////////////
 void Entity::setSceneId(U32 id)
 {
 	_sceneId = id;
@@ -446,7 +406,6 @@ Entity::EntityType Entity::getType() const
 /// \date	2013-08-13
 ///
 /// \param	et	The EntityType to use.
-////////////////////////////////////////////////////////////////////////////////
 void Entity::setType(EntityType et)
 {
 	_type = et;
@@ -477,7 +436,6 @@ void Entity::setType(EntityType et)
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void Entity::enableDraw()
 {
     _drawable = true;
@@ -490,7 +448,6 @@ void Entity::enableDraw()
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void Entity::disableDraw()
 {
     _drawable = false;
@@ -505,7 +462,6 @@ void Entity::disableDraw()
 /// \date	2013-08-13
 ///
 /// \return	true if drawable, false if not.
-////////////////////////////////////////////////////////////////////////////////
 bool Entity::isDrawable() const
 {
     return _drawable;
@@ -546,3 +502,98 @@ AIComponent* Entity::getAIComponent() const
 {
 	return _ai.get();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id)
+{
+    std::unique_ptr<Entity> value;
+
+    try
+    {
+        db::StmtCache& cache = sandwich.getStmtCache();
+        db::CachedStmt stmt = cache.hold(Id(PBJ_SCENE_ENTITY_SQLID_LOAD), PBJ_SCENE_ENTITY_SQL_LOAD);
+
+        stmt.bind(1, map_id.value());
+        stmt.bind(2, entity_id.value());
+        if (stmt.step())
+        {
+            Entity::EntityType type = static_cast<Entity::EntityType>(stmt.getUInt(0));
+            F32 rotation = float(stmt.getDouble(1));
+            vec2 position = vec2(float(stmt.getDouble(2)), float(stmt.getDouble(3)));
+            vec2 scale = vec2(float(stmt.getDouble(4)), float(stmt.getDouble(5)));
+
+            const Material* material = nullptr;
+            if (stmt.getType(7) != SQLITE_NULL)
+            {
+                sw::ResourceId material_id;
+                material_id.sandwich = (stmt.getType(6) == SQLITE_NULL)
+                                        ? sandwich.getId()
+                                        : Id(stmt.getUInt64(6));
+                material_id.resource = Id(stmt.getUInt64(7));
+                material = &getEngine().getResourceManager().getMaterial(material_id);
+            }
+
+            value.reset(new Entity());
+            value->setType(type);
+            value->getTransform().setPosition(position);
+            value->getTransform().setScale(scale);
+            value->getTransform().setRotation(rotation);
+            value->setMaterial(material);
+
+            switch (type)
+            {
+                case Entity::Terrain:
+                    value->setShape(new ShapeSquare());
+                    /// TODO: fix physics world part of engine instead of scene?
+                    value->addRigidbody(Rigidbody::BodyType::Static, getEngine().getWorld());
+                    value->enableDraw();
+                    break;
+
+                case Entity::SpawnPoint:
+                    value->setShape(new ShapeSquare());
+#ifndef PBJ_EDITOR
+                    //disable this when not testing
+                    //value->enableDraw();
+	                value->disableDraw();
+#else
+                    // When in the editor, draw spawnpoints no matter what.
+                    value->enableDraw();
+#endif
+                    break; 
+
+                default:
+                    break;
+            }
+        }
+        else
+            throw std::runtime_error("Entity not found!");
+    }
+    catch (const db::Db::error& err)
+    {
+        PBJ_LOG(VWarning) << "Database error while loading entity!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Entity ID: " << entity_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_NL
+                          << "        SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::exception& err)
+   {
+      PBJ_LOG(VWarning) << "Exception while loading entity!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Entity ID: " << entity_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_END;
+   }
+
+    return value;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void saveEntity(const Id& sandwich_id, const Id& map_id)
+{
+    PBJ_LOG(VWarning) << "Not yet fully implemented!" << PBJ_LOG_END;
+}
+
+} // namespace pbj::scene
+} // namespace pbj

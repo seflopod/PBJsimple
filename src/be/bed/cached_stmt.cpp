@@ -175,6 +175,13 @@ void CachedStmt::bindBlob_s(int parameter, const void* value, int length)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \copydoc    Stmt::bindColor(int, const glm::vec4&)
+void CachedStmt::bindColor(int parameter, const glm::vec4& color)
+{
+    stmt_.bindColor(parameter, color);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \copydoc   Stmt::step()
 bool CachedStmt::step()
 {

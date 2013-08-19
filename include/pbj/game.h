@@ -143,8 +143,6 @@ namespace pbj
 		void respawnPlayer(Entity*);
 
 	private:
-		typedef std::map<std::string,std::shared_ptr<Material>> MaterialMap;
-
 		static unique_ptr<Game> _instance;
 
 		Game();
@@ -182,7 +180,6 @@ namespace pbj
 		GameControls _controls;
 		U32 _bulletRing[100];
 		I32 _curRingIdx;
-		MaterialMap _materials;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

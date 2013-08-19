@@ -3,7 +3,6 @@
 /// 		PBJsimple\src\pbj\scene\player_component.cpp
 ///
 /// \brief	Implements the player component class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PLAYER_COMPONENT_H_
 #include "pbj/scene/player_component.h"
 #endif
@@ -16,8 +15,6 @@ namespace pbj
 namespace scene
 {
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	PlayerComponent::PlayerComponent(PlayerStats stats, void* owner)
-///
 /// \brief	Constructor.
 ///
 /// \author	Peter Bartosch
@@ -25,81 +22,75 @@ namespace scene
 ///
 /// \param	stats		 	The stats.
 /// \param [in,out]	owner	If non-null, the owner.
-////////////////////////////////////////////////////////////////////////////////
-PlayerComponent::PlayerComponent(PlayerStats stats, void* owner)
+PlayerComponent::PlayerComponent(PlayerStats stats, Entity* owner)
+    : _stats(stats),
+      _owner(owner),
+      _canJump(true),
+      _thrusting(false),
+      _forceFullRegen(false),
+      _canShoot(true),
+      _reloading(false),
+      _fireCooldown(false)
 {
-	_stats = stats;
-	_owner = owner;
-	_canJump = true;
-	_thrusting = false;
-	_forceFullRegen = false;
-	_canShoot = true;
-	_reloading = false;
-	_fireCooldown = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	PlayerComponent::~PlayerComponent()
-///
 /// \brief	Destructor.
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 PlayerComponent::~PlayerComponent()
 {
 	_owner = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	PlayerStats PlayerComponent::getStats() const
-///
 /// \brief	Gets the stats.
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
 ///
 /// \return	The stats.
-////////////////////////////////////////////////////////////////////////////////
-PlayerStats PlayerComponent::getStats() const {	return _stats; }
+PlayerStats PlayerComponent::getStats() const
+{
+    return _stats;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void PlayerComponent::resetStats()
-///
 /// \brief	Resets the stats.
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::resetStats() { _stats = PlayerStats(); }
+void PlayerComponent::resetStats()
+{
+    _stats = PlayerStats();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	I32 PlayerComponent::getHealth() const
-///
 /// \brief	Gets the health.
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
 ///
 /// \return	The health.
-////////////////////////////////////////////////////////////////////////////////
-I32 PlayerComponent::getHealth() const { return _stats.health; }
+I32 PlayerComponent::getHealth() const
+{
+    return _stats.health;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	I32 PlayerComponent::getMaxHealth() const
-///
 /// \brief	Gets maximum health.
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
 ///
 /// \return	The maximum health.
-////////////////////////////////////////////////////////////////////////////////
-I32 PlayerComponent::getMaxHealth() const { return _stats.maxHealth; }
+I32 PlayerComponent::getMaxHealth() const
+{
+    return _stats.maxHealth;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	I32 PlayerComponent::getFuelRemaining() const
-///
 /// \brief	Gets fuel remaining.
 ///
 /// \author	Peter Bartosch
@@ -107,11 +98,12 @@ I32 PlayerComponent::getMaxHealth() const { return _stats.maxHealth; }
 ///
 /// \return	The fuel remaining.
 ////////////////////////////////////////////////////////////////////////////////
-I32 PlayerComponent::getFuelRemaining() const { return _stats.fuelRemaining; }
+I32 PlayerComponent::getFuelRemaining() const
+{
+    return _stats.fuelRemaining;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	I32 PlayerComponent::getMaxFuel() const
-///
 /// \brief	Gets maximum fuel.
 ///
 /// \author	Peter Bartosch
@@ -119,7 +111,10 @@ I32 PlayerComponent::getFuelRemaining() const { return _stats.fuelRemaining; }
 ///
 /// \return	The maximum fuel.
 ////////////////////////////////////////////////////////////////////////////////
-I32 PlayerComponent::getMaxFuel() const { return _stats.maxFuel; }
+I32 PlayerComponent::getMaxFuel() const
+{
+    return _stats.maxFuel;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	I32 PlayerComponent::getAmmoRemaining() const
@@ -130,8 +125,10 @@ I32 PlayerComponent::getMaxFuel() const { return _stats.maxFuel; }
 /// \date	2013-08-13
 ///
 /// \return	The ammo remaining.
-////////////////////////////////////////////////////////////////////////////////
-I32 PlayerComponent::getAmmoRemaining() const { return _stats.ammoRemaining; }
+I32 PlayerComponent::getAmmoRemaining() const
+{
+    return _stats.ammoRemaining;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	I32 PlayerComponent::getMaxAmmo() const
@@ -142,8 +139,10 @@ I32 PlayerComponent::getAmmoRemaining() const { return _stats.ammoRemaining; }
 /// \date	2013-08-13
 ///
 /// \return	The maximum ammo.
-////////////////////////////////////////////////////////////////////////////////
-I32 PlayerComponent::getMaxAmmo() const { return _stats.maxAmmo; }
+I32 PlayerComponent::getMaxAmmo() const
+{
+    return _stats.maxAmmo;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	F32 PlayerComponent::getRateOfFire() const
@@ -154,8 +153,10 @@ I32 PlayerComponent::getMaxAmmo() const { return _stats.maxAmmo; }
 /// \date	2013-08-13
 ///
 /// \return	The rate of fire.
-////////////////////////////////////////////////////////////////////////////////
-F32 PlayerComponent::getRateOfFire() const { return _stats.rateOfFire; }
+F32 PlayerComponent::getRateOfFire() const
+{
+    return _stats.rateOfFire;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	F32 PlayerComponent::getJumpSpeed() const
@@ -166,8 +167,10 @@ F32 PlayerComponent::getRateOfFire() const { return _stats.rateOfFire; }
 /// \date	2013-08-13
 ///
 /// \return	The jump speed.
-////////////////////////////////////////////////////////////////////////////////
-F32 PlayerComponent::getJumpSpeed() const { return _stats.jumpSpeed; }
+F32 PlayerComponent::getJumpSpeed() const
+{
+    return _stats.jumpSpeed;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	F32 PlayerComponent::getMoveSpeed() const
@@ -178,8 +181,10 @@ F32 PlayerComponent::getJumpSpeed() const { return _stats.jumpSpeed; }
 /// \date	2013-08-13
 ///
 /// \return	The move speed.
-////////////////////////////////////////////////////////////////////////////////
-F32 PlayerComponent::getMoveSpeed() const { return _stats.moveSpeed; }
+F32 PlayerComponent::getMoveSpeed() const
+{
+    return _stats.moveSpeed;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	F32 PlayerComponent::getThrust() const
@@ -190,8 +195,10 @@ F32 PlayerComponent::getMoveSpeed() const { return _stats.moveSpeed; }
 /// \date	2013-08-13
 ///
 /// \return	The thrust.
-////////////////////////////////////////////////////////////////////////////////
-F32 PlayerComponent::getThrust() const { return _stats.thrust; }
+F32 PlayerComponent::getThrust() const
+{
+    return _stats.thrust;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setHealth(I32 val)
@@ -202,8 +209,10 @@ F32 PlayerComponent::getThrust() const { return _stats.thrust; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setHealth(I32 val) { _stats.health = val; }
+void PlayerComponent::setHealth(I32 val)
+{
+    _stats.health = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setMaxHealth(I32 val)
@@ -214,8 +223,10 @@ void PlayerComponent::setHealth(I32 val) { _stats.health = val; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setMaxHealth(I32 val) { _stats.maxHealth = val; }
+void PlayerComponent::setMaxHealth(I32 val)
+{
+    _stats.maxHealth = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setFuelRemaining(I32 val)
@@ -245,8 +256,10 @@ void PlayerComponent::setFuelRemaining(I32 val)
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setMaxFuel(I32 val) { _stats.maxFuel = val; }
+void PlayerComponent::setMaxFuel(I32 val)
+{
+    _stats.maxFuel = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setAmmoRemaining(I32 val)
@@ -257,8 +270,10 @@ void PlayerComponent::setMaxFuel(I32 val) { _stats.maxFuel = val; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setAmmoRemaining(I32 val) { _stats.ammoRemaining = val; }
+void PlayerComponent::setAmmoRemaining(I32 val)
+{
+    _stats.ammoRemaining = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setMaxAmmo(I32 val)
@@ -269,8 +284,10 @@ void PlayerComponent::setAmmoRemaining(I32 val) { _stats.ammoRemaining = val; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setMaxAmmo(I32 val) { _stats.maxAmmo = val; }
+void PlayerComponent::setMaxAmmo(I32 val)
+{
+    _stats.maxAmmo = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setRateOfFire(F32 val)
@@ -281,8 +298,10 @@ void PlayerComponent::setMaxAmmo(I32 val) { _stats.maxAmmo = val; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setRateOfFire(F32 val) { _stats.rateOfFire = val; }
+void PlayerComponent::setRateOfFire(F32 val)
+{
+    _stats.rateOfFire = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setJumpSpeed(F32 val)
@@ -293,8 +312,10 @@ void PlayerComponent::setRateOfFire(F32 val) { _stats.rateOfFire = val; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setJumpSpeed(F32 val) { _stats.jumpSpeed = val; }
+void PlayerComponent::setJumpSpeed(F32 val)
+{
+    _stats.jumpSpeed = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setMoveSpeed(F32 val)
@@ -305,8 +326,9 @@ void PlayerComponent::setJumpSpeed(F32 val) { _stats.jumpSpeed = val; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setMoveSpeed(F32 val) { _stats.moveSpeed = val; }
+void PlayerComponent::setMoveSpeed(F32 val) {
+    _stats.moveSpeed = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::setThrust(F32 val)
@@ -317,20 +339,21 @@ void PlayerComponent::setMoveSpeed(F32 val) { _stats.moveSpeed = val; }
 /// \date	2013-08-13
 ///
 /// \param	val	The value.
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::setThrust(F32 val) { _stats.thrust = val; }
+void PlayerComponent::setThrust(F32 val) {
+    _stats.thrust = val;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void* PlayerComponent::getOwner() const
-///
 /// \brief	Gets the owner of this item.
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
 ///
 /// \return	null if it fails, else the owner.
-////////////////////////////////////////////////////////////////////////////////
-void* PlayerComponent::getOwner() const { return _owner; }
+Entity* PlayerComponent::getOwner() const
+{
+    return _owner;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	bool PlayerComponent::canJump() const
@@ -341,8 +364,10 @@ void* PlayerComponent::getOwner() const { return _owner; }
 /// \date	2013-08-13
 ///
 /// \return	true if we can jump, false if not.
-////////////////////////////////////////////////////////////////////////////////
-bool PlayerComponent::canJump() const { return _canJump; }
+bool PlayerComponent::canJump() const
+{
+    return _canJump;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::disableJump()
@@ -351,8 +376,10 @@ bool PlayerComponent::canJump() const { return _canJump; }
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::disableJump() { _canJump = false; }
+void PlayerComponent::disableJump()
+{
+    _canJump = false;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::enableJump()
@@ -361,8 +388,10 @@ void PlayerComponent::disableJump() { _canJump = false; }
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::enableJump() { _canJump = true; }
+void PlayerComponent::enableJump()
+{
+    _canJump = true;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	bool PlayerComponent::isThrusting() const
@@ -373,8 +402,10 @@ void PlayerComponent::enableJump() { _canJump = true; }
 /// \date	2013-08-13
 ///
 /// \return	true if thrusting, false if not.
-////////////////////////////////////////////////////////////////////////////////
-bool PlayerComponent::isThrusting() const { return _thrusting; }
+bool PlayerComponent::isThrusting() const
+{
+    return _thrusting;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::startThrust()
@@ -383,8 +414,10 @@ bool PlayerComponent::isThrusting() const { return _thrusting; }
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::startThrust() { _thrusting = true; }
+void PlayerComponent::startThrust()
+{
+    _thrusting = true;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::endThrust()
@@ -393,8 +426,10 @@ void PlayerComponent::startThrust() { _thrusting = true; }
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::endThrust() { _thrusting = false; }
+void PlayerComponent::endThrust()
+{
+    _thrusting = false;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void PlayerComponent::doThrust()
@@ -403,12 +438,10 @@ void PlayerComponent::endThrust() { _thrusting = false; }
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::doThrust()
 {
 	I32 costPerTick = 100;
-	Entity* const e = (Entity* const)_owner;
-	physics::Rigidbody* const r = e->getRigidbody();
+	physics::Rigidbody* const r = _owner->getRigidbody();
 	if(r)
 	{
 		if(!_thrusting && !_forceFullRegen && _stats.fuelRemaining >= 2*costPerTick)
@@ -442,7 +475,6 @@ void PlayerComponent::doThrust()
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::regenFuel()
 {
 	if(_stats.fuelRemaining < _stats.maxFuel && !_thrusting)
@@ -466,7 +498,6 @@ void PlayerComponent::regenFuel()
 /// \date	2013-08-13
 ///
 /// \return	The reload timer.
-////////////////////////////////////////////////////////////////////////////////
 F32 PlayerComponent::getReloadTimer() const
 {
 	return _reloadTimer;
@@ -481,7 +512,6 @@ F32 PlayerComponent::getReloadTimer() const
 /// \date	2013-08-13
 ///
 /// \return	The fire timer.
-////////////////////////////////////////////////////////////////////////////////
 F32 PlayerComponent::getFireTimer() const
 {
 	return _fireTimer;
@@ -496,7 +526,6 @@ F32 PlayerComponent::getFireTimer() const
 /// \date	2013-08-13
 ///
 /// \return	true if it succeeds, false if it fails.
-////////////////////////////////////////////////////////////////////////////////
 bool PlayerComponent::fireOnCooldown() const
 {
 	return _fireCooldown;
@@ -511,7 +540,6 @@ bool PlayerComponent::fireOnCooldown() const
 /// \date	2013-08-13
 ///
 /// \return	true if we can shoot, false if not.
-////////////////////////////////////////////////////////////////////////////////
 bool PlayerComponent::canShoot() const
 {
 	return _canShoot;
@@ -526,7 +554,6 @@ bool PlayerComponent::canShoot() const
 /// \date	2013-08-13
 ///
 /// \return	true if it succeeds, false if it fails.
-////////////////////////////////////////////////////////////////////////////////
 bool PlayerComponent::reloading() const
 {
 	return _reloading;
@@ -541,7 +568,6 @@ bool PlayerComponent::reloading() const
 /// \date	2013-08-13
 ///
 /// \param	dt	The dt.
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::stepReloadTimer(F32 dt)
 {
 	_reloadTimer+=dt;
@@ -561,7 +587,6 @@ void PlayerComponent::stepReloadTimer(F32 dt)
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::resetReloadTimer()
 {
 	_reloadTimer = 0.0f;
@@ -576,7 +601,6 @@ void PlayerComponent::resetReloadTimer()
 /// \date	2013-08-13
 ///
 /// \param	dt	The dt.
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::stepFireTimer(F32 dt)
 {
 	_fireTimer+=dt;
@@ -599,34 +623,33 @@ void PlayerComponent::stepFireTimer(F32 dt)
 ///
 /// \param	mouseX	The mouse x coordinate.
 /// \param	mouseY	The mouse y coordinate.
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 {
 	if(_canShoot && !_fireCooldown && _stats.health > 0)
 	{
-		
+        Transform& xf = _owner->getTransform();
+
 		F32 bulletSpeed = 50.0f;
-		Entity* e = (Entity*)_owner;
-		vec2 pos = e->getTransform()->getPosition();
+		vec2 pos = xf.getPosition();
 
 		//the 0.5f used here is supposed to take the size of the bullet into
 		//account.  Obviously if the size of the bullet changes than this needs
 		//to change.
 		if(mouseX < pos.x)
 		{
-			pos.x -= (e->getTransform()->getScale().x/2 + 0.75f);
+			pos.x -= (xf.getScale().x/2 + 0.75f);
 		}
 		else if(mouseX > pos.x)
 		{
-			pos.x += (e->getTransform()->getScale().x/2 + 0.75f);
+			pos.x += (xf.getScale().x/2 + 0.75f);
 		}
 		else if(mouseY < pos.y)
 		{
-			pos.y -= (e->getTransform()->getScale().y/2 + 0.75f);
+			pos.y -= (xf.getScale().y/2 + 0.75f);
 		}
 		else if(mouseY > pos.y)
 		{
-			pos.y += (e->getTransform()->getScale().y/2 + 0.75f);
+			pos.y += (xf.getScale().y/2 + 0.75f);
 		}
 		else
 		{   //if we're here, we're clicking on the player
@@ -660,7 +683,6 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::moveLeft()
 {
 	Entity* e = (Entity*)_owner;
@@ -676,7 +698,6 @@ void PlayerComponent::moveLeft()
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::moveRight()
 {
 	Entity* e = (Entity*)_owner;
@@ -692,7 +713,6 @@ void PlayerComponent::moveRight()
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::jump()
 {
 	if(_canJump)
@@ -705,6 +725,7 @@ void PlayerComponent::jump()
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::takeDamage(I32 dmg)
 {
 	_stats.health-=dmg;
@@ -716,6 +737,7 @@ void PlayerComponent::takeDamage(I32 dmg)
 	std::cerr<<std::endl;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::stop()
 {
 	Entity* e = (Entity*)_owner;
@@ -725,9 +747,23 @@ void PlayerComponent::stop()
 	e->getRigidbody()->setVelocity(vel);
 }
 
-bool PlayerComponent::isDead() { return _stats.health <= 0; }
-F64 PlayerComponent::getTimeOfDeath() { return _timeOfDeath; }
-void PlayerComponent::setTimeOfDeath(F64 tod) { _timeOfDeath = tod; }
+////////////////////////////////////////////////////////////////////////////////
+bool PlayerComponent::isDead()
+{
+    return _stats.health <= 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+F64 PlayerComponent::getTimeOfDeath()
+{
+    return _timeOfDeath;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void PlayerComponent::setTimeOfDeath(F64 tod)
+{
+    _timeOfDeath = tod;
+}
 
 } //namespace scene
 } //namespace pbj

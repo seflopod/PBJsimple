@@ -6,6 +6,8 @@
 
 #include "pbj/gfx/texture.h"
 
+#include <iostream>
+
 namespace pbj {
 namespace scene {
 
@@ -55,6 +57,7 @@ void UIPanel::addElement(std::unique_ptr<UIElement>&& element)
     element->view_ = &view_matrix_;
     element->inv_view_ = &inv_view_matrix_;
     element->focused_element_ = focused_element_;
+    element->parent_visible_ = &fully_visible_;
     element->onBoundsChange_();
 
     elements_.push_back(std::move(element));
@@ -98,7 +101,7 @@ void UIPanel::draw()
 
     if (style_ && view_)
     {
-        glLoadMatrixf(glm::value_ptr(*view_));
+        glLoadMatrixf(glm::value_ptr(panel_transform_));
         gfx::Texture::disable();
         
         glBegin(GL_QUADS);
@@ -154,7 +157,19 @@ void UIPanel::onBoundsChange_()
         ptr->view_ = &view_matrix_;
         ptr->inv_view_ = &inv_view_matrix_;
         ptr->focused_element_ = focused_element_;
+        ptr->parent_visible_ = &fully_visible_;
         ptr->onBoundsChange_();
+    }
+}
+
+void UIPanel::onVisibilityChange_()
+{
+    UIElement::onVisibilityChange_();
+    fully_visible_ = isFullyVisible();
+
+    for (std::unique_ptr<UIElement>& ptr : elements_)
+    {
+        ptr->onVisibilityChange_();
     }
 }
 

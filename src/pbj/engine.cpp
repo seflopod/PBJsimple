@@ -56,7 +56,7 @@ Engine::Engine()
     window_settings_id = Id("__editor__");
     window_title = "PBJ Editor";
 #else
-    window_settings_id = Id("__editor__");
+    window_settings_id = Id("__game__");
     window_title = "PBJ";
 #endif    
 

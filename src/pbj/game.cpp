@@ -102,10 +102,9 @@ bool Game::init(U32 fps)
      //setup physics, using variables instead of straight numbers so I can
      //remember what does what.
      _world = getEngine().getWorld();
-    _world->SetContactListener(this);
+     _world->SetContactListener(this);
      _physSettings = PhysicsSettings();
     
-    initBasicMaterials();
      //remove when making for reals
      initTestScene();
 
@@ -161,15 +160,15 @@ void Game::initTestScene()
 	_scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(37.0f, 3.5f)));
 
     //add the local player to the scene
-    vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform()->getPosition();
+    vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
     U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
-	_scene.getLocalPlayer()->addMaterial(_materials["red"]);
+    _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
 
 	//add other player Entities
 	for(I32 i=0;i<4;++i)
 	{
-		spawnLoc = _scene.getRandomSpawnPoint()->getTransform()->getPosition();
+		spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
 		_scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y, true)));
 	}
     
@@ -179,41 +178,6 @@ void Game::initTestScene()
     label.setPosition(vec2(0,0));
     _scene.ui.panel.addElement(unique_ptr<scene::UILabel>(&label));
     */
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::initBasicMaterials()
-///
-/// \brief    Initialises the basic materials.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-////////////////////////////////////////////////////////////////////////////////
-void Game::initBasicMaterials()
-{
-    _materials["red"] = std::shared_ptr<Material>((new Material()));
-    _materials["red"]->setColor(color4(0.7961f, 0.2f, 0.0039f, 1.0f));
-
-    _materials["green"] = std::shared_ptr<Material>((new Material()));
-    _materials["green"]->setColor(color4(0.6f, 0.9961f, 0.0f, 1.0f));
-
-    _materials["blue"] = std::shared_ptr<Material>((new Material()));
-    _materials["blue"]->setColor(color4(0.0f, 0.0f, 1.0f, 1.0f));
-
-    _materials["cyan"] = std::shared_ptr<Material>((new Material()));
-    _materials["cyan"]->setColor(color4(0.0f, 0.8f, 1.0f, 1.0f));
-
-    _materials["magenta"] = std::shared_ptr<Material>((new Material()));
-    _materials["magenta"]->setColor(color4(0.9922f, 0.2039f, 0.6039f, 1.0f));
-
-    _materials["yellow"] = std::shared_ptr<Material>((new Material()));
-    _materials["yellow"]->setColor(color4(1.0f, 1.0f, 0.0f, 1.0f));
-
-    _materials["black"] = std::shared_ptr<Material>((new Material()));
-    _materials["black"]->setColor(color4(0.0f, 0.0f, 0.0f, 1.0f));
-
-    _materials["white"] = std::shared_ptr<Material>((new Material()));
-    _materials["white"]->setColor(color4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 #pragma endregion
 
@@ -307,10 +271,10 @@ bool Game::update()
 		while(!_toRespawn.empty() &&
 				_toRespawn.front()->getPlayerComponent()->getTimeOfDeath() + 2 <= t)
 		 {  // five second delay to respawn
-			vec2 spwn = _scene.getRandomSpawnPoint()->getTransform()->getPosition();
+			vec2 spwn = _scene.getRandomSpawnPoint()->getTransform().getPosition();
 			_toRespawn.front()->enable();
-			_toRespawn.front()->getTransform()->setPosition(spwn.x, spwn.y);
-			_toRespawn.front()->getTransform()->updateOwnerRigidbody();
+			_toRespawn.front()->getTransform().setPosition(spwn.x, spwn.y);
+			_toRespawn.front()->getTransform().updateOwnerRigidbody();
 			_toRespawn.front()->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
 			_toRespawn.front()->getPlayerComponent()->setHealth(
 						_toRespawn.front()->getPlayerComponent()->getMaxHealth());
@@ -667,8 +631,8 @@ void Game::spawnBullet(const vec2& position, const vec2& velocity)
 {
     Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
     bullet->enable();
-    bullet->getTransform()->setPosition(position);
-    bullet->getTransform()->updateOwnerRigidbody();
+    bullet->getTransform().setPosition(position);
+    bullet->getTransform().updateOwnerRigidbody();
     bullet->getRigidbody()->setVelocity(velocity);
     bullet->getRigidbody()->setAngularVelocity(6.28318f);
 
@@ -721,11 +685,11 @@ void Game::respawnPlayer(Entity* e)
 Entity* Game::makeBullet()
 {
     Entity* e = new Entity();
-    e->init();
     e->setType(Entity::EntityType::Bullet);
-    e->getTransform()->setScale(0.5f, 0.5f);
-    e->addMaterial(_materials["cyan"]);
-    e->addShape(new ShapeTriangle());
+    e->getTransform().setScale(0.5f, 0.5f);
+    
+    e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullets"))));
+    e->setShape(new ShapeTriangle());
     e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     e->getRigidbody()->setBullet(true);
     e->getRigidbody()->setActive(false);
@@ -745,12 +709,11 @@ Entity* Game::makeBullet()
 Entity* Game::makePlayer(F32 x, F32 y, bool addAI)
 {
     Entity* p = new Entity();
-    p->init();
     p->setType(Entity::Player);
-    p->getTransform()->setPosition(vec2(x, y));
-    p->getTransform()->setScale(vec2(1.0f, 2.0f));
-    p->addMaterial(_materials["magenta"]);
-    p->addShape(new ShapeSquare());
+    p->getTransform().setPosition(vec2(x, y));
+    p->getTransform().setScale(vec2(1.0f, 2.0f));
+    p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
+    p->setShape(new ShapeSquare());
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     p->getRigidbody()->setFixedRotation(true);
     p->addPlayerComponent();
@@ -776,12 +739,11 @@ Entity* Game::makePlayer(F32 x, F32 y, bool addAI)
 Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
 {
     Entity* t = new Entity();
-    t->init();
     t->setType(Entity::EntityType::Terrain);
-    t->getTransform()->setPosition(x, y);
-    t->getTransform()->setScale(width, height);
-    t->addMaterial(_materials["green"]);
-    t->addShape(new ShapeSquare());
+    t->getTransform().setPosition(x, y);
+    t->getTransform().setScale(width, height);
+    t->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("terrain"))));
+    t->setShape(new ShapeSquare());
     t->addRigidbody(Rigidbody::BodyType::Static, _world);
     t->enableDraw();
     return t;
@@ -790,16 +752,20 @@ Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
 Entity* Game::makeSpawnPoint(F32 x, F32 y)
 {
     Entity* s = new Entity();
-    s->init();
     s->setType(Entity::EntityType::SpawnPoint);
-    s->getTransform()->setPosition(x, y);
-    s->getTransform()->setScale(1.0f, 1.0f);
-    s->addMaterial(_materials["yellow"]);
-    s->addShape(new ShapeSquare());
+    s->getTransform().setPosition(x, y);
+    s->getTransform().setScale(1.0f, 1.0f);
+    s->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("red"))));
+    s->setShape(new ShapeSquare());
 
+#ifndef PBJ_EDITOR
     //disable this when not testing
     //s->enableDraw();
 	s->disableDraw();
+#else
+    // When in the editor, draw spawnpoints no matter what.
+    s->enableDraw();
+#endif
     return s;
 }
 #pragma endregion

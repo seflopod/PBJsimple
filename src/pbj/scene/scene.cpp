@@ -8,6 +8,36 @@
 
 #include <iostream>
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load a scene's name from a sandwich.
+#define PBJ_SCENE_SCENE_SQL_GET_NAME "SELECT name FROM sw_maps WHERE id = ?"
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load a scene's entities from a sandwich.
+#define PBJ_SCENE_SCENE_SQL_GET_ENTITIES "SELECT entity_id FROM sw_map_entities WHERE map_id = ?"
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to save a scene's name to a sandwich.
+#define PBJ_SCENE_SCENE_SQL_SET_NAME "INSERT OR REPLACE INTO sw_maps " \
+            "(id, name) VALUES (?,?)"
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to clear a scene's entities in a sandwich.
+#define PBJ_SCENE_SCENE_SQL_CLEAR_ENTITIES "DELETE FROM sw_map_entities WHERE map_id = ?"
+
+#ifdef BE_ID_NAMES_ENABLED
+#define PBJ_SCENE_SCENE_SQLID_GET_NAME       PBJ_SCENE_SCENE_SQL_GET_NAME
+#define PBJ_SCENE_SCENE_SQLID_GET_ENTITIES   PBJ_SCENE_SCENE_SQL_GET_ENTITIES
+#define PBJ_SCENE_SCENE_SQLID_SET_NAME       PBJ_SCENE_SCENE_SQL_SET_NAME
+#define PBJ_SCENE_SCENE_SQLID_CLEAR_ENTITIES PBJ_SCENE_SCENE_SQL_CLEAR_ENTITIES
+#else
+// TODO: precalculate ids.
+#define PBJ_SCENE_SCENE_SQLID_GET_NAME       PBJ_SCENE_SCENE_SQL_GET_NAME
+#define PBJ_SCENE_SCENE_SQLID_GET_ENTITIES   PBJ_SCENE_SCENE_SQL_GET_ENTITIES
+#define PBJ_SCENE_SCENE_SQLID_SET_NAME       PBJ_SCENE_SCENE_SQL_SET_NAME
+#define PBJ_SCENE_SCENE_SQLID_CLEAR_ENTITIES PBJ_SCENE_SCENE_SQL_CLEAR_ENTITIES
+#endif
+
 namespace pbj {
 namespace scene {
 
@@ -114,6 +144,18 @@ void Scene::update(F32 dt)
 		it++)
 		if(it->second->isEnabled())
 			it->second->update(dt);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void Scene::setMapName(const std::string& name)
+{
+    _name = name;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+const std::string& Scene::getMapName() const
+{
+    return _name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -273,6 +315,61 @@ Entity* Scene::getRandomSpawnPoint()
 		return nullptr;
 
 	return it->second.get();
+}
+
+std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
+{
+    std::unique_ptr<Scene> s;
+
+    try
+    {
+        std::string map_name;
+
+        db::StmtCache& cache = sandwich.getStmtCache();
+        db::CachedStmt stmt = cache.hold(Id(PBJ_SCENE_SCENE_SQLID_GET_NAME), PBJ_SCENE_SCENE_SQL_GET_NAME);
+
+        stmt.bind(1, map_id.value());
+        if (stmt.step())
+        {
+            map_name = stmt.getText(0);
+        }
+
+        s.reset(new Scene());
+        db::CachedStmt s2 = cache.hold(Id(PBJ_SCENE_SCENE_SQLID_GET_ENTITIES), PBJ_SCENE_SCENE_SQL_GET_ENTITIES);
+
+        s2.bind(1, map_id.value());
+        while (s2.step())
+        {
+            Id entity_id(s2.getUInt64(0));
+            std::unique_ptr<Entity> e = loadEntity(sandwich, map_id, entity_id);
+            if (e)
+                s->addEntity(std::move(e));
+        }
+    }
+    catch (const db::Db::error& err)
+    {
+        s.reset();
+        PBJ_LOG(VWarning) << "Database error while loading scene!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_NL
+                          << "        SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::exception& err)
+   {
+       s.reset();
+       PBJ_LOG(VWarning) << "Exception while loading scene!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_END;
+   }
+
+    return s;
+}
+
+void saveScene(const Id& sandwich_id, const Id& map_id)
+{
+    PBJ_LOG(VWarning) << "Not yet fully implemented!" << PBJ_LOG_END;
 }
 
 } // namespace pbj::scene

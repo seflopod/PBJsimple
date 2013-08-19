@@ -90,7 +90,18 @@ int main(int argc, char* argv[])
 
 #ifdef PBJ_EDITOR
 
+    if (argc < 3)
+    {
+        PBJ_LOG(pbj::VError) << "No map specified to edit!" << PBJ_LOG_END;
+
+        PBJ_LOG_STREAM << PBJ_LOG_END << "Usage:" << PBJ_LOG_END
+                       << "   editor <sandwich id> <map id>" << PBJ_LOG_END << PBJ_LOG_END;
+        return -1;
+    }
+
     pbj::Editor editor;
+
+    editor.run(argv[1], argv[2]);
 
 #else
 	//Start and run game

@@ -273,6 +273,27 @@ void Stmt::bindBlob_s(int parameter, const void* value, int length)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Encodes an RGBA color to an integer and binds it to the specified
+///         parameter.
+///
+/// \param  parameter The index of the parameter to bind.
+/// \param  value The color to bind to the parameter.
+/// 
+/// \sa     getColor(int)
+void Stmt::bindColor(int parameter, const glm::vec4& color)
+{
+    glm::ivec4 temp(std::max(std::min(int(color.r * 255), 255), 0),
+                    std::max(std::min(int(color.g * 255), 255), 0),
+                    std::max(std::min(int(color.b * 255), 255), 0),
+                    std::max(std::min(int(color.a * 255), 255), 0));
+
+    int value = temp.r | ( temp.g << 8) | (temp.b << 16) | (temp.a << 24);
+
+    if (sqlite3_bind_int(stmt_, parameter, value) != SQLITE_OK)
+      throw Db::error(sqlite3_errmsg(db_.db_), sqlite3_sql(stmt_));
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief  Executes the statement.
 ///
 /// \return \c true if a result set was returned and there is a row available.

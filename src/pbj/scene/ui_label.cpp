@@ -106,7 +106,8 @@ void UILabel::draw()
         if (!text_transform_valid_)
             calculateTextTransform_();
 
-        glLoadMatrixf(glm::value_ptr(*view_));
+        glLoadMatrixf(glm::value_ptr(text_transform_));
+
         font_->print(text_, text_color_);
     }
 }

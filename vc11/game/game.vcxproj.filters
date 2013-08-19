@@ -79,6 +79,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\pbj\%28editor%29">
+      <UniqueIdentifier>{6d837179-9d72-4dfb-bcea-a63578fcae18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pbj\%28editor%29">
+      <UniqueIdentifier>{79fecb01-17c1-4f23-a91a-7508392547b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\deps\pugixml.cpp">
@@ -180,9 +186,6 @@
     <ClCompile Include="..\..\src\pbj\input_controller.cpp">
       <Filter>Source Files\pbj</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pbj\transform.cpp">
-      <Filter>Source Files\pbj</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pbj\window.cpp">
       <Filter>Source Files\pbj</Filter>
     </ClCompile>
@@ -198,14 +201,41 @@
     <ClCompile Include="..\..\src\pbj\sw\resource_manager.cpp">
       <Filter>Source Files\pbj\pbj::sw</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pbj\editor.cpp">
-      <Filter>Source Files\pbj</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pbj\scene\ui_styles.cpp">
       <Filter>Source Files\pbj\pbj::scene\%28ui%29</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pbj\scene\player_component.cpp">
-      <Filter>Source Files\pbj</Filter>
+    <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\editor.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\look_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\rotate_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scale_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\clobber_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\decorate_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\dupe_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\mimic_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\move_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\add_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
       <Filter>Source Files\pbj\pbj::gfx</Filter>
@@ -214,7 +244,13 @@
       <Filter>Source Files\pbj\pbj::gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\scene\ai_component.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\pbj\pbj::scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\player_component.cpp">
+      <Filter>Source Files\pbj\pbj::scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\transform.cpp">
+      <Filter>Source Files\pbj\pbj::scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -222,9 +258,6 @@
       <Filter>Header Files\pbj</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\input_controller.h">
-      <Filter>Header Files\pbj</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pbj\transform.h">
       <Filter>Header Files\pbj</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\window.h">
@@ -335,14 +368,8 @@
     <ClInclude Include="..\..\include\pbj\sw\resource_manager.h">
       <Filter>Header Files\pbj\pbj::sw</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pbj\editor.h">
-      <Filter>Header Files\pbj</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\ui_styles.h">
       <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pbj\scene\player_component.h">
-      <Filter>Header Files\pbj</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\gfx\shape_triangle.h">
       <Filter>Header Files\pbj\pbj::gfx</Filter>
@@ -357,6 +384,45 @@
       <Filter>Header Files\pbj\pbj::scene</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\scene.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\editor.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\look_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\add_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\move_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scale_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\rotate_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\decorate_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\clobber_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\dupe_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\mimic_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\transform.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\player_component.h">
       <Filter>Header Files\pbj\pbj::scene</Filter>
     </ClInclude>
   </ItemGroup>

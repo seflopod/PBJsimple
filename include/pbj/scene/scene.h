@@ -14,6 +14,7 @@
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/entity.h"
 #include "pbj/scene/camera.h"
+#include "pbj/sw/sandwich.h"
 
 using std::vector;
 using std::unordered_map;
@@ -40,7 +41,6 @@ namespace scene {
 class Scene
 {
 public:
-
     Scene();
 	~Scene();
 
@@ -48,6 +48,9 @@ public:
 
 	void draw();
 	void update(F32);
+
+    void setMapName(const std::string& name);
+    const std::string& getMapName() const;
 
 	U32 addEntity(unique_ptr<Entity>&&);
 	void removeEntity(U32, Entity::EntityType);
@@ -78,12 +81,16 @@ private:
 	EntityMap _terrain;
 	EntityMap _players;
 	EntityMap _bullets;
-	std::ranlux24_base _rnd;
+	std::ranlux24_base _rnd;  // ranlux? not mersenne twister?
+
+    std::string _name;
+
     Scene(const Scene&);
     void operator=(const Scene&);
 };
 
-
+std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);
+void saveScene(const Id& sandwich_id, const Id& map_id);
 
 } // namespace pbj::scene
 } // namespace pbj

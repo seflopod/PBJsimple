@@ -7,8 +7,9 @@
 #include "pbj/scene/ui_button.h"
 
 #include "pbj/engine.h"
-
 #include "pbj/_math.h"
+
+
 
 namespace pbj {
 namespace scene {
@@ -20,13 +21,13 @@ UIButton::UIButton()
       kbd_active_(false),
       hovered_(false)
 {
-    style_ids_[SNormal]         = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.normal"));
-    style_ids_[SHovered]        = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.hovered"));
-    style_ids_[SActive]         = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.active"));
-    style_ids_[SFocused]        = style_ids_[SHovered];
-    style_ids_[SFocusedHovered] = style_ids_[SHovered];
-    style_ids_[SFocusedActive]  = style_ids_[SActive];
-    style_ids_[SDisabled]       = sw::ResourceId(Id("pbjbase"), Id("ButtonStyle.default.disabled"));
+    style_ids_[SNormal]         = sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("std_btn.normal"));
+    style_ids_[SHovered]        = sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("std_btn.hovered"));
+    style_ids_[SActive]         = sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("std_btn.active"));
+    style_ids_[SFocused]        = sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("std_btn.focused"));
+    style_ids_[SFocusedHovered] = sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("std_btn.focused_hovered"));
+    style_ids_[SFocusedActive]  = sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("std_btn.focused_active"));
+    style_ids_[SDisabled]       = sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("std_btn.disabled"));
 
     label_.setAlign(UILabel::AlignCenter);
 }
@@ -69,7 +70,7 @@ void UIButton::draw()
     {
         refreshConfig_();
 
-        glLoadMatrixf(glm::value_ptr(*view_));
+        glLoadMatrixf(glm::value_ptr(btn_transform_));
         gfx::Texture::disable();
         
         glBegin(GL_QUADS);
