@@ -61,6 +61,8 @@ UIRoot::UIRoot()
     context_resize_listener_id_ = window->registerContextResizeListener(
         [&](I32 width, I32 height)
         {
+            panel.setPosition(vec2());
+            panel.setDimensions(vec2(width, height));
             projection_matrix_ = glm::ortho(0.0f, F32(width), F32(height), 0.0f);
             panel.onBoundsChange_();
         }
@@ -69,6 +71,9 @@ UIRoot::UIRoot()
     panel.view_ = &view_matrix_;
     panel.inv_view_ = &view_matrix_;
     panel.focused_element_ = &focused_element_;
+    panel.setPosition(vec2());
+    panel.setDimensions(vec2(window->getContextSize()));
+    projection_matrix_ = glm::ortho(0.0f, panel.getDimensions().x, panel.getDimensions().y, 0.0f);
     panel.onBoundsChange_();
 }
 
@@ -85,16 +90,24 @@ void UIRoot::draw()
 {
     Window* window = getEngine().getWindow();
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0f, F32(window->getContextSize().x), F32(window->getContextSize().y), 0.0f, -1, 1);
+    glLoadMatrixf(glm::value_ptr(projection_matrix_));
     glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     panel.draw();
 }
 
 void UIRoot::clearFocus()
 {
-    panel.setFocused();
+    if (panel.isVisible())
+        panel.setFocused();
+    else
+    {
+        UIElement* old_focus = focused_element_;
+        focused_element_ = nullptr;
+        if (old_focus)
+            old_focus->onFocusChange_();
+    }
 }
 
 UIElement* UIRoot::getFocus()
@@ -174,7 +187,9 @@ void UIRoot::onMouseButton(I32 button, bool down)
         {
             *down_over = under_mouse;
 
-            if (!under_mouse)
+            if (under_mouse && under_mouse->isFocusable())
+                under_mouse->setFocused();
+            else
                 clearFocus();
         }
         else
@@ -200,6 +215,9 @@ void UIRoot::onMouseButton(I32 button, bool down)
 
 void UIRoot::onKey(I32 keycode, I32 action, I32 modifiers)
 {
+    if (!focused_element_ && panel.isVisible())
+        panel.setFocused();
+
     if (!focused_element_)
         return;
 

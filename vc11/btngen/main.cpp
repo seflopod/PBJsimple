@@ -161,12 +161,30 @@ int main(int argc, char** argv)
 
     ButtonStyle focused(normal);
     focused.panel.border_color = color4(color * 1.2f, 1.0f);
+    focused.panel.border_width_left = 1.0f;
+    focused.panel.border_width_right = 1.0f;
+    focused.panel.border_width_top = 1.0f;
+    focused.panel.border_width_bottom = 1.0f;
+    focused.panel.margin_left = 1.0f;
+    focused.panel.margin_right = 2.0f;
+    focused.panel.margin_top = 1.0f;
+    focused.panel.margin_bottom = 2.0f;
     output(focused, prefix + ".focused");
 
     ButtonStyle focused_hovered(hovered);
+    focused_hovered.panel.border_color = color4(color * 1.2f, 1.0f);
+    focused_hovered.panel.border_width_left = 1.0f;
+    focused_hovered.panel.border_width_right = 1.0f;
+    focused_hovered.panel.border_width_top = 1.0f;
+    focused_hovered.panel.border_width_bottom = 1.0f;
+    focused_hovered.panel.margin_left = 1.0f;
+    focused_hovered.panel.margin_right = 2.0f;
+    focused_hovered.panel.margin_top = 1.0f;
+    focused_hovered.panel.margin_bottom = 2.0f;
     output(focused_hovered, prefix + ".focused_hovered");
     
     ButtonStyle focused_active(active);
+    focused_active.panel.border_color = color4(color * 1.2f, 1.0f);
     output(focused_active, prefix + ".focused_active");
 
     std::cout << ".quit" << std::endl;

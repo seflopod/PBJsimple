@@ -25,7 +25,8 @@ UIElement::UIElement()
       inv_view_(nullptr),
       focused_element_(nullptr),
       next_focus_(nullptr),
-      visible_(true)
+      visible_(true),
+      parent_visible_(nullptr)
 {
 }
 
@@ -75,6 +76,11 @@ void UIElement::setVisible(bool visible)
 bool UIElement::isVisible() const
 {
     return visible_;
+}
+
+bool UIElement::isFullyVisible() const
+{
+    return isVisible() && (!parent_visible_ || *parent_visible_);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -366,6 +372,12 @@ void UIElement::onKeyUp(I32 keycode, I32 modifiers)
 ///         when the event occurred.
 void UIElement::onKeyPressed(I32 keycode, I32 modifiers)
 {
+    if (keycode == GLFW_KEY_ESCAPE && focused_element_)
+    {
+        *focused_element_ = nullptr;
+        onFocusChange_();
+    }
+
     if (next_focus_ && keycode == GLFW_KEY_TAB && (0 == (modifiers & (GLFW_MOD_ALT | GLFW_MOD_CONTROL | GLFW_MOD_SUPER))))
     {
         if (modifiers & GLFW_MOD_SHIFT)
@@ -413,9 +425,15 @@ void UIElement::onFocusChange_()
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Called when this element's visibility changes.
 ///
-/// \details Can be overridden by derrived classes.
+/// \details Can be overridden by derrived classes.  By default, if this
+///         element has keyboard focus, it loses it when it becomes invisible.
 void UIElement::onVisibilityChange_()
 {
+    if (!isFullyVisible() && isFocused())
+    {
+        *focused_element_ = nullptr;
+        onFocusChange_();
+    }
 }
 
 } // namespace pbj::scene

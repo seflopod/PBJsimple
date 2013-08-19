@@ -64,6 +64,7 @@ public:
    void bindBlob(int parameter, const std::string& value);
    void bindBlob(int parameter, const void* value, int length);
    void bindBlob_s(int parameter, const void* value, int length);
+   void bindColor(int parameter, const glm::vec4& color);
 
    bool step();
    void reset();

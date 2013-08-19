@@ -4,16 +4,10 @@
 /// \date   2013-07-18
 /// \brief  A class for representing the transformation of an object.
 /// \details This class is mostly a wrapper for glm calls.  It stores the
-///         position, rotation, and scale of an object.  GLM_SWIZZLE is used to
-///         convert from the position stored as a vec4 to the position as a
-///         vec3.
+///         position, rotation, and scale of an object.
 
 #ifndef PBJ_TRANSFORM_H_
 #define PBJ_TRANSFORM_H_
-
-#ifndef GLM_SWIZZLE
-	#define GLM_SWIZZLE
-#endif
 
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"

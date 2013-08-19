@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 
 del pbjbase.sw
 sw __pbjbase__ create  pbjbase.sw

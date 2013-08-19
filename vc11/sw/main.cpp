@@ -48,7 +48,8 @@ enum ListType
     LTProperties = 0x1,
     LTTextures = 0x2,
     LTFonts = 0x4,
-    LTAll = 0xFFFFFFFF
+    LTMaterials = 0x8,
+    LTAll = 0xFF
 };
 
 // function prototypes
@@ -57,6 +58,7 @@ int list(ListType type);
 int prop(const std::string& prop, const std::string& value);
 int texture(const std::string& texture, const std::string& filename, const char** extra, int extra_count);
 int textureFont(const std::string& font, const std::string& filename);
+int material(const std::string& material, const glm::vec4& color, const std::string& texture, std::string texture_mode);
 void displayUsage();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,6 +97,8 @@ int main(int argc, char** argv)
     std::transform(operation.begin(), operation.end(), operation.begin(), tolower);
     if (operation == "tex")
         operation = "texture";
+    else if (operation == "mat")
+        operation = "material";
     else if (operation == "prop")
         operation = "property";
     else if (operation == "texturefont" || operation == "texfont")
@@ -187,6 +191,52 @@ int main(int argc, char** argv)
 
         return textureFont(argv[3], argv[4]);
     }
+    else if (operation == "material")
+    {
+        std::string texture;
+        std::string tex_mode;
+
+        if (argc < 4)
+        {
+            PBJ_LOG(pbj::VError) << "No material id specified!" << PBJ_LOG_END;
+            displayUsage();
+            return -1;
+        }
+        else if (argc < 5)
+        {
+            PBJ_LOG(pbj::VError) << "No red color component specified!" << PBJ_LOG_END;
+            displayUsage();
+            return -1;
+        }
+        else if (argc < 6)
+        {
+            PBJ_LOG(pbj::VError) << "No green color component specified!" << PBJ_LOG_END;
+            displayUsage();
+            return -1;
+        }
+        else if (argc < 7)
+        {
+            PBJ_LOG(pbj::VError) << "No blue color component specified!" << PBJ_LOG_END;
+            displayUsage();
+            return -1;
+        }
+
+        glm::vec4 color(0,0,0,1);
+        color.r = float(atof(argv[4]));
+        color.g = float(atof(argv[5]));
+        color.b = float(atof(argv[6]));
+
+        if (argc >= 8)
+            color.a = float(atof(argv[7]));
+
+        if (argc >= 9)
+            texture = argv[8];
+
+        if (argc >= 10)
+            texture = argv[9];
+
+        return material(argv[3], color, texture, tex_mode);
+    }
     else if (operation == "vacuum")
     {
         sw->getDb().vacuum();
@@ -220,6 +270,9 @@ void displayUsage()
 
     if (operation == "" || operation == "font")
         std::cout << "    " << cmd_name << " " << sw_name << " font <font id> <bmfont xml filename>" << std::endl;
+
+    if (operation == "" || operation == "material")
+        std::cout << "    " << cmd_name << " " << sw_name << " material <material id> <r> <g> <b> [a] [texture id] [modulate|decal|add]" << std::endl;
 
     if (operation == "" || operation == "vacuum")
         std::cout << "    " << cmd_name << " " << sw_name << " vacuum" << std::endl;
@@ -314,13 +367,15 @@ int create(const std::string& filename)
             sw->getDb().exec("CREATE TABLE sw_map_entities\n"
                              "(\n"
                              "   map_id      INTEGER NOT NULL,\n"
-                             "   id          INTEGER PRIMARY KEY,\n"
+                             "   entity_id   INTEGER NOT NULL,\n"
                              "   entity_type INTEGER NOT NULL,\n"
                              "   rotation    REAL NOT NULL,\n"
                              "   pos_x       REAL NOT NULL,\n"
                              "   pos_y       REAL NOT NULL,\n"
                              "   scale_x     REAL NOT NULL,\n"
-                             "   scale_y     REAL NOT NULL\n"
+                             "   scale_y     REAL NOT NULL,\n"
+                             "   material_id INTEGER NOT NULL,\n"
+                             "   PRIMARY KEY (map_id, entity_id)\n"
                              ");");
             PBJ_LOG(pbj::VInfo) << "Created table 'sw_map_entities'." << PBJ_LOG_END;
         }
@@ -372,6 +427,20 @@ int create(const std::string& filename)
                              "   PRIMARY KEY (font_id, codepoint)\n"
                              ");");
             PBJ_LOG(pbj::VInfo) << "Created table 'sw_texture_font_chars'." << PBJ_LOG_END;
+        }
+
+        table_exists.reset();
+        table_exists.bind(1, "sw_materials");
+        if (!table_exists.step())
+        {
+            sw->getDb().exec("CREATE TABLE sw_materials\n"
+                             "(\n"
+                             "   id           INTEGER PRIMARY KEY,\n"
+                             "   color        INTEGER NOT NULL,\n"
+                             "   texture_id   INTEGER,\n"
+                             "   texture_mode INTEGER NOT NULL\n"
+                             ");");
+            PBJ_LOG(pbj::VInfo) << "Created table 'sw_materials'." << PBJ_LOG_END;
         }
         
         table_exists.reset();
@@ -503,7 +572,7 @@ int list(ListType type)
 
         if (type & LTTextures)
         {
-            std:: cout << "Textures:" << std::endl;
+            std::cout << "Textures:" << std::endl;
 
             pbj::db::Stmt get(sw->getDb(), "SELECT id, data FROM sw_textures");
             while (get.step())
@@ -516,7 +585,7 @@ int list(ListType type)
 
         if (type & LTFonts)
         {
-            std:: cout << "TextureFonts:" << std::endl;
+            std::cout << "TextureFonts:" << std::endl;
 
             pbj::db::Stmt get(sw->getDb(), "SELECT id FROM sw_texture_fonts");
             while (get.step())
@@ -525,6 +594,17 @@ int list(ListType type)
             }
 
             std::cout << std::endl;
+        }
+
+        if (type & LTMaterials)
+        {
+            std::cout << "Materials:" << std::endl;
+
+            pbj::db::Stmt get(sw->getDb(), "SELECT id FROM sw_materials");
+            while (get.step())
+            {
+                std::cout << "   " << pbj::Id(get.getUInt64(0)) << std::endl;
+            }
         }
     }
     catch (const pbj::db::Db::error& e)
@@ -811,8 +891,10 @@ int textureFont(const std::string& font, const std::string& filename)
 
         transaction.commit();
 
-        PBJ_LOG(pbj::VInfo) << "TextureFont Texture ID: " << texture_id << PBJ_LOG_END;
-        PBJ_LOG(pbj::VInfo) << "Inserted " << chars.size() << " TextureFont Characters." << PBJ_LOG_END;
+        PBJ_LOG(pbj::VInfo) << "Inserted TextureFont!" << PBJ_LOG_NL
+                            << "TextureFont ID: " << font_id << PBJ_LOG_NL
+                            << "    Texture ID: " << texture_id << PBJ_LOG_NL
+                            << "    Characters: " << chars.size() << PBJ_LOG_END;
     }
     catch (const pbj::db::Db::error& e)
     {
@@ -832,6 +914,67 @@ int textureFont(const std::string& font, const std::string& filename)
         PBJ_LOG(pbj::VError) << "Exception while adding texture font!" << PBJ_LOG_NL
                              << "Sandwich ID: " << sw_id << PBJ_LOG_NL
                              << "   Filename: " << filename << PBJ_LOG_NL
+                             << "  Exception: " << e.what() << PBJ_LOG_END;
+        return 1;
+    }
+
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+int material(const std::string& material, const glm::vec4& color, const std::string& texture, std::string texture_mode)
+{
+    pbj::Id material_id(material);
+    pbj::Id tex_id(texture);
+
+    std::transform(texture_mode.begin(), texture_mode.end(), texture_mode.begin(), tolower);
+
+    unsigned int tex_mode = 1;
+    if (texture_mode == "modulate" || texture_mode == "mod")
+        tex_mode = 0;
+
+    if (texture_mode == "add")
+        tex_mode = 2;
+
+    try
+    {
+        pbj::db::Transaction transaction(sw->getDb());
+        pbj::db::Stmt update(sw->getDb(), "INSERT OR REPLACE INTO sw_materials (id, color, texture_id, texture_mode) VALUES (?, ?, ?, ?);");
+      
+        update.bind(1, material_id.value());
+        update.bindColor(2, color);
+
+        if (texture.length() == 0)
+            update.bind(3);
+        else
+            update.bind(3, tex_id.value());
+
+        update.bind(4, tex_mode);
+        update.step();
+
+        transaction.commit();
+
+        PBJ_LOG(pbj::VInfo) << "Inserted Material! " << PBJ_LOG_NL
+                            << "Material ID: " << material_id << PBJ_LOG_END;
+    }
+    catch (const pbj::db::Db::error& e)
+    {
+        // transaction will be rolled back if not committed,
+        // and DB file closed if open.
+        PBJ_LOG(pbj::VError) << "SQL error while inserting material!" << PBJ_LOG_NL
+                             << "Sandwich ID: " << sw_id << PBJ_LOG_NL
+                             << "Material ID: " << material_id << PBJ_LOG_NL
+                             << "  Exception: " << e.what() << PBJ_LOG_NL
+                             << "        SQL: " << e.sql() << PBJ_LOG_END;
+        return 1;
+    }
+    catch (const std::exception& e)
+    {
+        // transaction will be rolled back if not committed,
+        // and DB file closed if open.
+        PBJ_LOG(pbj::VError) << "Exception while inserting material!" << PBJ_LOG_NL
+                             << "Sandwich ID: " << sw_id << PBJ_LOG_NL
+                             << "Material ID: " << material_id << PBJ_LOG_NL
                              << "  Exception: " << e.what() << PBJ_LOG_END;
         return 1;
     }

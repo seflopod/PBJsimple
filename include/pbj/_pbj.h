@@ -55,6 +55,13 @@
 /// \brief  The PBJgame copyright string
 #define PBJ_COPYRIGHT "Copyright (c) 2013 PBJ^2 Productions"
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Equivalent to Id("__pbjbase__").value().
+#define PBJ_ID_PBJBASE 0x4967eac5c8296b82
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Equivalent to Id("__pbjconfig__").value().
+#define PBJ_ID_PBJCONFIG 0x554eba1957a0b731
 
 namespace be {
 

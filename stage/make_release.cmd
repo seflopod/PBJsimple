@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 call build_sws.cmd
 
 copy /Y alut.dll release\
