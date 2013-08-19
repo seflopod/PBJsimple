@@ -13,11 +13,14 @@
 #include "pbj/_math.h"
 
 namespace pbj {
+namespace scene {
+
+class Entity;
 
 class Transform
 {
 public:
-	Transform(void*);
+	Transform(Entity*);
 	~Transform();
 
 	void rotate(F32);
@@ -36,18 +39,17 @@ public:
 	void setScale(F32, F32);
 	void setScale(const vec2&);
 
-	//mat4 getMatrix() const;
-
-	void* getOwner();
+	scene::Entity* getOwner();
 
 	void updateOwnerRigidbody();
 private:
-	void* _owner;
-	vec2 _position;	///< The position.
-	F32 _rotation;	///< Rotation stored as a quaternion.
-	vec2 _scale;	///< Scale.
+	Entity* _owner;
+	vec2 _position;
+	F32 _rotation;
+	vec2 _scale;
 };
 
-} //namespace pbj
+} // namespace pbj::scene
+} // namespace pbj
 
 #endif

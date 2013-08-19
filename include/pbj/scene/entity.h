@@ -10,19 +10,14 @@
 #include <Box2D/Box2D.h>
 
 #include "pbj/_pbj.h"
-#include "pbj/transform.h"
 #include "pbj/gfx/texture.h"
 #include "pbj/gfx/shape_square.h"
 #include "pbj/gfx/shape_triangle.h"
 #include "pbj/gfx/material.h"
 #include "pbj/physics/rigidbody.h"
+#include "pbj/scene/transform.h"
 #include "pbj/scene/player_component.h"
 #include "pbj/scene/ai_component.h"
-//too lazy to check which if these actually need to be a part of this
-//I figure it's worth including the possibility that an entity might be text
-//though for our current purposes this might be a bit overboard.
-#include "pbj/gfx/texture_font.h"
-#include "pbj/gfx/texture_font_character.h"
 
 using pbj::gfx::ComponentCallback;
 using pbj::gfx::Texture;
@@ -62,26 +57,21 @@ namespace scene
 		};
 
 		Entity();
-		
 		~Entity();
-		
-		//intialization and destruction funcs
-		void init();
-		void destroy();
 		
 		void update(F32);
 		void draw();
 		
 		//accessors, these will expand as the class gains more component
 		//possiblities
-		Transform* getTransform();
+		Transform& getTransform();
 		void setTransform(const Transform&);
 		
 		Shape* getShape() const;
-		void addShape(Shape*);
+		void setShape(Shape*);
 
-		std::shared_ptr<Material> getMaterial();
-		void addMaterial(std::shared_ptr<Material>);
+		const Material* getMaterial();
+		void setMaterial(const Material*);
 
 		GLuint getTextureId() const;
 		void setTextureId(const GLuint);
@@ -109,9 +99,7 @@ namespace scene
 		void enable();
 		void disable();
 
-	private:
-		bool _initialized;
-				
+    private:
         bool _drawable;
 		bool _enabled;
 		//bool _toDisable;
@@ -124,10 +112,11 @@ namespace scene
 		//components
 		Transform _transform;
 		std::unique_ptr<Shape> _shape;
-		std::shared_ptr<Material> _material;
-		Rigidbody* _rigidbody;
-		PlayerComponent* _player;
+		const Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
+		std::unique_ptr<Rigidbody> _rigidbody;
+		std::unique_ptr<PlayerComponent> _player;
 		std::unique_ptr<AIComponent> _ai;
+
 		Entity(const Entity&);
 		void operator=(const Entity&);
 	};

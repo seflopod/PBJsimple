@@ -27,7 +27,6 @@ public:
     void update(double delta_t);
 
 private:
-
     vec3 position_;
     vec3 velocity_;
     vec3 target_position_;

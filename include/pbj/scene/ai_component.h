@@ -7,27 +7,30 @@
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
 
-namespace pbj
-{
-namespace scene
-{
-	class AIComponent : public b2RayCastCallback
-	{
-	public:
-		AIComponent(void*);
-		~AIComponent();
-		
-		void update(F32);
+namespace pbj {
+namespace scene {
 
-		float32 ReportFixture(b2Fixture*, const b2Vec2&, const b2Vec2&, float32);
-	private:
-		bool _seePlayer;
-		vec2 _target;
-		void* _owner;
-		I32 _sweepCnt;
-		I32 _moveStart;
-		I32 _dir;
-	};
-} //namespace scene
+class Entity;
+
+class AIComponent : public b2RayCastCallback
+{
+public:
+	AIComponent(Entity*);
+	~AIComponent();
+		
+	void update(F32);
+
+	float32 ReportFixture(b2Fixture*, const b2Vec2&, const b2Vec2&, float32);
+private:
+	bool _seePlayer;
+	vec2 _target;
+	Entity* _owner;
+	I32 _sweepCnt;
+	I32 _moveStart;
+	I32 _dir;
+};
+
+} //namespace pbj::scene
 } //namespace pbj
+
 #endif
