@@ -233,7 +233,7 @@ int main(int argc, char** argv)
             texture = argv[8];
 
         if (argc >= 10)
-            texture = argv[9];
+            tex_mode = argv[9];
 
         return material(argv[3], color, texture, tex_mode);
     }
@@ -925,6 +925,13 @@ int textureFont(const std::string& font, const std::string& filename)
 ///////////////////////////////////////////////////////////////////////////////
 int material(const std::string& material, const glm::vec4& color, const std::string& texture, std::string texture_mode)
 {
+	PBJ_LOG(pbj::VWarning) << "material: " << material << PBJ_LOG_NL
+						<< "color: " << color.r << "," << color.g << "," << color.b << ',' << color.a << PBJ_LOG_NL
+						<< "material: " << material << PBJ_LOG_NL
+						<< "texture: " << texture << PBJ_LOG_NL
+						<< "mode: " << texture_mode << PBJ_LOG_END;
+
+
     pbj::Id material_id(material);
     pbj::Id tex_id(texture);
 
@@ -948,7 +955,10 @@ int material(const std::string& material, const glm::vec4& color, const std::str
         if (texture.length() == 0)
             update.bind(3);
         else
+		{
+			PBJ_LOG(pbj::VWarning) << tex_id << PBJ_LOG_END;
             update.bind(3, tex_id.value());
+		}
 
         update.bind(4, tex_mode);
         update.step();
