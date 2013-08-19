@@ -17,7 +17,7 @@ namespace pbj {
 class Transform
 {
 public:
-	Transform(void* owner);
+	Transform(void*);
 	~Transform();
 
 	void rotate(F32);

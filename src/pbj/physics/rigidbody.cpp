@@ -27,27 +27,36 @@ using pbj::scene::Entity;
 /// \param [in,out] physWorld If non-null, the physical world.
 /// \param [in,out] owner	  If non-null, the owner.
 ////////////////////////////////////////////////////////////////////////////////
-Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, const b2Shape* shape,
-					 b2World* physWorld, void* owner) :
+Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
+					 const b2Shape& shape, b2World* physWorld, F32 density,
+					 F32 restitution, F32 friction, void* owner) :
 					_owner(owner)
 {
 	b2FixtureDef fd;
-	fd.shape = shape;
-	fd.density = 1.0f;
+	fd.shape = &shape;
+	fd.density = density;
+	fd.restitution = restitution;
+	fd.friction = friction;
 
 	b2BodyDef bd;
-	///< An enum constant representing the bd.type option
 	bd.type = (b2BodyType)bodyType;
-	bd.position.SetZero();
+	bd.position.Set(position.x, position.y);
 	bd.angle = 0.0f;
-	bd.linearDamping = 0.0f;
+	bd.linearDamping = 0.1f;
 	bd.allowSleep = true;
 	bd.awake = true;
 	bd.bullet = false;
 	bd.active = true;
 
+	/*if(bodyType == Static)
+	{
+		fd.density = 0.0f;
+		fd.restitution = 0.4f;
+	}*/
+
 	_body = physWorld->CreateBody(&bd);
 	_body->CreateFixture(&fd);
+	//_body->CreateFixture(&shape, 1.0f);
 
 	if(_owner)
 		_body->SetUserData(_owner);
@@ -322,6 +331,11 @@ bool Rigidbody::isActive()
 	return _body->IsActive();
 }
 
+void Rigidbody::setActive(bool active)
+{
+	_body->SetActive(active);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void* Rigidbody::getOwner()
 ///
@@ -382,6 +396,12 @@ Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 
 void Rigidbody::setCollisionGroup(CollisionGroup cg)
 {
+	
+}
+
+void Rigidbody::setFixedRotation(bool isFixed)
+{
+	_body->SetFixedRotation(isFixed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -399,4 +419,14 @@ void Rigidbody::setCollisionGroup(CollisionGroup cg)
 void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
 {
 	_body->SetTransform(pos, rot);
+}
+
+F32 Rigidbody::getAngularVelocity() const
+{
+	return _body->GetAngularVelocity();
+}
+
+void Rigidbody::setAngularVelocity(F32 angVel)
+{
+	_body->SetAngularVelocity((float32)angVel);
 }

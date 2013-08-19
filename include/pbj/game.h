@@ -1,31 +1,48 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJgame\include\pbj\game.h
+/// 		PBJsimple\include\pbj\game.h
 ///
 /// \brief	Declares the game class.
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef GAME_H_
 #define GAME_H_
 
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <random>
 #include <string>
 #include <thread>
-//#include <b2WorldCallbacks.h>
+#include <queue>
+#include <map>
+#include <Box2D/Dynamics/b2WorldCallbacks.h>
 
 #include "pbj/_pbj.h"
 #include "pbj/engine.h"
 #include "pbj/scene/scene.h"
 #include "pbj/scene/entity.h"
+#include "pbj/gfx/material.h"
 #include "pbj/input_controller.h"
 
+using std::queue;
+using std::unique_ptr;
 using pbj::Engine;
 using pbj::Window;
 using pbj::InputController;
+using pbj::scene::Entity;
+using pbj::gfx::Material;
 
 namespace pbj
 {
+	////////////////////////////////////////////////////////////////////////////
+	/// \struct	PhysicsSettings
+	///
+	/// \brief	Physics settings used for the calculations of the Box2D physics
+	/// 		engine.
+	///
+	/// \author	Peter Bartosch
+	/// \date	2013-08-13
+	////////////////////////////////////////////////////////////////////////////
 	struct PhysicsSettings
 	{
 		PhysicsSettings():
@@ -38,7 +55,17 @@ namespace pbj
 		I32 velocityIterations;
 		I32 positionIterations;
 	};
-	
+
+    ////////////////////////////////////////////////////////////////////////////
+    /// \struct	GameControls
+    ///
+    /// \brief	Game controls.
+    ///
+    /// \author	Peter Bartosch
+    /// \date	2013-08-13
+    /// \details Rather than hardcode the inputs it made sense to create a
+    /// 		 struct that could be customized.
+    ////////////////////////////////////////////////////////////////////////////
     struct GameControls
     {
         I32 left[2];
@@ -96,9 +123,11 @@ namespace pbj
 	/// \details	The Game class manages and runs the game.  It inherits from
     ///             b2ContactListener so that it can capture collision events.
 	////////////////////////////////////////////////////////////////////////////
-	class Game : b2ContactListener
+	class Game : public b2ContactListener
 	{
 	public:
+		static const int grid_height = 75;
+
 		static Game* instance();
 		static void destroyInstance();
 
@@ -108,38 +137,52 @@ namespace pbj
 		bool init(U32);
 		I32 run();
 		void stop();
+		
+		void spawnBullet(const vec2&, const vec2&);
+		void disableBullet(Entity*);
+		void respawnPlayer(Entity*);
 
-        void move();
-        
-	protected:
-        virtual void BeginContact(b2Contact*);
-        virtual void EndContact(b2Contact*);
-        //virtual void PreSolve(b2Contact*, cosnt b2Manifold*);
-        //virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
-    
 	private:
-		static Game* _instance;
+		typedef std::map<std::string,std::shared_ptr<Material>> MaterialMap;
+
+		static unique_ptr<Game> _instance;
 
 		Game();
 		
 		void initTestScene();
+		void initBasicMaterials();
+
 		bool update();
-		
-		void draw();
         bool physUpdate();
 
+		void draw();
+
 		void onContextResized(I32, I32);
+		void onKeyboard(I32, I32, I32, I32);
+		void onMouseLeftDown(I32);
+		void checkMovement(I32, I32);
+		virtual void BeginContact(b2Contact*);
+        virtual void EndContact(b2Contact*);
+        virtual void PreSolve(b2Contact*, const b2Manifold*);
+        virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
-		vec2 moveP;
+		Entity* makeBullet();
+		Entity* makePlayer(F32, F32, bool);
+		Entity* makeTerrain(F32, F32, F32, F32);
+		Entity* makeSpawnPoint(F32, F32);
 
-		//Enginey stuff
 		F32 _dt;
 		bool _running;
 		Engine& _engine;
 		Window& _window;
-
 		b2World* _world;
 		PhysicsSettings _physSettings;
+		queue<Entity*> _toDisable;
+		queue<Entity*> _toRespawn;
+		GameControls _controls;
+		U32 _bulletRing[100];
+		I32 _curRingIdx;
+		MaterialMap _materials;
 
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;

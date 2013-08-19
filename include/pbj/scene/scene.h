@@ -8,6 +8,8 @@
 
 #include <vector>
 #include <map>
+#include <random>
+
 #include "pbj/_pbj.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/entity.h"
@@ -45,11 +47,17 @@ public:
     UIRoot ui;
 
 	void draw();
-	void update();
+	void update(F32);
 
-	void addEntity(unique_ptr<Entity>&&);
+	U32 addEntity(unique_ptr<Entity>&&);
 	void removeEntity(U32, Entity::EntityType);
     
+	Entity* getBullet(U32);
+	Entity* getPlayer(U32);
+	Entity* getTerrain(U32);
+	Entity* getSpawnPoint(U32);
+	Entity* getRandomSpawnPoint();
+
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
 	Entity* getLocalPlayer();
@@ -64,11 +72,13 @@ private:
 
 	U32 _nextEntityId;
     U32 _localPlayerId;
+	U32 _nextBulletId;
 	//as we get more Entity types this may have to expand/change entirely
 	EntityMap _spawnPoints;
 	EntityMap _terrain;
 	EntityMap _players;
-
+	EntityMap _bullets;
+	std::ranlux24_base _rnd;
     Scene(const Scene&);
     void operator=(const Scene&);
 };

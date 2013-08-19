@@ -84,10 +84,10 @@ Engine::Engine()
 
     InputController::init(wnd->getGlfwHandle());
 
-    //no harm in showing a window before physics is started
-	b2World* wrld = new b2World(b2Vec2(0.0f, -9.81f));
-	wrld->SetAllowSleeping(true);
-	world_.reset(wrld);
+    //no harm in showing a window before physics is started	
+	//For testing in a world with no gravity use 0.0f, 0.0f
+	world_ = std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, -9.822f)));
+	world_->SetAllowSleeping(true);
 
     wnd->show();
 }
@@ -99,7 +99,7 @@ Engine::~Engine()
     pbj::InputController::destroy();
 
     window_.reset();
-    world_.reset();
+	world_.reset();
     glfwTerminate();
 }
 

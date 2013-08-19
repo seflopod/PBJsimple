@@ -21,8 +21,10 @@ namespace scene {
 ////////////////////////////////////////////////////////////////////////////////
 Scene::Scene()
 {
-	_nextEntityId = 0;
+	_nextEntityId = 1;
     _localPlayerId = U32(-1);
+	std::random_device rd;
+	_rnd = std::ranlux24_base(rd());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,39 +54,66 @@ Scene::~Scene()
 void Scene::draw()
 {
 
+	//drawing for debug purposes
+	for(EntityMap::iterator it=_spawnPoints.begin();
+		it!=_spawnPoints.end();
+		it++)
+		if(it->second->isDrawable())
+			it->second->draw();
+
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		it->second->draw();
+		if(it->second->isDrawable())
+			it->second->draw();
+
+	for(EntityMap::iterator it=_bullets.begin();
+		it!=_bullets.end();
+		it++)
+		if(it->second->isDrawable())
+			it->second->draw();
+
+	for(EntityMap::iterator it=_bullets.begin();
+		it!=_bullets.end();
+		it++)
+		if(it->second->isDrawable())
+			it->second->draw();
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		it->second->draw();
+		if(it->second->isDrawable())
+			it->second->draw();
 
 	//I assume the ui drawing goes like this.
 	ui.draw();
 }
 
-void Scene::update()
+void Scene::update(F32 dt)
 {
 	for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
-		if(it->second->getRigidbody())
-			it->second->getRigidbody()->updateOwnerTransform();
+		if(it->second->isEnabled())
+			it->second->update(dt);
 
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
 		it++)
-		if(it->second->getRigidbody())
-			it->second->getRigidbody()->updateOwnerTransform();
+		if(it->second->isEnabled())
+			it->second->update(dt);
 
 	for(EntityMap::iterator it=_players.begin();
 		it!=_players.end();
 		it++)
-		if(it->second->getRigidbody())
-			it->second->getRigidbody()->updateOwnerTransform();
+		if(it->second->isEnabled())
+			it->second->update(dt);
+
+	for(EntityMap::iterator it=_bullets.begin();
+		it!=_bullets.end();
+		it++)
+		if(it->second->isEnabled())
+			it->second->update(dt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,31 +126,34 @@ void Scene::update()
 ///
 /// \param [in] e A unique pointer to the Entity to add.
 ////////////////////////////////////////////////////////////////////////////////
-void Scene::addEntity(unique_ptr<Entity>&& e)
+U32 Scene::addEntity(unique_ptr<Entity>&& e)
 {
-	U32 ret = _nextEntityId;
+	U32 id = _nextEntityId;
+	++_nextEntityId;
 
 	//this seems a little overdone.  Think this could be better.
 	switch(e->getType())
 	{
 	case Entity::EntityType::Terrain:
-		_terrain[_nextEntityId] = std::move(e);
-		_terrain[_nextEntityId]->setSceneId(_nextEntityId);
-		_nextEntityId++;
+		_terrain[id] = std::move(e);
+		_terrain[id]->setSceneId(id);
 		break;
 	case Entity::EntityType::Player:
-		_players[_nextEntityId] = std::move(e);
-		_players[_nextEntityId]->setSceneId(_nextEntityId);
-		_nextEntityId++;
+		_players[id] = std::move(e);
+		_players[id]->setSceneId(id);
 		break;
 	case Entity::EntityType::SpawnPoint:
-		_spawnPoints[_nextEntityId] = std::move(e);
-		_players[_nextEntityId]->setSceneId(_nextEntityId);
-		_nextEntityId++;
+		_spawnPoints[id] = std::move(e);
+		_spawnPoints[id]->setSceneId(id);
+		break;
+	case Entity::EntityType::Bullet:
+		_bullets[id] = std::move(e);
+		_bullets[id]->setSceneId(id);
 		break;
 	default:
 		break;
 	}
+	return id;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +182,9 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
 		break;
 	case Entity::EntityType::SpawnPoint:
 		_spawnPoints.erase(id);
+		break;
+	case Entity::EntityType::Bullet:
+		_bullets.erase(id);
 		break;
 	default:
 		break;
@@ -183,6 +218,61 @@ void Scene::clearLocalPlayer()
 Entity* Scene::getLocalPlayer()
 {
     return _players[_localPlayerId].get();
+}
+
+Entity* Scene::getBullet(U32 id)
+{
+	EntityMap::iterator it = _bullets.find(id);
+	if(it != _bullets.end())
+		return _bullets[id].get();
+
+	return nullptr;
+}
+
+Entity* Scene::getPlayer(U32 id)
+{
+	EntityMap::iterator it = _players.find(id);
+	if(it != _players.end())
+		return _players[id].get();
+
+	return nullptr;
+}
+
+Entity* Scene::getTerrain(U32 id)
+{
+	EntityMap::iterator it = _terrain.find(id);
+	if(it != _terrain.end())
+		return _terrain[id].get();
+
+	return nullptr;
+}
+
+Entity* Scene::getSpawnPoint(U32 id)
+{
+	EntityMap::iterator it = _spawnPoints.find(id);
+	if(it != _spawnPoints.end())
+		return _spawnPoints[id].get();
+
+	return nullptr;
+}
+
+Entity* Scene::getRandomSpawnPoint()
+{
+	std::uniform_int_distribution<I32> dist(0, _spawnPoints.size()-1);
+	I32 stop = dist(_rnd);
+	I32 count = 0;
+	EntityMap::iterator it = _spawnPoints.begin();
+
+	while(it!=_spawnPoints.end() && count != stop)
+	{
+		it++;
+		count++;
+	}
+
+	if(it == _spawnPoints.end())
+		return nullptr;
+
+	return it->second.get();
 }
 
 } // namespace pbj::scene

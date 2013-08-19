@@ -198,9 +198,6 @@
     <ClCompile Include="..\..\src\app_entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pbj\gfx\shape_square.cpp">
-      <Filter>Source Files\pbj\pbj::gfx</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pbj\physics\rigidbody.cpp">
       <Filter>Source Files\pbj\pbj::physics</Filter>
     </ClCompile>
@@ -242,6 +239,17 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\add_editor_mode.cpp">
       <Filter>Source Files\pbj\%28editor%29</Filter>
+    <ClCompile Include="..\..\src\pbj\scene\player_component.cpp">
+      <Filter>Source Files\pbj</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
+      <Filter>Source Files\pbj\pbj::gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\ai_component.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -364,6 +372,21 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\ui_styles.h">
       <Filter>Header Files\pbj\pbj::scene\%28ui%29</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\player_component.h">
+      <Filter>Header Files\pbj</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\gfx\shape_triangle.h">
+      <Filter>Header Files\pbj\pbj::gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\gfx\shape.h">
+      <Filter>Header Files\pbj\pbj::gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\scene.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\ai_component.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\scene.h">
       <Filter>Header Files\pbj\pbj::scene</Filter>

@@ -36,7 +36,7 @@ public:
 		Dynamic = 0x02
 	};
 
-	Rigidbody(Rigidbody::BodyType, const b2Shape*, b2World*, void*);
+	Rigidbody(Rigidbody::BodyType, vec2, const b2Shape&, b2World*, F32, F32, F32, void*);
 	virtual ~Rigidbody();
 
 	b2Fixture* getFixtureList();
@@ -51,10 +51,14 @@ public:
 
 	vec2 getVelocity() const;
 	void setVelocity(const vec2&);
-	
+
+	F32 getAngularVelocity() const;
+	void setAngularVelocity(F32);
+
 	F32 getMass();
 	void setMass(F32);
 
+	void setFixedRotation(bool);
 	void setTransform(b2Vec2, b2Vec2, float32);
 
 	Rigidbody::BodyType getType() const;
@@ -64,7 +68,7 @@ public:
 
 	bool isAwake();
 	bool isActive();
-
+	void setActive(bool);
 	CollisionGroup getCollisionGroup();
 	void setCollisionGroup(CollisionGroup); ///< negative for no collision with group members
 	

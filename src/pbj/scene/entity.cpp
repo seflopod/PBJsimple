@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJgame\src\pbj\scene\entity.cpp
+/// 		PBJsimple\src\pbj\scene\entity.cpp
 ///
 /// \brief	Implements the entity class.
 ////////////////////////////////////////////////////////////////////////////////
@@ -8,6 +8,8 @@
 #include "pbj/scene/entity.h"
 #endif
 
+#include <iostream>
+#include "pbj/game.h"
 using namespace pbj;
 using namespace pbj::scene;
 
@@ -20,8 +22,12 @@ using namespace pbj::scene;
 /// \date	2013-08-05
 ////////////////////////////////////////////////////////////////////////////////
 Entity::Entity() :
+		_shape(nullptr),
+		_material(nullptr),
 		_rigidbody(nullptr),
-        _transform(this)
+		_player(nullptr),
+        _transform(this),
+		_ai(nullptr)
 {
 	_initialized = false;
 }
@@ -52,9 +58,8 @@ void Entity::init()
 {
 	
 	_transformCallbackId = U32(-1);
-	
-	_textureId = 0;
-
+	_sceneId = 0;
+	_enabled = true;
 	_initialized = true;
 }
 
@@ -70,10 +75,60 @@ void Entity::init()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::destroy()
 {
+	delete _rigidbody;
+	delete _player;
 
+	_rigidbody = nullptr;
+	_player = nullptr;
 	_initialized = false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::update(F32 dt)
+///
+/// \brief	Updates using the given difference in time.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	dt	The difference in time.
+/// 
+/// \details This mostly checks firing states for the PlayerComponent.  It also
+/// 		 uses the Rigidbody to make sure the Transform used for drawing is
+/// 		 up-to-date.
+////////////////////////////////////////////////////////////////////////////////
+void Entity::update(F32 dt)
+{
+	if(_rigidbody)
+		_rigidbody->updateOwnerTransform();
+	
+	if(_ai.get())
+		_ai->update(dt);
+
+	if(_player)
+	{
+		if(!_player->isThrusting())
+			_player->regenFuel();
+		
+		if(_player->reloading())
+			_player->stepReloadTimer(dt);
+
+		if(_player->fireOnCooldown())
+			_player->stepFireTimer(dt);
+
+		//std::cerr << _player->getFuelRemaining() << std::endl;
+	}
+
+	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 0.01f)
+		Game::instance()->disableBullet(this);
+
+	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height/2.0f)
+	{
+		_player->setTimeOfDeath(glfwGetTime());
+		Game::instance()->respawnPlayer(this);
+	}
+		
+}
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	draws this object.
 ///
@@ -82,22 +137,41 @@ void Entity::destroy()
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
-	color = color4(1.0f, 0.0f, 1.0f, 1.0f);
 	vec2 glmPos = _transform.getPosition();
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
+	GLuint texId = _material->getTextureId();
+	color4 color = _material->getColor();
+	//probably unnecessary habit
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
 
-	GLfloat pos[2] = { glmPos.x, glmPos.y };
-	GLfloat sca[2] = { glmSca.x, glmSca.y };
+	//save the current colour to put it back when we're done
+	GLfloat curColor[4];
+	glGetFloatv(GL_CURRENT_COLOR, curColor);
 
+	if(texId)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texId);
+		glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
+	}
+	
 	glPushMatrix();
-		glTranslatef(pos[0], pos[1], 0);
+		glTranslatef(glmPos.x, glmPos.y, 0.0f);
 		glRotatef(glmRot, 0, 0, 1);
-		glScalef(sca[0], sca[1], sca[2]);
-		//if colors are being done, use material.h  for now
-		//this solid color works with no textures loaded.
-		ShapeSquare::draw(_textureId, color);
+		glScalef(glmSca.x, glmSca.y, 1.0f);
+		glColor4f(color.r, color.g, color.b, color.a);
+		_shape->draw((texId!=0));
 	glPopMatrix();
+	glColor4fv(curColor);
+
+	if(texId)
+		glDisable(GL_TEXTURE_2D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,16 +208,97 @@ void Entity::setTransform(const Transform& transform)
 	_transform = transform;
 }
 
-GLuint Entity::getTextureId() const
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Shape* Entity::getShape() const
+///
+/// \brief	Gets the shape used by the Entity.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if the shape does not exist; a pointer to the Shape otherwise.
+////////////////////////////////////////////////////////////////////////////////
+Shape* Entity::getShape() const
 {
-	return _textureId;
+	return _shape.get();
 }
 
-void Entity::setTextureId(const GLuint newId)
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::addShape(Shape* shape)
+///
+/// \brief	Adds a Shape.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param [in]	shape	A pointer to the Shape to use.
+/// \details Any class the uses the Shape interface (ShapeSquare, ShapeTriangle)
+/// 		 is acceptable.  This is what will be drawn.
+////////////////////////////////////////////////////////////////////////////////
+void Entity::addShape(Shape* shape)
 {
-	_textureId = newId;
+	if(_shape != nullptr)
+	{
+		_shape.release();
+	}
+	_shape.reset(shape);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	std::shared_ptr<Material> Entity::getMaterial()
+///
+/// \brief	Gets the material.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	A shared_ptr to the Material.
+////////////////////////////////////////////////////////////////////////////////
+std::shared_ptr<Material> Entity::getMaterial()
+{
+	return _material;
+}
+
+/// \fn	void Entity::addMaterial(std::shared_ptr<Material> material)
+///
+/// \brief	Adds a material.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	material	A shared_ptr to the Material for this Entity to use.
+/// \details Since a sinigle Material can be used for multiple Entitys it makes
+/// 		 the most sense to use a pointer.  I chose to use a shared_ptr
+/// 		 because I'm lazy and don't want to keep track of the pointer
+/// 		 myself.
+////////////////////////////////////////////////////////////////////////////////
+void Entity::addMaterial(std::shared_ptr<Material> material)
+{
+	if(_material.get()!=nullptr)
+	{
+		_material.reset<Material>(nullptr);
+	}
+	_material = material;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::addRigidbody(Rigidbody::BodyType bodyType,
+/// 	b2World* world)
+///
+/// \brief	Adds a rigidbody to the Entity.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	bodyType	 	Type of the body.
+/// \param [in]	world	The Box2D world that holds the Rigidbody.
+/// \details This will create a Rigidbody based on the type of Entity that is
+/// 		 using it.  Things like shape, weight and restitution (bounciness)
+/// 		 are all passed to the Rigidbody class to create a new one for this
+/// 		 particular Entity.  This is rather simple and therefore does not
+/// 		 use multiple fixtures for making complex shapes.  Simple boxes,
+/// 		 polygons and circles are used instead.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 {
 	if(!_rigidbody)
@@ -151,39 +306,127 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		vec2 scale = _transform.getScale();
 		vec2 pos = _transform.getPosition();
 		b2PolygonShape shape;
-        
-		shape.SetAsBox(scale.x, scale.y, b2Vec2(pos.x, pos.y),
-						_transform.getRotation());
 
-		_rigidbody = new Rigidbody(bodyType, &shape, world, this);
+		
+
 		switch(_type)
 		{
 		case Player:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
 			break;
+		}
 		case Terrain:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
 			break;
+		}
 		case SpawnPoint:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
+		}
+		case Bullet:
+		{
+			b2Vec2 verts[3];
+			verts[0] = b2Vec2(-0.5f*scale.x, -0.433f*scale.y);
+			verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
+			verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
+			shape.Set(verts,3);
+			_rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this);
+		}
 		default:
+		{
+			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+						_transform.getRotation());
 			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;
 		}
+		}
+		//_rigidbody->setTransform(b2Vec2(pos.x, pos.y),b2Vec2(1.0f, 1.0f),_transform.getRotation());
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Rigidbody* Entity::getRigidbody() const
+///
+/// \brief	Gets a pointer to the Rigidbody.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if it none exists, else the rigidbody.
+////////////////////////////////////////////////////////////////////////////////
 Rigidbody* Entity::getRigidbody() const
 {
 	return _rigidbody;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::addPlayerComponent()
+///
+/// \brief	Adds player component.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
+void Entity::addPlayerComponent()
+{
+	if(!_player)
+	{
+		_player = new PlayerComponent(PlayerStats(), this);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	PlayerComponent* Entity::getPlayerComponent() const
+///
+/// \brief	Gets PlayerComponent.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	null if none exists, else the player component.
+////////////////////////////////////////////////////////////////////////////////
+PlayerComponent* Entity::getPlayerComponent() const
+{
+	return _player;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	U32 Entity::getSceneId() const
+///
+/// \brief	Gets scene identifier.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	The scene identifier.
+////////////////////////////////////////////////////////////////////////////////
 U32 Entity::getSceneId() const
 {
 	return _sceneId;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::setSceneId(U32 id)
+///
+/// \brief	Sets scene identifier.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	id	The identifier.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setSceneId(U32 id)
 {
 	_sceneId = id;
@@ -194,6 +437,16 @@ Entity::EntityType Entity::getType() const
 	return _type;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::setType(EntityType et)
+///
+/// \brief	Sets a type.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \param	et	The EntityType to use.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setType(EntityType et)
 {
 	_type = et;
@@ -217,18 +470,79 @@ void Entity::setType(EntityType et)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::enableDraw()
+///
+/// \brief	Enables drawing.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Entity::enableDraw()
 {
     _drawable = true;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	void Entity::disableDraw()
+///
+/// \brief	Disables drawing.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Entity::disableDraw()
 {
     _drawable = false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	bool Entity::isDrawable() const
+///
+/// \brief	Query if this object is drawable.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-13
+///
+/// \return	true if drawable, false if not.
+////////////////////////////////////////////////////////////////////////////////
 bool Entity::isDrawable() const
 {
     return _drawable;
+}
+
+
+bool Entity::isEnabled() const
+{
+	return _enabled;
+}
+
+void Entity::enable()
+{
+	if(_shape.get())
+		_drawable = true;
+	if(_rigidbody)
+		_rigidbody->setActive(true);
+
+	_enabled = true;
+}
+void Entity::disable()
+{
+	_drawable = false;
+	if(_rigidbody)
+		_rigidbody->setActive(false);
+
+	_enabled = false;
+}
+
+void Entity::addAIComponent()
+{
+	if(_ai.get())
+		_ai.release();
+	_ai.reset(new AIComponent(this));
+}
+
+AIComponent* Entity::getAIComponent() const
+{
+	return _ai.get();
 }
