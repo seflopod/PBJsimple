@@ -4,13 +4,13 @@
 ///
 /// \brief  Implementations of pbj::Editor functions.
 
+#ifdef PBJ_EDITOR
 #include "pbj/editor.h"
 
 #include "pbj/gfx/texture_font.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/ui_button.h"
 #include "pbj/input_controller.h"
-
 #include "pbj/sw/sandwich_open.h"
 
 #include "pbj/look_editor_mode.h"
@@ -151,8 +151,12 @@ void Editor::initUI()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Editor::run()
+void Editor::run(const std::string& sw_id, const std::string& map_id)
 {
+    std::shared_ptr<sw::Sandwich> sandwich = sw::open(Id(sw_id));
+    if (sandwich)
+        scene_ = scene::loadScene(*sandwich, Id(map_id));
+
     double last_frame_time = 0;
     double fps = 0;
 
@@ -172,20 +176,21 @@ void Editor::run()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        glBegin(GL_TRIANGLES);
-        glColor3f(1, 1, 1);
-        glVertex2f(-1, -1);
-        glVertex2f(1, -1);
-        glVertex2f(1, 1);
-
-        glEnd();
-
         if (menu_->isVisible())
         {
             frame_time_label_->setText(std::to_string(1000.0f * last_frame_time) + " ms");
         }
 
-        scene_->draw();
+        if (scene_)
+        {
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrixf(glm::value_ptr(scene_projection_));
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+            scene_->draw();
+        }
+
         ui_.draw();
 
         GLenum gl_error;
@@ -290,6 +295,10 @@ void Editor::onContextResized_(I32 width, I32 height)
     //    menu_offset.y = menu_offset.x;
 
 
+    float ratio = width / float(height);
+    scene_projection_ = glm::ortho(ratio * -75.0f * 0.5f, ratio * 75.0f * 0.5f,
+                                   -75.0f * 0.5f, 75.0f * 0.5f);
+
     menu_->setPosition(menu_offset);
     menu_->setScale(vec2(menu_scale, menu_scale));
     menu_->setDimensions(vec2(min_menu_size) * float(menu_scale));
@@ -322,3 +331,5 @@ scene::UIButton* Editor::newButton_(const Id& id,
 }
 
 } // namespace pbj
+
+#endif

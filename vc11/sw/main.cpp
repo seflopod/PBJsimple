@@ -374,7 +374,8 @@ int create(const std::string& filename)
                              "   pos_y       REAL NOT NULL,\n"
                              "   scale_x     REAL NOT NULL,\n"
                              "   scale_y     REAL NOT NULL,\n"
-                             "   material_id INTEGER NOT NULL,\n"
+                             "   material_sw_id INTEGER,\n"
+                             "   material_id INTEGER,\n"
                              "   PRIMARY KEY (map_id, entity_id)\n"
                              ");");
             PBJ_LOG(pbj::VInfo) << "Created table 'sw_map_entities'." << PBJ_LOG_END;

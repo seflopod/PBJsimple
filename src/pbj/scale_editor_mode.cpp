@@ -1,5 +1,6 @@
-#include "pbj/scale_editor_mode.h"
+#ifdef PBJ_EDITOR
 
+#include "pbj/scale_editor_mode.h"
 #include "pbj/editor.h"
 
 namespace pbj {
@@ -22,3 +23,5 @@ const Id& ScaleEditorMode::getId() const
 }
 
 } // namespace pbj
+
+#endif

@@ -27,7 +27,7 @@ public:
     ~Editor();
 
     void initUI();
-    void run();
+    void run(const std::string& sw_id, const std::string& map_id);
 
     scene::UIElement* getUIElement(const Id& id);
 
@@ -55,6 +55,7 @@ private:
     scene::UILabel* frame_time_label_;
 
     std::unique_ptr<scene::Scene> scene_;
+    mat4 scene_projection_;
 
     std::unique_ptr<EditorMode> current_mode_;
 

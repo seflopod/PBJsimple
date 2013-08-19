@@ -9,8 +9,31 @@
 
 #include <iostream>
 #include "pbj/game.h"
-using namespace pbj;
-using namespace pbj::scene;
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load an entity from a sandwich.
+#define PBJ_SCENE_ENTITY_SQL_LOAD "SELECT entity_type, rotation, " \
+            "pos_x, pos_y, scale_x, scale_y, material_sw_id, material_id " \
+            "FROM sw_map_entities WHERE map_id = ? AND entity_id = ?"
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to save an entity to a sandwich.
+#define PBJ_SCENE_ENTITY_SQL_SAVE "INSERT INTO sw_map_entities " \
+            "(map_id, entity_id, entity_type, rotation, " \
+            "pos_x, pos_y, scale_x, scale_y, material_sw_id, material_id) " \
+            "VALUES (?,?,?,?,?,?,?,?,?,?)"
+
+#ifdef BE_ID_NAMES_ENABLED
+#define PBJ_SCENE_ENTITY_SQLID_LOAD PBJ_SCENE_ENTITY_SQL_LOAD
+#define PBJ_SCENE_ENTITY_SQLID_SAVE PBJ_SCENE_ENTITY_SQL_SAVE
+#else
+// TODO: precalculate ids.
+#define PBJ_SCENE_ENTITY_SQLID_LOAD PBJ_SCENE_ENTITY_SQL_LOAD
+#define PBJ_SCENE_ENTITY_SQLID_SAVE PBJ_SCENE_ENTITY_SQL_SAVE
+#endif
+
+namespace pbj {
+namespace scene {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	Entity::Entity()
@@ -479,3 +502,98 @@ AIComponent* Entity::getAIComponent() const
 {
 	return _ai.get();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id)
+{
+    std::unique_ptr<Entity> value;
+
+    try
+    {
+        db::StmtCache& cache = sandwich.getStmtCache();
+        db::CachedStmt stmt = cache.hold(Id(PBJ_SCENE_ENTITY_SQLID_LOAD), PBJ_SCENE_ENTITY_SQL_LOAD);
+
+        stmt.bind(1, map_id.value());
+        stmt.bind(2, entity_id.value());
+        if (stmt.step())
+        {
+            Entity::EntityType type = static_cast<Entity::EntityType>(stmt.getUInt(0));
+            F32 rotation = float(stmt.getDouble(1));
+            vec2 position = vec2(float(stmt.getDouble(2)), float(stmt.getDouble(3)));
+            vec2 scale = vec2(float(stmt.getDouble(4)), float(stmt.getDouble(5)));
+
+            const Material* material = nullptr;
+            if (stmt.getType(7) != SQLITE_NULL)
+            {
+                sw::ResourceId material_id;
+                material_id.sandwich = (stmt.getType(6) == SQLITE_NULL)
+                                        ? sandwich.getId()
+                                        : Id(stmt.getUInt64(6));
+                material_id.resource = Id(stmt.getUInt64(7));
+                material = &getEngine().getResourceManager().getMaterial(material_id);
+            }
+
+            value.reset(new Entity());
+            value->setType(type);
+            value->getTransform().setPosition(position);
+            value->getTransform().setScale(scale);
+            value->getTransform().setRotation(rotation);
+            value->setMaterial(material);
+
+            switch (type)
+            {
+                case Entity::Terrain:
+                    value->setShape(new ShapeSquare());
+                    /// TODO: fix physics world part of engine instead of scene?
+                    value->addRigidbody(Rigidbody::BodyType::Static, getEngine().getWorld());
+                    value->enableDraw();
+                    break;
+
+                case Entity::SpawnPoint:
+                    value->setShape(new ShapeSquare());
+#ifndef PBJ_EDITOR
+                    //disable this when not testing
+                    //value->enableDraw();
+	                value->disableDraw();
+#else
+                    // When in the editor, draw spawnpoints no matter what.
+                    value->enableDraw();
+#endif
+                    break; 
+
+                default:
+                    break;
+            }
+        }
+        else
+            throw std::runtime_error("Entity not found!");
+    }
+    catch (const db::Db::error& err)
+    {
+        PBJ_LOG(VWarning) << "Database error while loading entity!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Entity ID: " << entity_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_NL
+                          << "        SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::exception& err)
+   {
+      PBJ_LOG(VWarning) << "Exception while loading entity!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Entity ID: " << entity_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_END;
+   }
+
+    return value;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void saveEntity(const Id& sandwich_id, const Id& map_id)
+{
+    PBJ_LOG(VWarning) << "Not yet fully implemented!" << PBJ_LOG_END;
+}
+
+} // namespace pbj::scene
+} // namespace pbj

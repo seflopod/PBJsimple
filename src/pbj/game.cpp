@@ -102,7 +102,7 @@ bool Game::init(U32 fps)
      //setup physics, using variables instead of straight numbers so I can
      //remember what does what.
      _world = getEngine().getWorld();
-    _world->SetContactListener(this);
+     _world->SetContactListener(this);
      _physSettings = PhysicsSettings();
     
      //remove when making for reals

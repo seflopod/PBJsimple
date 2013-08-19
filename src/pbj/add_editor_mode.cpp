@@ -1,5 +1,7 @@
-#include "pbj/add_editor_mode.h"
 
+#ifdef PBJ_EDITOR
+
+#include "pbj/add_editor_mode.h"
 #include "pbj/editor.h"
 
 namespace pbj {
@@ -22,3 +24,5 @@ const Id& AddEditorMode::getId() const
 }
 
 } // namespace pbj
+
+#endif

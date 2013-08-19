@@ -1,5 +1,6 @@
-#include "pbj/rotate_editor_mode.h"
+#ifdef PBJ_EDITOR
 
+#include "pbj/rotate_editor_mode.h"
 #include "pbj/editor.h"
 
 namespace pbj {
@@ -22,3 +23,5 @@ const Id& RotateEditorMode::getId() const
 }
 
 } // namespace pbj
+
+#endif
