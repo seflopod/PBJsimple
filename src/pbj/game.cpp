@@ -113,11 +113,7 @@ bool Game::init(U32 fps)
     GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
     glViewport(0, 0, ctxtSize.x, ctxtSize.y);
     glClear(GL_COLOR_BUFFER_BIT);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+
 
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)

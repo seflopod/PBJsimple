@@ -110,6 +110,12 @@ void Scene::draw()
 			it->second->draw();
 
 	//I assume the ui drawing goes like this.
+
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	//glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 	ui.draw();
 }
 
