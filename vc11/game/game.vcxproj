@@ -57,6 +57,7 @@
     <ClCompile Include="..\..\src\pbj\rotate_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\scale_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\ai_component.cpp" />
+    <ClCompile Include="..\..\src\pbj\scene\bullet_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\camera.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\entity.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\player_component.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="..\..\include\pbj\rotate_editor_mode.h" />
     <ClInclude Include="..\..\include\pbj\scale_editor_mode.h" />
     <ClInclude Include="..\..\include\pbj\scene\ai_component.h" />
+    <ClInclude Include="..\..\include\pbj\scene\bullet_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\camera.h" />
     <ClInclude Include="..\..\include\pbj\scene\entity.h" />
     <ClInclude Include="..\..\include\pbj\scene\player_component.h" />

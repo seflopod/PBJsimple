@@ -64,6 +64,10 @@ Entity::Entity() :
 /// \date	2013-08-05
 Entity::~Entity()
 {
+	_shape.reset();
+	_rigidbody.reset();
+	_player.reset();
+	_ai.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +105,7 @@ void Entity::update(F32 dt)
 		//std::cerr << _player->getFuelRemaining() << std::endl;
 	}
 
-	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 0.01f)
+	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
 		Game::instance()->disableBullet(this);
 
 	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height/2.0f)
@@ -251,24 +255,24 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
 			break;
 		}
 		case Terrain:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
 			break;
 		}
 		case SpawnPoint:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
 			break;
 		}
 		case Bullet:
@@ -278,20 +282,18 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 			verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
 			verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
 			shape.Set(verts,3);
-			rigidbody = new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this);
+			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this));
 		}
 		default:
 		{
 			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
 						_transform.getRotation());
-            rigidbody = new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this);
-			rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
+			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
 			break;
 		}
 		}
 		//_rigidbody->setTransform(b2Vec2(pos.x, pos.y),b2Vec2(1.0f, 1.0f),_transform.getRotation());
-
-        _rigidbody.reset(rigidbody);
 	}
 }
 
@@ -316,11 +318,11 @@ Rigidbody* Entity::getRigidbody() const
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-void Entity::addPlayerComponent()
+void Entity::addPlayerComponent(Id id)
 {
 	if(!_player)
 	{
-		_player.reset(new PlayerComponent(PlayerStats(), this));
+		_player.reset(new PlayerComponent(id, PlayerStats(), this));
 	}
 }
 
@@ -467,14 +469,22 @@ void Entity::disable()
 
 void Entity::addAIComponent()
 {
-	if(_ai.get())
-		_ai.release();
 	_ai.reset(new AIComponent(this));
 }
 
 AIComponent* Entity::getAIComponent() const
 {
 	return _ai.get();
+}
+
+void Entity::addBulletComponent()
+{
+	_bullet.reset(new BulletComponent(this));
+}
+
+BulletComponent* Entity::getBulletComponent() const
+{
+	return _bullet.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

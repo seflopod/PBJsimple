@@ -23,6 +23,7 @@
 #include "pbj/scene/entity.h"
 #include "pbj/gfx/material.h"
 #include "pbj/input_controller.h"
+#include "be/id.h"
 
 using std::queue;
 using std::unique_ptr;
@@ -126,7 +127,7 @@ namespace pbj
 	class Game : public b2ContactListener
 	{
 	public:
-		static const int grid_height = 75;
+		static const int grid_height = 67;
 
 		static Game* instance();
 		static void destroyInstance();
@@ -138,7 +139,7 @@ namespace pbj
 		I32 run();
 		void stop();
 		
-		void spawnBullet(const vec2&, const vec2&);
+		void spawnBullet(const vec2&, const vec2&, void*);
 		void disableBullet(Entity*);
 		void respawnPlayer(Entity*);
 
@@ -165,7 +166,7 @@ namespace pbj
         virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
 		Entity* makeBullet();
-		Entity* makePlayer(F32, F32, bool);
+		Entity* makePlayer(be::Id, F32, F32, bool);
 		Entity* makeTerrain(F32, F32, F32, F32);
 		Entity* makeSpawnPoint(F32, F32);
 
@@ -180,7 +181,7 @@ namespace pbj
 		GameControls _controls;
 		U32 _bulletRing[100];
 		I32 _curRingIdx;
-
+		I32 _bulletNum;
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;
 	};

@@ -129,6 +129,7 @@ bool Game::init(U32 fps)
     }
     _curRingIdx = 0;
      _running = true;
+	 _bulletNum = 0;
      return true;
 }
 
@@ -161,7 +162,7 @@ void Game::initTestScene()
 
     //add the local player to the scene
     vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
-    U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y, false)));
+    U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
     _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
 
@@ -169,7 +170,16 @@ void Game::initTestScene()
 	for(I32 i=0;i<4;++i)
 	{
 		spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
-		_scene.addEntity(unique_ptr<Entity>(makePlayer(spawnLoc.x, spawnLoc.y, true)));
+		char name[9] = "CPU ";
+		if(i<10)
+			name[4] = (char)(49+i);
+		else //I'm assuming that there will never be more than 19 ai players
+		{
+			name[4] = '1';
+			name[5] = (char)(49+i-10);
+		}
+		name[8] = '\0';
+		_scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
 	}
     
     //add some UI to the scene
@@ -396,10 +406,11 @@ void Game::BeginContact(b2Contact* contact)
 
 	if(b->getType() == Entity::EntityType::Player && a->getType() != Entity::EntityType::Player)
 	{
-		Entity* tmp = a;
+		std::swap(a, b);
+		/*Entity* tmp = a;
 		a = b;
 		b = tmp;
-		tmp = nullptr;
+		tmp = nullptr;*/
 	}
 
     if(a->getType() == Entity::EntityType::Player)
@@ -412,13 +423,28 @@ void Game::BeginContact(b2Contact* contact)
 			break;
 		case Entity::EntityType::Bullet:
 		{
-			std::cerr<<"Taking damage"<<std::endl;
-			//max bullet speed is currently 50.  50^2 = 2500.  100*1/2500 = 25
+			scene::PlayerComponent* q = ((Entity*)b->getBulletComponent()->getShooter())->getPlayerComponent();
 			I32 dmg = (I32)std::floor(glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
 			p->takeDamage(dmg);
+			q->setBulletsHit(q->getBulletsHit()+1);
 			if(p->isDead())
 			{
-				p->setTimeOfDeath(glfwGetTime());
+				if(p->getId() == q->getId())
+				{   //self-kill
+					p->setDeaths(p->getDeaths()+1);
+					std::cerr<<p->getId().to_useful_string()<<" suicided ("
+								<< p->getDeaths() << ")" << std::endl << std::endl;
+				}
+				else
+				{
+					p->setTimeOfDeath(glfwGetTime());
+					p->setDeaths(p->getDeaths()+1);
+					q->setKills(q->getKills()+1);
+					std::cerr << p->getId().to_useful_string() << " died ("
+								<< p->getDeaths() << ")" << std::endl << q->getId().to_useful_string()
+								<< " got the kill (" << q->getKills() << ")"
+								<< std::endl << std::endl;
+				}
 				_toRespawn.push(a);
 				_toDisable.push(a);
 			}
@@ -621,17 +647,17 @@ void Game::help()
 /// \param    position    The position.
 /// \param    velocity    The velocity.
 ////////////////////////////////////////////////////////////////////////////////
-void Game::spawnBullet(const vec2& position, const vec2& velocity)
+void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter)
 {
     Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
-    bullet->enable();
     bullet->getTransform().setPosition(position);
     bullet->getTransform().updateOwnerRigidbody();
     bullet->getRigidbody()->setVelocity(velocity);
     bullet->getRigidbody()->setAngularVelocity(6.28318f);
-
-    if(_curRingIdx == 100)
-        _curRingIdx = 0;
+	bullet->getBulletComponent()->setShooter(shooter);
+	bullet->enable();
+    if(_curRingIdx >= 100)
+        _curRingIdx -= 100;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -681,7 +707,7 @@ Entity* Game::makeBullet()
     Entity* e = new Entity();
     e->setType(Entity::EntityType::Bullet);
     e->getTransform().setScale(0.5f, 0.5f);
-    
+    e->addBulletComponent();
     e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullets"))));
     e->setShape(new ShapeTriangle());
     e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
@@ -700,19 +726,24 @@ Entity* Game::makeBullet()
 ///
 /// \return    null if it fails, else.
 ////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makePlayer(F32 x, F32 y, bool addAI)
+Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
 {
     Entity* p = new Entity();
     p->setType(Entity::Player);
     p->getTransform().setPosition(vec2(x, y));
     p->getTransform().setScale(vec2(1.0f, 2.0f));
-    p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
+	if(addAI)
+		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bots"))));
+	else
+		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
     p->setShape(new ShapeSquare());
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     p->getRigidbody()->setFixedRotation(true);
-    p->addPlayerComponent();
+    p->addPlayerComponent(id);
 	if(addAI)
 		p->addAIComponent();
+	p->getPlayerComponent()->setMaxAmmo(1000);
+	p->getPlayerComponent()->setAmmoRemaining(1000);
     p->enableDraw();
     return p;
 }

@@ -255,6 +255,9 @@
     <ClCompile Include="..\..\src\pbj\editor_mode.cpp">
       <Filter>Source Files\pbj\%28editor%29</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\bullet_component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\pbj\engine.h">
@@ -427,6 +430,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\player_component.h">
       <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\bullet_component.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,7 @@
 #include "pbj/scene/player_component.h"
 #endif
 
+#include <assert.h>
 #include "pbj/scene/entity.h"
 #include "pbj/game.h"
 
@@ -22,16 +23,19 @@ namespace scene
 ///
 /// \param	stats		 	The stats.
 /// \param [in,out]	owner	If non-null, the owner.
-PlayerComponent::PlayerComponent(PlayerStats stats, Entity* owner)
-    : _stats(stats),
-      _owner(owner),
-      _canJump(true),
-      _thrusting(false),
-      _forceFullRegen(false),
-      _canShoot(true),
-      _reloading(false),
-      _fireCooldown(false)
+PlayerComponent::PlayerComponent(Id id, PlayerStats stats, void* owner)
+    : _id(id),
+		_stats(stats),
+		_canJump(true),
+		_thrusting(false),
+		_forceFullRegen(false),
+		_canShoot(true),
+		_reloading(false),
+		_fireCooldown(false)
 {
+	assert((Entity*)owner);
+	_owner = owner;
+	_score = PlayerScore();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +47,8 @@ PlayerComponent::~PlayerComponent()
 {
 	_owner = 0;
 }
+
+Id PlayerComponent::getId() const { return _id; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	Gets the stats.
@@ -350,7 +356,7 @@ void PlayerComponent::setThrust(F32 val) {
 /// \date	2013-08-13
 ///
 /// \return	null if it fails, else the owner.
-Entity* PlayerComponent::getOwner() const
+void* PlayerComponent::getOwner() const
 {
     return _owner;
 }
@@ -441,7 +447,7 @@ void PlayerComponent::endThrust()
 void PlayerComponent::doThrust()
 {
 	I32 costPerTick = 100;
-	physics::Rigidbody* const r = _owner->getRigidbody();
+	physics::Rigidbody* const r = ((Entity*)_owner)->getRigidbody();
 	if(r)
 	{
 		if(!_thrusting && !_forceFullRegen && _stats.fuelRemaining >= 2*costPerTick)
@@ -576,7 +582,6 @@ void PlayerComponent::stepReloadTimer(F32 dt)
 	if(_canShoot)
 	{
 		_stats.ammoRemaining = _stats.maxAmmo;
-		std::cerr<<"Done reloading"<<std::endl;
 	}
 }
 
@@ -627,7 +632,7 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 {
 	if(_canShoot && !_fireCooldown && _stats.health > 0)
 	{
-        Transform& xf = _owner->getTransform();
+        Transform& xf = ((Entity*)_owner)->getTransform();
 
 		F32 bulletSpeed = 50.0f;
 		vec2 pos = xf.getPosition();
@@ -658,11 +663,10 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 		vec2 diff = vec2(mouseX,mouseY) - pos;
 		F32 ang = std::atan2(diff.y,diff.x);
 		vec2 velDir = vec2(std::cos(ang), std::sin(ang));
-		Game::instance()->spawnBullet(pos, velDir * bulletSpeed);
+		Game::instance()->spawnBullet(pos, velDir * bulletSpeed, _owner);
 		_stats.ammoRemaining -= 1;
 		if(_stats.ammoRemaining <= 0)
 		{
-			std::cerr<<"Reloading"<<std::endl;
 			_stats.ammoRemaining = 0;
 			_reloadTimer = 0.0f;
 			_reloading = true;
@@ -729,12 +733,10 @@ void PlayerComponent::jump()
 void PlayerComponent::takeDamage(I32 dmg)
 {
 	_stats.health-=dmg;
-	std::cerr<<_stats.health<<std::endl;
 	if(_stats.health <= 0)
 	{
-		std::cerr<<"Dead"<<std::endl;
+		//std::cerr<<"Dead"<<std::endl;
 	}
-	std::cerr<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -763,6 +765,46 @@ F64 PlayerComponent::getTimeOfDeath()
 void PlayerComponent::setTimeOfDeath(F64 tod)
 {
     _timeOfDeath = tod;
+}
+
+I32 PlayerComponent::getKills() const
+{
+	return _score.kills;
+}
+
+I32 PlayerComponent::getDeaths() const
+{
+	return _score.deaths;
+}
+
+I32 PlayerComponent::getBulletsFired() const
+{
+	return _score.bulletsFired;
+}
+
+I32 PlayerComponent::getBulletsHit() const
+{
+	return _score.bulletsHit;
+}
+
+void PlayerComponent::setKills(I32 val)
+{
+	_score.kills = val;
+}
+
+void PlayerComponent::setDeaths(I32 val)
+{
+	_score.deaths = val;
+}
+
+void PlayerComponent::setBulletsFired(I32 val)
+{
+	_score.bulletsFired = val;
+}
+
+void PlayerComponent::setBulletsHit(I32 val)
+{
+	_score.bulletsHit = val;
 }
 
 } //namespace scene
