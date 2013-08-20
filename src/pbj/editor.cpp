@@ -48,7 +48,6 @@ Editor::Editor()
 
     InputController::registerKeyAllListener([&](I32 keycode, I32 scancode, I32 action, I32 modifiers)
     {
-
         if (keycode == GLFW_KEY_SPACE ||
             keycode == GLFW_KEY_A ||
             keycode == GLFW_KEY_Q ||
@@ -111,17 +110,20 @@ Editor::Editor()
             if (action == GLFW_PRESS && ui_.getElementUnderMouse() == nullptr)
             {
                 down_mode = current_mode_.get();
-                current_mode_->onMouseDown(button, mouse_position_);
+                vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                current_mode_->onMouseDown(button, pos);
             }
             else if (action == GLFW_RELEASE && down_mode == current_mode_.get())
             {
                 if (ui_.getElementUnderMouse() == nullptr)
                 {
-                    current_mode_->onMouseUp(button, mouse_position_);
+                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    current_mode_->onMouseUp(button, pos);
                 }
                 else
                 {
-                    current_mode_->onMouseCancel(button, mouse_position_);
+                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    current_mode_->onMouseCancel(button, pos);
                 }
             }
         }
@@ -131,10 +133,9 @@ Editor::Editor()
     {
         if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
         {
-            mouse_position_ = scene_->camera.getWorldPosition(ivec2(I32(x), I32(y)), window_.getContextSize());
-
-            std::cout << mouse_position_.x << ',' << mouse_position_.y << std::endl;
-            current_mode_->onMouseMove(mouse_position_);
+            mouse_position_ = ivec2(I32(x), I32(y));
+            vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+            current_mode_->onMouseMove(pos);
         }
     });
 }

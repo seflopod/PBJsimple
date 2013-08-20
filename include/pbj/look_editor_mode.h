@@ -18,12 +18,10 @@ public:
     virtual ~LookEditorMode();
 
     virtual const Id& getId() const;
-
     
     virtual void onMouseDown(I32 button, const vec2& position);
     virtual void onDragUpdate(I32 button, const vec2& start, const vec2& end);
     virtual void onClick(I32 button, const vec2& start, const vec2& end);
-    
 
 private:
     static Id id_;
