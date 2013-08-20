@@ -138,7 +138,7 @@ namespace pbj
 		I32 run();
 		void stop();
 		
-		void spawnBullet(const vec2&, const vec2&);
+		void spawnBullet(const vec2&, const vec2&, void*);
 		void disableBullet(Entity*);
 		void respawnPlayer(Entity*);
 

@@ -19,6 +19,8 @@
 #include "pbj/scene/player_component.h"
 #include "pbj/scene/ai_component.h"
 #include "pbj/sw/sandwich.h"
+#include "pbj/scene/bullet_component.h"
+#include "be/id.h"
 
 #include <memory>
 
@@ -29,6 +31,7 @@ using pbj::gfx::ShapeSquare;
 using pbj::gfx::ShapeTriangle;
 using pbj::gfx::Material;
 using pbj::physics::Rigidbody;
+using be::Id;
 
 namespace pbj {
 namespace scene {
@@ -81,13 +84,16 @@ public:
 	void addRigidbody(Rigidbody::BodyType, b2World*);
 	Rigidbody* getRigidbody() const;
 
-	void addPlayerComponent();
+	void addPlayerComponent(Id);
 	PlayerComponent* getPlayerComponent() const;
 
 	void addAIComponent();
 	AIComponent* getAIComponent() const;
 	U32 getSceneId() const;
 	void setSceneId(U32);
+
+	void addBulletComponent();
+	BulletComponent* getBulletComponent() const;
 
 	EntityType getType() const;
 	void setType(EntityType);
@@ -118,6 +124,7 @@ private:
 	std::unique_ptr<Rigidbody> _rigidbody;
 	std::unique_ptr<PlayerComponent> _player;
 	std::unique_ptr<AIComponent> _ai;
+	std::unique_ptr<BulletComponent> _bullet;
 
 	Entity(const Entity&);
 	void operator=(const Entity&);

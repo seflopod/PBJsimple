@@ -2,12 +2,12 @@
 #define PLAYER_COMPONENT_H_
 
 #include "pbj/_pbj.h"
+#include "be/id.h"
+
+using be::Id;
 
 namespace pbj {
 namespace scene {
-
-class Entity;
-
 
 struct PlayerStats
 {
@@ -39,14 +39,32 @@ struct PlayerStats
 	}
 };
 
+struct PlayerScore
+{
+	I32 kills;
+	I32 deaths;
+	I32 bulletsFired;
+	I32 bulletsHit;
+	
+	PlayerScore()
+	{
+		kills = 0;
+		deaths = 0;
+		bulletsFired = 0;
+		bulletsHit = 0;
+	}
+};
+
 class PlayerComponent
 {
 public:
-	PlayerComponent(PlayerStats, Entity*);
+	PlayerComponent(Id, PlayerStats, void*);
 	~PlayerComponent();
 
 	PlayerStats getStats() const;
 	void resetStats();
+
+	Id getId() const;
 
 	I32 getHealth() const;
 	I32 getMaxHealth() const;
@@ -70,7 +88,18 @@ public:
 	void setMoveSpeed(F32);
 	void setThrust(F32);
 
-	Entity* getOwner() const;
+
+	I32 getKills() const;
+	I32 getDeaths() const;
+	I32 getBulletsFired() const;
+	I32 getBulletsHit() const;
+
+	void setKills(I32);
+	void setDeaths(I32);
+	void setBulletsFired(I32);
+	void setBulletsHit(I32);
+
+	void* getOwner() const;
 
 	bool canJump() const;
 	void disableJump();
@@ -104,8 +133,10 @@ public:
 	F64 getTimeOfDeath();
 	void setTimeOfDeath(F64);
 private:
-	Entity* _owner;
+	Id _id;
+	void* _owner;
 	PlayerStats _stats;
+	PlayerScore _score;
 	bool _canJump;
 	bool _thrusting;
 	bool _forceFullRegen;

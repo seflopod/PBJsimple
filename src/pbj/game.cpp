@@ -419,12 +419,19 @@ void Game::BeginContact(b2Contact* contact)
 			break;
 		case Entity::EntityType::Bullet:
 		{
+			scene::BulletComponent* blt = b->getBulletComponent();
+			scene::PlayerComponent* q = ((Entity*)blt->getShooter())->getPlayerComponent();
 			//max bullet speed is currently 50.  50^2 = 2500.  100*1/2500 = 25
 			I32 dmg = (I32)std::floor(glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
 			p->takeDamage(dmg);
+			q->setBulletsHit(q->getBulletsHit()+1);
 			if(p->isDead())
 			{
 				p->setTimeOfDeath(glfwGetTime());
+				p->setDeaths(p->getDeaths()+1);
+				q->setKills(q->getKills()+1);
+				std::cerr<<(p->getId())<<" died ("<<p->getDeaths()<<")"<<std::endl
+							<<(q->getId())<<" got the kill ("<<q->getKills()<<")"<<std::endl;
 				_toRespawn.push(a);
 				_toDisable.push(a);
 			}
@@ -627,13 +634,14 @@ void Game::help()
 /// \param    position    The position.
 /// \param    velocity    The velocity.
 ////////////////////////////////////////////////////////////////////////////////
-void Game::spawnBullet(const vec2& position, const vec2& velocity)
+void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter)
 {
     Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
     bullet->getTransform().setPosition(position);
     bullet->getTransform().updateOwnerRigidbody();
     bullet->getRigidbody()->setVelocity(velocity);
     bullet->getRigidbody()->setAngularVelocity(6.28318f);
+	bullet->getBulletComponent()->setShooter(shooter);
 	bullet->enable();
     if(_curRingIdx >= 100)
         _curRingIdx -= 100;
@@ -686,7 +694,7 @@ Entity* Game::makeBullet()
     Entity* e = new Entity();
     e->setType(Entity::EntityType::Bullet);
     e->getTransform().setScale(0.5f, 0.5f);
-    
+    e->addBulletComponent();
     e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullets"))));
     e->setShape(new ShapeTriangle());
     e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
@@ -718,7 +726,7 @@ Entity* Game::makePlayer(F32 x, F32 y, bool addAI)
     p->setShape(new ShapeSquare());
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     p->getRigidbody()->setFixedRotation(true);
-    p->addPlayerComponent();
+    p->addPlayerComponent(Id("PlayerName"));
 	if(addAI)
 		p->addAIComponent();
 	p->getPlayerComponent()->setMaxAmmo(1000);

@@ -319,11 +319,11 @@ Rigidbody* Entity::getRigidbody() const
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-void Entity::addPlayerComponent()
+void Entity::addPlayerComponent(Id id)
 {
 	if(!_player)
 	{
-		_player.reset(new PlayerComponent(PlayerStats(), this));
+		_player.reset(new PlayerComponent(id, PlayerStats(), this));
 	}
 }
 
@@ -470,14 +470,22 @@ void Entity::disable()
 
 void Entity::addAIComponent()
 {
-	if(_ai.get())
-		_ai.release();
 	_ai.reset(new AIComponent(this));
 }
 
 AIComponent* Entity::getAIComponent() const
 {
 	return _ai.get();
+}
+
+void Entity::addBulletComponent()
+{
+	_bullet.reset(new BulletComponent(this));
+}
+
+BulletComponent* Entity::getBulletComponent() const
+{
+	return _bullet.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
