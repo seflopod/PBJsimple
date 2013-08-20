@@ -10,6 +10,9 @@
 #include "pbj/_al.h"
 #include "pbj/_pbj.h"
 
+#include "pbj/sw/sandwich.h"
+
+
 namespace pbj {
 namespace audio {
 
@@ -26,6 +29,8 @@ public:
 private:
 	ALuint buffer_id_;
 };
+
+std::unique_ptr<AudioBuffer> loadSound(sw::Sandwich& sandwich, const Id& id);
 
 } // namespace pbj::audio
 } // namespace pbj

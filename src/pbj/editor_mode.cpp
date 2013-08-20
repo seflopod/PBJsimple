@@ -9,12 +9,22 @@ namespace pbj {
 EditorMode::EditorMode(Editor& editor)
     : editor_(editor)
 {
+    for (U32 button = 0; button < 3; ++button)
+    {
+        btn_down_[button] = false;
+        btn_down_moved_[button] = false;
+    }
 }
 
 EditorMode::EditorMode(Editor& editor, scene::UIButton* btn)
     : editor_(editor),
       btn_(btn)
 {
+    for (U32 button = 0; button < 3; ++button)
+    {
+        btn_down_[button] = false;
+        btn_down_moved_[button] = false;
+    }
     if (btn_)
     {
         btn_->setStyle(scene::UIButton::SNormal,         sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("highlight_btn.normal")));
@@ -43,20 +53,54 @@ EditorMode::~EditorMode()
 
 void EditorMode::onMouseDown(I32 button, const vec2& position)
 {
+    btn_down_pos_[button] = position;
+    btn_down_[button] = true;
+    btn_down_moved_[button] = false;
 }
 
 void EditorMode::onMouseUp(I32 button, const vec2& position)
 {
+    if (btn_down_[button])
+    {
+        if (btn_down_moved_[button] == false)
+            onClick(button, btn_down_pos_[button], position);
+        else
+            onDragUpdate(button, btn_down_pos_[button], position);
+
+        btn_down_[button] = false;
+    }
 }
 
 void EditorMode::onMouseCancel(I32 button, const vec2& position)
 {
+    if (btn_down_[button])
+    {
+        if (btn_down_moved_[button])
+            onDragUpdate(button, btn_down_pos_[button], btn_down_pos_[button]);
+
+        btn_down_[button] = false;
+    }
 }
 
-void EditorMode::onMouseMove(I32 button, const vec2& position)
+void EditorMode::onMouseMove(const vec2& position)
+{
+    for (U32 button = 0; button < 3; ++button)
+    {
+        if (btn_down_[button])
+        {
+            btn_down_moved_[button] = true;
+            onDragUpdate(button, btn_down_pos_[button], position);
+        }
+    }
+}
+
+void EditorMode::onDragUpdate(I32 button, const vec2& start, const vec2& end)
 {
 }
 
+void EditorMode::onClick(I32 button, const vec2& start, const vec2& end)
+{
+}
 
 } // namespace pbj
 

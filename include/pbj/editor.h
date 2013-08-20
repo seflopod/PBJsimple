@@ -34,6 +34,8 @@ public:
     EditorMode* getCurrentMode();
     void setMode(const Id& id);
 
+    scene::Camera& getCamera() const;
+
 private:
     void onContextResized_(I32 width, I32 height);
     scene::UIButton* newButton_(const Id& id,

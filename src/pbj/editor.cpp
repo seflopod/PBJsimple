@@ -41,7 +41,10 @@ Editor::Editor()
 
     initUI();
 
-    window_.registerContextResizeListener([=](I32 width, I32 height) { onContextResized_(width, height); });
+    window_.registerContextResizeListener([=](I32 width, I32 height)
+    {
+        onContextResized_(width, height);
+    });
 
     InputController::registerKeyAllListener([&](I32 keycode, I32 scancode, I32 action, I32 modifiers)
     {
@@ -103,7 +106,7 @@ Editor::Editor()
     {
         if (current_mode_ && (button == GLFW_MOUSE_BUTTON_1 || button == GLFW_MOUSE_BUTTON_2 || button == GLFW_MOUSE_BUTTON_3))
         {
-            EditorMode*& down_mode = mouse_down_mode_[action];
+            EditorMode*& down_mode = mouse_down_mode_[button];
 
             if (action == GLFW_PRESS && ui_.getElementUnderMouse() == nullptr)
             {
@@ -124,7 +127,16 @@ Editor::Editor()
         }
     });
 
-    InputController::registerMouseMotionListener([&](
+    InputController::registerMouseMotionListener([&](F64 x, F64 y)
+    {
+        if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
+        {
+            mouse_position_ = scene_->camera.getWorldPosition(ivec2(I32(x), I32(y)), window_.getContextSize());
+
+            std::cout << mouse_position_.x << ',' << mouse_position_.y << std::endl;
+            current_mode_->onMouseMove(mouse_position_);
+        }
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -313,6 +325,11 @@ void Editor::setMode(const Id& id)
         current_mode_.reset();
         current_mode_ = std::unique_ptr<EditorMode>(new MimicEditorMode(*this));
     }
+}
+
+scene::Camera& Editor::getCamera() const
+{
+    return scene_->camera;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

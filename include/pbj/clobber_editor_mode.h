@@ -21,8 +21,6 @@ public:
 
 private:
     static Id id_;
-
-    scene::UIButton* clobber_btn_;
 };
 
 } // namespace pbj

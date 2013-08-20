@@ -21,8 +21,6 @@ public:
 
 private:
     static Id id_;
-
-    
 };
 
 } // namespace pbj

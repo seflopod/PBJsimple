@@ -38,6 +38,16 @@ void Camera::setTargetVelocity(const vec2& velocity)
     target_velocity_ = velocity;
 }
 
+const vec2& Camera::getTargetPosition() const
+{
+    return target_position_;
+}
+
+const vec2& Camera::getTargetVelocity() const
+{
+    return target_velocity_;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 const mat4& Camera::getProjection() const
 {
@@ -53,8 +63,8 @@ const mat4& Camera::getView() const
 ///////////////////////////////////////////////////////////////////////////////
 void Camera::update(double delta_t)
 {
-    const F32 pos_coeff = 1.9f;
-    const F32 vel_coeff = 1.5f;
+    const F32 pos_coeff = 3.9f;
+    const F32 vel_coeff = 3.1f;
 
     vec2 acceleration = (target_position_ - position_) * pos_coeff;
     acceleration += (target_velocity_ - velocity_) * vel_coeff;
@@ -65,6 +75,7 @@ void Camera::update(double delta_t)
     velocity_ += acceleration * float(delta_t);
 
     view_ = glm::translate(mat4(), vec3(-position_, 0));
+    vp_inv_ = glm::inverse(projection_ * view_);
 }
 
 void Camera::use() const
@@ -73,6 +84,18 @@ void Camera::use() const
     glLoadMatrixf(glm::value_ptr(projection_));
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(glm::value_ptr(view_));
+}
+
+vec2 Camera::getWorldPosition(const ivec2& screen_coords, const ivec2& context_size) const
+{
+    vec2 pos(screen_coords);
+    pos += vec2(0.5f, 0.5f);
+    pos /= context_size;
+    pos -= vec2(0.5f, 0.5f);
+    pos.x *= 2.0f;
+    pos.y *= -2.0f;
+
+    return vec2(vp_inv_ * vec4(pos, 0, 1));
 }
 
 } // namespace pbj::scene

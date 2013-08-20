@@ -35,12 +35,19 @@ public:
     virtual void onMouseDown(I32 button, const vec2& position);
     virtual void onMouseUp(I32 button, const vec2& position);
     virtual void onMouseCancel(I32 button, const vec2& position);
-    virtual void onMouseMove(I32 button, const vec2& position);
+    virtual void onMouseMove(const vec2& position);
+
+    virtual void onDragUpdate(I32 button, const vec2& start, const vec2& end);
+    virtual void onClick(I32 button, const vec2& start, const vec2& end);
     
 protected:
     Editor& editor_;
 
     scene::UIButton* btn_;
+    
+    vec2 btn_down_pos_[3];
+    bool btn_down_[3];
+    bool btn_down_moved_[3];
 };
 
 } // namespace pbj

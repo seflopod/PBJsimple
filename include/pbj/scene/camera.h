@@ -21,12 +21,18 @@ public:
     void setTargetPosition(const vec2& position);
     void setTargetVelocity(const vec2& velocity);
 
+    const vec2& getTargetPosition() const;
+    const vec2& getTargetVelocity() const;
+
+
     const mat4& getProjection() const;
     const mat4& getView() const;
 
     void update(double delta_t);
 
     void use() const;
+
+    vec2 getWorldPosition(const ivec2& screen_coords, const ivec2& context_size) const;
 
 private:
     vec2 position_;
@@ -36,6 +42,7 @@ private:
 
     mat4 projection_;
     mat4 view_;
+    mat4 vp_inv_;
 
     Camera(const Camera&);
     void operator=(const Camera&);

@@ -9,6 +9,7 @@
 #include "pbj/gfx/material.h"
 #include "pbj/gfx/texture_font.h"
 #include "pbj/gfx/texture.h"
+#include "pbj/audio/audio_buffer.h"
 #include "pbj/sw/sandwich_open.h"
 #include "pbj/_gl.h"
 
@@ -28,6 +29,33 @@ ResourceManager::ResourceManager()
 ///         the manager.
 ResourceManager::~ResourceManager()
 {
+}
+
+///////////////////////////////////////////////////////////////////////////////
+const audio::AudioBuffer& ResourceManager::getSound(const ResourceId& id)
+{
+    auto i = sounds_.find(id);
+    if (i != sounds_.end())
+        return *i->second;
+
+    // if we get to here, the resource is not loaded yet.
+    Sandwich& sandwich = getSandwich(id.sandwich);
+
+    std::unique_ptr<audio::AudioBuffer> ptr = audio::loadSound(sandwich, id.resource);
+
+    if (ptr)
+    {
+        audio::AudioBuffer* ab = ptr.get();
+        sounds_[id] = std::move(ptr);
+        return *ab;
+    }
+
+    // if we get to here, the resource could not be loaded from the sandwich
+    PBJ_LOG(VError) << "Sound not found!" << PBJ_LOG_NL
+                    << "Sandwich ID: " << id.sandwich << PBJ_LOG_NL
+                    << "   Sound ID: " << id.resource << PBJ_LOG_END;
+
+    throw std::invalid_argument("Sound not found!");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

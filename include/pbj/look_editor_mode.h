@@ -19,10 +19,16 @@ public:
 
     virtual const Id& getId() const;
 
+    
+    virtual void onMouseDown(I32 button, const vec2& position);
+    virtual void onDragUpdate(I32 button, const vec2& start, const vec2& end);
+    virtual void onClick(I32 button, const vec2& start, const vec2& end);
+    
+
 private:
     static Id id_;
 
-    scene::UIButton* look_btn_;
+    vec2 drag_start_camera_pos_;
 };
 
 } // namespace pbj
