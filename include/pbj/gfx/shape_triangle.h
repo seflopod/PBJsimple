@@ -28,9 +28,9 @@ namespace gfx
 			if(hasTexture)
 			{
 				glBegin(GL_TRIANGLES);
-					glTexCoord2d(0.0, 0.0); glVertex2f(-0.5f, -0.433f);
-					glTexCoord2d(1.0, 0.0); glVertex2f(0.5f, -0.433f);
-					glTexCoord2d(0.5, 0.866); glVertex2f(0.0f, 0.433f);
+					glTexCoord2d(0.0, 1.0); glVertex2f(-0.5f, -0.433f);
+					glTexCoord2d(1.0, 1.0); glVertex2f(0.5f, -0.433f);
+					glTexCoord2d(0.5, 0.134); glVertex2f(0.0f, 0.433f);
 				glEnd();
 			}
 			else
