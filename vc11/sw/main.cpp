@@ -59,19 +59,13 @@ int prop(const std::string& prop, const std::string& value);
 int texture(const std::string& texture, const std::string& filename, const char** extra, int extra_count);
 int textureFont(const std::string& font, const std::string& filename);
 int material(const std::string& material, const glm::vec4& color, const std::string& texture, std::string texture_mode);
+int audio(const std::string& audio, const std::string& filename);
 void displayUsage();
 
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-#ifdef DEBUG
-    int verbosity = pbj::VAll;
-#else
-    int verbosity = pbj::VErrorsAndWarnings;
-#endif
-   
-    // Set the appropriate verbosity level
-    be::setVerbosity(verbosity);
+    be::setVerbosity(pbj::VAll);
 
     // The name of the executable
     cmd_name = (argc > 0 ? argv[0] : "sw");
@@ -103,6 +97,8 @@ int main(int argc, char** argv)
         operation = "property";
     else if (operation == "texturefont" || operation == "texfont")
         operation = "font";
+    else if (operation == "audio")
+        operation = "sound";
 
 
     // if we're creating a sandwich, we don't want to search for an existing one.
@@ -233,9 +229,25 @@ int main(int argc, char** argv)
             texture = argv[8];
 
         if (argc >= 10)
-            texture = argv[9];
+            tex_mode = argv[9];
 
         return material(argv[3], color, texture, tex_mode);
+    }
+    else if (operation == "sound")
+    {
+        if (argc < 4)
+        {
+            PBJ_LOG(pbj::VError) << "No sound id specified!" << PBJ_LOG_END;
+            displayUsage();
+            return -1;
+        }
+        else if (argc < 5)
+        {
+            PBJ_LOG(pbj::VError) << "No sound file specified!" << PBJ_LOG_END;
+            displayUsage();
+            return -1;
+        }
+        return audio(argv[3], argv[4]);
     }
     else if (operation == "vacuum")
     {
@@ -273,6 +285,9 @@ void displayUsage()
 
     if (operation == "" || operation == "material")
         std::cout << "    " << cmd_name << " " << sw_name << " material <material id> <r> <g> <b> [a] [texture id] [modulate|decal|add]" << std::endl;
+
+    if (operation == "" || operation == "sound")
+        std::cout << "    " << cmd_name << " " << sw_name << " sound <sound id> <filename>" << std::endl;
 
     if (operation == "" || operation == "vacuum")
         std::cout << "    " << cmd_name << " " << sw_name << " vacuum" << std::endl;
@@ -349,36 +364,15 @@ int create(const std::string& filename)
 
         pbj::db::Stmt table_exists(sw->getDb(), "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1");
 
-        table_exists.bind(1, "sw_maps");
+        table_exists.bind(1, "sw_sounds");
         if (!table_exists.step())
         {
-            sw->getDb().exec("CREATE TABLE sw_maps\n"
+            sw->getDb().exec("CREATE TABLE sw_sounds\n"
                              "(\n"
-                             "   id   INTEGER PRIMARY KEY,\n"
-                             "   name TEXT NOT NULL\n"
+                             "   id INTEGER PRIMARY KEY,\n"
+                             "   data NOT NULL\n"
                              ");");
-            PBJ_LOG(pbj::VInfo) << "Created table 'sw_maps'." << PBJ_LOG_END;
-        }
-
-        table_exists.reset();
-        table_exists.bind(1, "sw_map_entities");
-        if (!table_exists.step())
-        {
-            sw->getDb().exec("CREATE TABLE sw_map_entities\n"
-                             "(\n"
-                             "   map_id      INTEGER NOT NULL,\n"
-                             "   entity_id   INTEGER NOT NULL,\n"
-                             "   entity_type INTEGER NOT NULL,\n"
-                             "   rotation    REAL NOT NULL,\n"
-                             "   pos_x       REAL NOT NULL,\n"
-                             "   pos_y       REAL NOT NULL,\n"
-                             "   scale_x     REAL NOT NULL,\n"
-                             "   scale_y     REAL NOT NULL,\n"
-                             "   material_sw_id INTEGER,\n"
-                             "   material_id INTEGER,\n"
-                             "   PRIMARY KEY (map_id, entity_id)\n"
-                             ");");
-            PBJ_LOG(pbj::VInfo) << "Created table 'sw_map_entities'." << PBJ_LOG_END;
+            PBJ_LOG(pbj::VInfo) << "Created table 'sw_sounds'." << PBJ_LOG_END;
         }
 
         table_exists.reset();
@@ -430,20 +424,6 @@ int create(const std::string& filename)
             PBJ_LOG(pbj::VInfo) << "Created table 'sw_texture_font_chars'." << PBJ_LOG_END;
         }
 
-        table_exists.reset();
-        table_exists.bind(1, "sw_materials");
-        if (!table_exists.step())
-        {
-            sw->getDb().exec("CREATE TABLE sw_materials\n"
-                             "(\n"
-                             "   id           INTEGER PRIMARY KEY,\n"
-                             "   color        INTEGER NOT NULL,\n"
-                             "   texture_id   INTEGER,\n"
-                             "   texture_mode INTEGER NOT NULL\n"
-                             ");");
-            PBJ_LOG(pbj::VInfo) << "Created table 'sw_materials'." << PBJ_LOG_END;
-        }
-        
         table_exists.reset();
         table_exists.bind(1, "sw_ui_panel_styles");
         if (!table_exists.step())
@@ -515,6 +495,53 @@ int create(const std::string& filename)
                              "   PRIMARY KEY (id, history_index)\n"
                              ");");
             PBJ_LOG(pbj::VInfo) << "Created table 'sw_window_settings'." << PBJ_LOG_END;
+        }
+
+        table_exists.reset();
+        table_exists.bind(1, "sw_materials");
+        if (!table_exists.step())
+        {
+            sw->getDb().exec("CREATE TABLE sw_materials\n"
+                             "(\n"
+                             "   id           INTEGER PRIMARY KEY,\n"
+                             "   color        INTEGER NOT NULL,\n"
+                             "   texture_id   INTEGER,\n"
+                             "   texture_mode INTEGER NOT NULL\n"
+                             ");");
+            PBJ_LOG(pbj::VInfo) << "Created table 'sw_materials'." << PBJ_LOG_END;
+        }
+        
+        table_exists.reset();
+        table_exists.bind(1, "sw_maps");
+        if (!table_exists.step())
+        {
+            sw->getDb().exec("CREATE TABLE sw_maps\n"
+                             "(\n"
+                             "   id   INTEGER PRIMARY KEY,\n"
+                             "   name TEXT NOT NULL\n"
+                             ");");
+            PBJ_LOG(pbj::VInfo) << "Created table 'sw_maps'." << PBJ_LOG_END;
+        }
+
+        table_exists.reset();
+        table_exists.bind(1, "sw_map_entities");
+        if (!table_exists.step())
+        {
+            sw->getDb().exec("CREATE TABLE sw_map_entities\n"
+                             "(\n"
+                             "   map_id      INTEGER NOT NULL,\n"
+                             "   entity_id   INTEGER NOT NULL,\n"
+                             "   entity_type INTEGER NOT NULL,\n"
+                             "   rotation    REAL NOT NULL,\n"
+                             "   pos_x       REAL NOT NULL,\n"
+                             "   pos_y       REAL NOT NULL,\n"
+                             "   scale_x     REAL NOT NULL,\n"
+                             "   scale_y     REAL NOT NULL,\n"
+                             "   material_sw_id INTEGER,\n"
+                             "   material_id INTEGER,\n"
+                             "   PRIMARY KEY (map_id, entity_id)\n"
+                             ");");
+            PBJ_LOG(pbj::VInfo) << "Created table 'sw_map_entities'." << PBJ_LOG_END;
         }
     }
     catch (const pbj::db::Db::error& e)
@@ -976,6 +1003,62 @@ int material(const std::string& material, const glm::vec4& color, const std::str
         PBJ_LOG(pbj::VError) << "Exception while inserting material!" << PBJ_LOG_NL
                              << "Sandwich ID: " << sw_id << PBJ_LOG_NL
                              << "Material ID: " << material_id << PBJ_LOG_NL
+                             << "  Exception: " << e.what() << PBJ_LOG_END;
+        return 1;
+    }
+
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+int audio(const std::string& audio, const std::string& filename)
+{
+    pbj::Id audio_id(audio);
+
+    try
+    {
+        std::vector<pbj::U8> audio_data;
+        std::ifstream ifs(filename, std::ifstream::binary);
+
+        while (ifs)
+        {
+            int ch = ifs.get();
+            if (ch != std::char_traits<char>::eof())
+                audio_data.push_back(ch);
+        }
+
+        pbj::db::Transaction transaction(sw->getDb());
+        pbj::db::Stmt update(sw->getDb(), "INSERT OR REPLACE INTO sw_sounds (id, data) VALUES (?, ?);");
+      
+        update.bind(1, audio_id.value());
+        update.bindBlob(2, audio_data.data(), audio_data.size());
+        update.step();
+
+        transaction.commit();
+
+        PBJ_LOG(pbj::VInfo) << "Inserted Sound! " << PBJ_LOG_NL
+                            << "Sound ID: " << audio_id << PBJ_LOG_END;
+    }
+    catch (const pbj::db::Db::error& e)
+    {
+        // transaction will be rolled back if not committed,
+        // and DB file closed if open.
+        PBJ_LOG(pbj::VError) << "SQL error while inserting sound!" << PBJ_LOG_NL
+                             << "Sandwich ID: " << sw_id << PBJ_LOG_NL
+                             << "   Sound ID: " << audio_id << PBJ_LOG_NL
+                             << "   Filename: " << filename << PBJ_LOG_NL
+                             << "  Exception: " << e.what() << PBJ_LOG_NL
+                             << "        SQL: " << e.sql() << PBJ_LOG_END;
+        return 1;
+    }
+    catch (const std::exception& e)
+    {
+        // transaction will be rolled back if not committed,
+        // and DB file closed if open.
+        PBJ_LOG(pbj::VError) << "Exception while inserting sound!" << PBJ_LOG_NL
+                             << "Sandwich ID: " << sw_id << PBJ_LOG_NL
+                             << "   Sound ID: " << audio_id << PBJ_LOG_NL
+                             << "   Filename: " << filename << PBJ_LOG_NL
                              << "  Exception: " << e.what() << PBJ_LOG_END;
         return 1;
     }

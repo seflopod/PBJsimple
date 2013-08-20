@@ -55,9 +55,10 @@ private:
     scene::UILabel* frame_time_label_;
 
     std::unique_ptr<scene::Scene> scene_;
-    mat4 scene_projection_;
 
     std::unique_ptr<EditorMode> current_mode_;
+    EditorMode* mouse_down_mode_[3];
+    vec2 mouse_position_;
 
     Editor(const Editor&);
     void operator=(const Editor&);

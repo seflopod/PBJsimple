@@ -33,6 +33,12 @@ CREATE TABLE sw_materials
       texture_mode      INTEGER NOT NULL
 );
 
+CREATE TABLE sw_sounds
+(
+      id                INTEGER PRIMARY KEY,
+      data              NOT NULL
+);
+
 CREATE TABLE sw_textures
 (
       -- Identifies this texture among all other textures in this sandwich

@@ -45,6 +45,7 @@ public:
 	~Scene();
 
     UIRoot ui;
+    Camera camera; // public member var for now.
 
 	void draw();
 	void update(F32);

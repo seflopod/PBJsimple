@@ -336,13 +336,7 @@ void Game::draw()
 {
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-     ivec2 ctxtSize = _window.getContextSize();
-    GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
-     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+
      
      _scene.draw();
 

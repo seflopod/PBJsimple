@@ -83,6 +83,7 @@ Scene::~Scene()
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
+    camera.use();
 
 	//drawing for debug purposes
 	for(EntityMap::iterator it=_spawnPoints.begin();
@@ -121,6 +122,15 @@ void Scene::draw()
 
 void Scene::update(F32 dt)
 {
+    Entity* player = getLocalPlayer();
+    if (player)
+    {
+        camera.setTargetPosition(player->getTransform().getPosition());
+        camera.setTargetPosition(player->getRigidbody()->getVelocity());
+    }
+
+    camera.update(dt);
+
 	for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
@@ -259,6 +269,9 @@ void Scene::clearLocalPlayer()
 
 Entity* Scene::getLocalPlayer()
 {
+    if (_localPlayerId == U32(-1))
+        return nullptr;
+
     return _players[_localPlayerId].get();
 }
 

@@ -42,6 +42,7 @@
     <ClCompile Include="..\..\src\pbj\decorate_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\dupe_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\editor.cpp" />
+    <ClCompile Include="..\..\src\pbj\editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\game.cpp" />
     <ClCompile Include="..\..\src\pbj\engine.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\material.cpp" />

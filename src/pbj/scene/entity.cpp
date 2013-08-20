@@ -109,7 +109,6 @@ void Entity::update(F32 dt)
 		_player->setTimeOfDeath(glfwGetTime());
 		Game::instance()->respawnPlayer(this);
 	}
-		
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	draws this object.
@@ -121,43 +120,18 @@ void Entity::draw()
 	vec2 glmPos = _transform.getPosition();
 	F32 glmRot = _transform.getRotation();
 	vec2 glmSca = _transform.getScale();
-	//GLuint texId = _material->getTextureId();
-	//color4 color = _material->getColor();
-	//probably unnecessary habit
-	//glCullFace(GL_BACK);
-	//glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	//glMatrixMode(GL_TEXTURE);
-	//glLoadIdentity();
-	//glMatrixMode(GL_MODELVIEW);
-
-	//save the current colour to put it back when we're done
-	//GLfloat curColor[4];
-	//glGetFloatv(GL_CURRENT_COLOR, curColor);
-
-	//if(texId)
-	//{
-	//	glEnable(GL_TEXTURE_2D);
-	//	glBindTexture(GL_TEXTURE_2D, texId);
-	//	glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-	//}
 
     if (_material)
         _material->use();
     else
         Texture::disable();
-	
+
 	glPushMatrix();
 		glTranslatef(glmPos.x, glmPos.y, 0.0f);
 		glRotatef(glmRot, 0, 0, 1);
 		glScalef(glmSca.x, glmSca.y, 1.0f);
-		//glColor4f(color.r, color.g, color.b, color.a);
         _shape->draw((_material->getTexture() != nullptr));
 	glPopMatrix();
-	//glColor4fv(curColor);
-
-	//if(texId)
-	//	glDisable(GL_TEXTURE_2D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
