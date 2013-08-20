@@ -110,19 +110,19 @@ bool Game::init(U32 fps)
 
     //seems like an odd place to setup gl matrices, but there we go
     ivec2 ctxtSize = _window.getContextSize();
-    GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
+    F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
     glViewport(0, 0, ctxtSize.x, ctxtSize.y);
     glClear(GL_COLOR_BUFFER_BIT);
-    glMatrixMode(GL_PROJECTION);
+    /*glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    glLoadIdentity();*/
+	_scene.setupCamera(glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f, -grid_height/2.0f, grid_height/2.0f, 0.1f, -0.1f));
 
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)
     {
-        //_bullets.push(unique_ptr<Entity>(makeBullet()));
         _bulletRing[i] = _scene.addEntity(unique_ptr<Entity>(makeBullet()));
         _scene.getBullet(_bulletRing[i])->getRigidbody()->setBullet(false);
         _scene.getBullet(_bulletRing[i])->disable();
@@ -346,8 +346,6 @@ void Game::draw()
 {
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-     
      _scene.draw();
 
      //error pump
@@ -557,11 +555,14 @@ void Game::onMouseLeftDown(I32 mods)
 {
     F64 x,y;
     glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
+	ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
     ivec2 size = getEngine().getWindow()->getContextSize();
-    double ratio = size.x/(double)size.y;
+	vec2 worldPos = _scene.getCamera()->getWorldPosition(screenCoords, size);
+    /*double ratio = size.x/(double)size.y;
     x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
     y = grid_height * (1 - y/size.y) - grid_height/2;
-    _scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x/2.0f,(F32)y);
+    _scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x/2.0f,(F32)y);*/
+	_scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

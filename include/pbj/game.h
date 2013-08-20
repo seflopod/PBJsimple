@@ -127,7 +127,7 @@ namespace pbj
 	class Game : public b2ContactListener
 	{
 	public:
-		static const int grid_height = 67;
+		static const int grid_height = 33;
 
 		static Game* instance();
 		static void destroyInstance();

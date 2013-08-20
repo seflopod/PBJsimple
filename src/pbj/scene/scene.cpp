@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "pbj/scene/scene.h"
-
+#include "pbj/game.h"
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,6 +38,7 @@
 #define PBJ_SCENE_SCENE_SQLID_CLEAR_ENTITIES PBJ_SCENE_SCENE_SQL_CLEAR_ENTITIES
 #endif
 
+using pbj::Game;
 namespace pbj {
 namespace scene {
 
@@ -50,6 +51,7 @@ namespace scene {
 /// \date 2013-08-08
 ////////////////////////////////////////////////////////////////////////////////
 Scene::Scene()
+	: _camera(nullptr)
 {
 	_nextEntityId = 1;
     _localPlayerId = U32(-1);
@@ -67,6 +69,15 @@ Scene::Scene()
 ////////////////////////////////////////////////////////////////////////////////
 Scene::~Scene()
 {
+	_camera.reset();
+}
+
+void Scene::setupCamera(mat4 ortho)
+{
+	mat4 proj = mat4();
+	proj*=ortho;
+	_camera.reset(new Camera());
+	_camera->setProjection(proj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +94,7 @@ Scene::~Scene()
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
-    camera.use();
+    _camera->use();
 
 	//drawing for debug purposes
 	for(EntityMap::iterator it=_spawnPoints.begin();
@@ -119,11 +130,11 @@ void Scene::update(F32 dt)
     Entity* player = getLocalPlayer();
     if (player)
     {
-        camera.setTargetPosition(player->getTransform().getPosition());
-        camera.setTargetPosition(player->getRigidbody()->getVelocity());
+        _camera->setTargetPosition(player->getTransform().getPosition());
+        _camera->setTargetVelocity(player->getRigidbody()->getVelocity());
     }
 
-    camera.update(dt);
+    _camera->update(dt);
 
 	for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
@@ -141,7 +152,20 @@ void Scene::update(F32 dt)
 		it!=_players.end();
 		it++)
 		if(it->second->isEnabled())
+		{
 			it->second->update(dt);
+			vec2 pos = it->second->getTransform().getPosition();
+			ivec2 size = getEngine().getWindow()->getContextSize();
+			F32 ratio = size.x/(F32)size.y;
+			if(pos.y < -Game::grid_height*2 || pos.x < -Game::grid_height*ratio*2 ||
+				pos.x > Game::grid_height*ratio*2)
+			{
+				it->second->getPlayerComponent()->setTimeOfDeath(glfwGetTime());
+				it->second->getPlayerComponent()->setDeaths(
+					it->second->getPlayerComponent()->getDeaths()+1);
+				Game::instance()->respawnPlayer(it->second.get());
+			}
+		}
 
 	for(EntityMap::iterator it=_bullets.begin();
 		it!=_bullets.end();
@@ -322,6 +346,11 @@ Entity* Scene::getRandomSpawnPoint()
 		return nullptr;
 
 	return it->second.get();
+}
+
+Camera* Scene::getCamera() const
+{
+	return _camera.get();
 }
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)

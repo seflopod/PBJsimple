@@ -108,7 +108,7 @@ void Entity::update(F32 dt)
 	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
 		Game::instance()->disableBullet(this);
 
-	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height/2.0f)
+	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height)
 	{
 		_player->setTimeOfDeath(glfwGetTime());
 		Game::instance()->respawnPlayer(this);

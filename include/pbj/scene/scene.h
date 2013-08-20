@@ -11,6 +11,7 @@
 #include <random>
 
 #include "pbj/_pbj.h"
+#include "pbj/_math.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/entity.h"
 #include "pbj/scene/camera.h"
@@ -22,7 +23,6 @@ using std::unique_ptr;
 
 namespace pbj {
 namespace scene {
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Scene
 ///
@@ -45,7 +45,8 @@ public:
 	~Scene();
 
     UIRoot ui;
-    Camera camera; // public member var for now.
+    
+	void setupCamera(mat4);
 
 	void draw();
 	void update(F32);
@@ -65,6 +66,8 @@ public:
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
 	Entity* getLocalPlayer();
+
+	Camera* getCamera() const;
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -82,6 +85,9 @@ private:
 	EntityMap _terrain;
 	EntityMap _players;
 	EntityMap _bullets;
+
+	std::unique_ptr<Camera> _camera;
+
 	std::ranlux24_base _rnd;  // ranlux? not mersenne twister?
 
     std::string _name;
