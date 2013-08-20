@@ -88,6 +88,7 @@ public:
    Id& operator=(const Id& other);
 
    std::string to_string() const;
+   std::string to_useful_string() const;
 
    uint64_t value() const;
 

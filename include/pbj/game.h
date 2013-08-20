@@ -23,6 +23,7 @@
 #include "pbj/scene/entity.h"
 #include "pbj/gfx/material.h"
 #include "pbj/input_controller.h"
+#include "be/id.h"
 
 using std::queue;
 using std::unique_ptr;
@@ -165,7 +166,7 @@ namespace pbj
         virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
 		Entity* makeBullet();
-		Entity* makePlayer(F32, F32, bool);
+		Entity* makePlayer(be::Id, F32, F32, bool);
 		Entity* makeTerrain(F32, F32, F32, F32);
 		Entity* makeSpawnPoint(F32, F32);
 
