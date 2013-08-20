@@ -23,6 +23,12 @@ sw __pbjbase__ material player  0.8    0.2    0
 sw __pbjbase__ material bots    0.5    0.9    0
 sw __pbjbase__ material bullets 0      0.8    1
 sw __pbjbase__ material terrain 1      1      0.2
+sw __pbjbase__ sound	bgmusic ../assets/sounds/bgmusic.wav
+sw __pbjbase__ sound	wpnfire ../assets/sounds/weapon_fire.wav
+sw __pbjbase__ sound	dmg ../assets/sounds/snd_dmg.wav
+sw __pbjbase__ sound	death ../assets/sounds/snd_death.wav
+sw __pbjbase__ sound	jump ../assets/sounds/jump.wav
+sw __pbjbase__ sound	menumusic ../assets/sounds/menumusic.wav
 
 sw __pbjconfig__ create pbjconfig.sw
 sw __pbjconfig__ prop   description  "PBJsimple Configuration File"
