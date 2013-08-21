@@ -784,7 +784,7 @@ Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
     t->setType(Entity::EntityType::Terrain);
     t->getTransform().setPosition(x, y);
     t->getTransform().setScale(width, height);
-    t->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("terrain"))));
+    t->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("terrain_big"))));
     t->setShape(new ShapeSquare());
     t->addRigidbody(Rigidbody::BodyType::Static, _world);
     t->enableDraw();
