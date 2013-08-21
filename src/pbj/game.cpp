@@ -714,7 +714,7 @@ Entity* Game::makeBullet()
     e->setType(Entity::EntityType::Bullet);
     e->getTransform().setScale(0.5f, 0.5f);
     e->addBulletComponent();
-    e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullets"))));
+    e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullet"))));
     e->setShape(new ShapeTriangle());
     e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     e->getRigidbody()->setBullet(true);
