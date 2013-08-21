@@ -487,6 +487,12 @@ BulletComponent* Entity::getBulletComponent() const
 	return _bullet.get();
 }
 
+void Entity::addAudioListener() { _listener.reset(new AudioListener(this)); }
+AudioListener* Entity::getAudioListener() const { return _listener.get(); }
+
+void Entity::addAudioSource() { _src.reset(new AudioSource(this)); }
+AudioSource* Entity::getAudioSource() const { return _src.get(); }
+
 ////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id)
 {

@@ -741,6 +741,9 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
 		p->addAIComponent();
 	p->getPlayerComponent()->setMaxAmmo(1000);
 	p->getPlayerComponent()->setAmmoRemaining(1000);
+	//&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
+	p->addAudioSource();
+	//p->getAudioSource()->addAudioBuffer("
     p->enableDraw();
     return p;
 }
