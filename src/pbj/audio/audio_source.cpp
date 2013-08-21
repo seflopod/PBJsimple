@@ -113,7 +113,7 @@ void AudioSource::updateVelocity()
 
 void AudioSource::addAudioBuffer(string name, AudioBuffer* buffer)
 {
-	_buffers->at(name) = buffer;
+	_buffers->insert(std::pair<string,AudioBuffer*>(name,buffer));
 }
 
 AudioBuffer* AudioSource::getAudioBuffer(string name) const

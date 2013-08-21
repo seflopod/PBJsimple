@@ -31,12 +31,12 @@ sw __pbjbase__ material player3_outline 0.8600 1.0000 0.0700 1.0000 player_outli
 sw __pbjbase__ material player4_outline 1.0000 0.3100 0.0700 1.0000 player_outline.texture modulate
 sw __pbjbase__ material player5_outline 0.0700 1.0000 0.5500 1.0000 player_outline.texture modulate
 
-sw __pbjbase__ sound	bgmusic ../assets/sounds/bgmusic.wav
-sw __pbjbase__ sound	wpnfire ../assets/sounds/weapon_fire.wav
-sw __pbjbase__ sound	dmg ../assets/sounds/snd_dmg.wav
-sw __pbjbase__ sound	death ../assets/sounds/snd_death.wav
-sw __pbjbase__ sound	jump ../assets/sounds/jump.wav
-sw __pbjbase__ sound	menumusic ../assets/sounds/menumusic.wav
+sw __pbjbase__ sound bgmusic ../assets/sounds/bgmusic.wav
+sw __pbjbase__ sound wpnfire ../assets/sounds/weapon_fire.wav
+sw __pbjbase__ sound dmg ../assets/sounds/snd_dmg.wav
+sw __pbjbase__ sound death ../assets/sounds/snd_death.wav
+sw __pbjbase__ sound jump ../assets/sounds/jump.wav
+sw __pbjbase__ sound menumusic ../assets/sounds/menumusic.wav
 
 sw __pbjconfig__ create pbjconfig.sw
 sw __pbjconfig__ prop   description  "PBJsimple Configuration File"

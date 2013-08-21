@@ -155,6 +155,13 @@ void Scene::update(F32 dt)
 		{
 			it->second->update(dt);
 			vec2 pos = it->second->getTransform().getPosition();
+			if(it->second->getAudioListener())
+			{
+				it->second->getAudioListener()->updatePosition();
+				it->second->getAudioListener()->updateVelocity();
+			}
+			it->second->getAudioSource()->updatePosition();
+			it->second->getAudioSource()->updateVelocity();
 			ivec2 size = getEngine().getWindow()->getContextSize();
 			F32 ratio = size.x/(F32)size.y;
 			if(pos.y < -Game::grid_height*2 || pos.x < -Game::grid_height*ratio*2 ||

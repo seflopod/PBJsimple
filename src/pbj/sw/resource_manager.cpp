@@ -32,11 +32,11 @@ ResourceManager::~ResourceManager()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-const audio::AudioBuffer& ResourceManager::getSound(const ResourceId& id)
+audio::AudioBuffer* ResourceManager::getSound(const ResourceId& id)
 {
     auto i = sounds_.find(id);
     if (i != sounds_.end())
-        return *i->second;
+        return i->second.get();
 
     // if we get to here, the resource is not loaded yet.
     Sandwich& sandwich = getSandwich(id.sandwich);
@@ -47,7 +47,7 @@ const audio::AudioBuffer& ResourceManager::getSound(const ResourceId& id)
     {
         audio::AudioBuffer* ab = ptr.get();
         sounds_[id] = std::move(ptr);
-        return *ab;
+        return sounds_[id].get();
     }
 
     // if we get to here, the resource could not be loaded from the sandwich

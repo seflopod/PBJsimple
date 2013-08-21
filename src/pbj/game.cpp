@@ -160,6 +160,9 @@ void Game::initTestScene()
     U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
     _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
+	_scene.getLocalPlayer()->addAudioListener();
+	_scene.getLocalPlayer()->getAudioListener()->updatePosition();
+	_scene.getLocalPlayer()->getAudioListener()->updateVelocity();
 
 	//add other player Entities
 	I32 ids[4];
@@ -403,13 +406,7 @@ void Game::BeginContact(b2Contact* contact)
     }
 
 	if(b->getType() == Entity::EntityType::Player && a->getType() != Entity::EntityType::Player)
-	{
 		std::swap(a, b);
-		/*Entity* tmp = a;
-		a = b;
-		b = tmp;
-		tmp = nullptr;*/
-	}
 
     if(a->getType() == Entity::EntityType::Player)
     {
@@ -729,21 +726,27 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
     p->setType(Entity::Player);
     p->getTransform().setPosition(vec2(x, y));
     p->getTransform().setScale(vec2(1.0f, 2.0f));
-	if(addAI)
+	/*if(addAI)
 		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bots"))));
 	else
-		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
-    p->setShape(new ShapeSquare());
+		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));*/
+    
+	p->setShape(new ShapeSquare());
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     p->getRigidbody()->setFixedRotation(true);
-    p->addPlayerComponent(id);
-	if(addAI)
-		p->addAIComponent();
+    
+	p->addPlayerComponent(id);
 	p->getPlayerComponent()->setMaxAmmo(1000);
 	p->getPlayerComponent()->setAmmoRemaining(1000);
-	//&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
+	
 	p->addAudioSource();
-	//p->getAudioSource()->addAudioBuffer("
+	p->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
+	p->getAudioSource()->updatePosition();
+	p->getAudioSource()->updateVelocity();
+
+	if(addAI)
+		p->addAIComponent();
+
     p->enableDraw();
     return p;
 }

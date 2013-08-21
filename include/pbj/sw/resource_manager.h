@@ -49,7 +49,7 @@ public:
     ResourceManager();
     ~ResourceManager();
 
-    const audio::AudioBuffer& getSound(const ResourceId& id);
+    audio::AudioBuffer* getSound(const ResourceId& id);
     const gfx::Material& getMaterial(const ResourceId& id);
     const gfx::TextureFont& getTextureFont(const ResourceId& id);
     const gfx::Texture& getTexture(const ResourceId& id);
