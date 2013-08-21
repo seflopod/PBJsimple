@@ -109,11 +109,11 @@ bool Game::init(U32 fps)
      initTestScene();
 
     //seems like an odd place to setup gl matrices, but there we go
-    ivec2 ctxtSize = _window.getContextSize();
+    /*ivec2 ctxtSize = _window.getContextSize();
     F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
     glViewport(0, 0, ctxtSize.x, ctxtSize.y);
-    glClear(GL_COLOR_BUFFER_BIT);
-    _scene.setupCamera(glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f, -grid_height/2.0f, grid_height/2.0f, 0.1f, -0.1f));
+    glClear(GL_COLOR_BUFFER_BIT);*/
+    //_scene.setupCamera(glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f, -grid_height/2.0f, grid_height/2.0f, 0.1f, -0.1f));
 
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)
@@ -160,9 +160,9 @@ void Game::initTestScene()
     U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
     _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
-	_scene.getLocalPlayer()->addAudioListener();
-	_scene.getLocalPlayer()->getAudioListener()->updatePosition();
-	_scene.getLocalPlayer()->getAudioListener()->updateVelocity();
+
+	//since the player will be the focus of the camera, reduce the volume of its output
+	_scene.getLocalPlayer()->getAudioSource()->setGain(0.65f);
 
 	//add other player Entities
 	I32 ids[4];
@@ -185,6 +185,26 @@ void Game::initTestScene()
 	_scene.getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
 	_scene.getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
     
+	//add the camera
+	Entity* e = new Entity();
+	e->setType(Entity::EntityType::Camera);
+	e->addAudioListener();
+	e->addCamera();
+
+	//now that the camera is made, do matrix setup
+	ivec2 ctxtSize = _window.getContextSize();
+    F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
+    glViewport(0, 0, ctxtSize.x, ctxtSize.y);
+    glClear(GL_COLOR_BUFFER_BIT);
+	mat4 ortho = glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f,
+							-grid_height/2.0f, grid_height/2.0f,
+							0.1f, -0.1f);
+	e->getCamera()->setProjection(ortho);
+
+	//and finally add the camera to the scene and mark it as the current camera
+	id = _scene.addEntity(unique_ptr<Entity>(e));
+	_scene.setCurrentCamera(id);
+
     //add some UI to the scene
     //This does not work due to issues with UIRoot and input registration
     /*scene::UILabel label;
@@ -237,13 +257,6 @@ I32 Game::run()
           nonPhysTimer += _physSettings.dt;
 
         fps = 1.0/frameTime;
-        //std::cerr<<fps<<std::endl;
-        //This does not work due to issues with UIRoot and input registration
-        /*I8 fpsCStr[13];
-        sprintf_s((char*)fpsCStr,12,"FPS: %.4d", fps);
-        fpsCStr[12] = '\0';
-        ((scene::UILabel*)_scene.ui.panel.getElementAt(ivec2(0,0)))->setText((char*)fpsCStr);
-        */
      }
      return 0;
 }
@@ -396,7 +409,6 @@ void Game::onContextResized(I32 width, I32 height)
 void Game::BeginContact(b2Contact* contact)
 {
     //handle collisions for the entire game here
-    //std::cerr<<"BeginContact"<<std::endl;
     Entity* a = (Entity*)(contact->GetFixtureA()->GetBody()->GetUserData());
     Entity* b = (Entity*)(contact->GetFixtureB()->GetBody()->GetUserData());
     if(!a || !b)
@@ -554,7 +566,7 @@ void Game::onMouseLeftDown(I32 mods)
     glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
 	ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
     ivec2 size = getEngine().getWindow()->getContextSize();
-	vec2 worldPos = _scene.getCamera()->getWorldPosition(screenCoords, size);
+	vec2 worldPos = _scene.getCurrentCamera()->getWorldPosition(screenCoords, size);
 	_scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
 }
 
@@ -741,6 +753,8 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
 	
 	p->addAudioSource();
 	p->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
+	p->getAudioSource()->addAudioBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
+	p->getAudioSource()->addAudioBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
 	p->getAudioSource()->updatePosition();
 	p->getAudioSource()->updateVelocity();
 

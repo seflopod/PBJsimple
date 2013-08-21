@@ -94,7 +94,7 @@ void Scene::setupCamera(mat4 ortho)
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
-    _camera->use();
+	_curCamera->use();
 
 	//drawing for debug purposes
 	for(EntityMap::iterator it=_spawnPoints.begin();
@@ -133,16 +133,7 @@ void Scene::draw()
 
 void Scene::update(F32 dt)
 {
-    Entity* player = getLocalPlayer();
-    if (player)
-    {
-        _camera->setTargetPosition(player->getTransform().getPosition());
-        _camera->setTargetVelocity(player->getRigidbody()->getVelocity());
-    }
-
-    _camera->update(dt);
-
-	for(EntityMap::iterator it=_spawnPoints.begin();
+    for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
 		if(it->second->isEnabled())
@@ -179,6 +170,18 @@ void Scene::update(F32 dt)
 				Game::instance()->respawnPlayer(it->second.get());
 			}
 		}
+
+	Entity* player = getLocalPlayer();
+    if (player && _curCamera)
+    {
+		_curCamera->setTargetPosition(player->getTransform().getPosition());
+        _curCamera->setTargetVelocity(player->getRigidbody()->getVelocity());
+    }
+
+	for(EntityMap::iterator it=_cameras.begin();
+		it!=_cameras.end();
+		++it)
+			it->second->update(dt);
 
 	for(EntityMap::iterator it=_bullets.begin();
 		it!=_bullets.end();
@@ -233,6 +236,9 @@ U32 Scene::addEntity(unique_ptr<Entity>&& e)
 		_bullets[id] = std::move(e);
 		_bullets[id]->setSceneId(id);
 		break;
+	case Entity::EntityType::Camera:
+		_cameras[id] = std::move(e);
+		_cameras[id]->setSceneId(id);
 	default:
 		break;
 	}
@@ -365,6 +371,14 @@ Camera* Scene::getCamera() const
 {
 	return _camera.get();
 }
+
+void Scene::setCurrentCamera(U32 id)
+{
+	if(_cameras.find(id) != _cameras.end())
+		_curCamera = _cameras[id]->getCamera();
+}
+
+CameraComponent* Scene::getCurrentCamera() const { return _curCamera; }
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
 {

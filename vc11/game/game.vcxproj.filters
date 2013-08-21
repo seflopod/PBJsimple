@@ -264,6 +264,9 @@
     <ClCompile Include="..\..\src\pbj\audio\audio_source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pbj\scene\camera_component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\pbj\engine.h">
@@ -437,14 +440,17 @@
     <ClInclude Include="..\..\include\pbj\scene\player_component.h">
       <Filter>Header Files\pbj\pbj::scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pbj\scene\bullet_component.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pbj\audio\audio_listener.h">
       <Filter>Header Files\pbj\pbj::audio</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\camera_component.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\scene\bullet_component.h">
+      <Filter>Header Files\pbj\pbj::scene</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\pbj\audio\audio_source.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\pbj\pbj::audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
