@@ -363,10 +363,15 @@ void Rigidbody::updateOwnerTransform()
 {
 	b2Vec2 bPos = _body->GetPosition();
 	F32 bRot = _body->GetAngle() * RADTODEG;
+	while(bRot >= 360.0f)
+		bRot -= 360.0f;
+	while(bRot <= -360.0f)
+		bRot += 360.0f;
 	if((Entity*)(_body->GetUserData()))
 	{
-		((Entity*)(_body->GetUserData()))->getTransform()->setPosition(vec2(bPos.x,bPos.y));
-		((Entity*)(_body->GetUserData()))->getTransform()->setRotation(bRot);
+        scene::Transform& xf = ((Entity*)(_body->GetUserData()))->getTransform();
+		xf.setPosition(vec2(bPos.x,bPos.y));
+		xf.setRotation(bRot);
 	}
 }
 

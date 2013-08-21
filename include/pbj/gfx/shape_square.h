@@ -28,19 +28,19 @@ namespace gfx
 			if(hasTexture)
 			{
 				glBegin(GL_QUADS);
-					glTexCoord2d(0.0, 0.0); glVertex2f(-0.5f, -0.5f);
-					glTexCoord2d(1.0, 0.0); glVertex2f(0.5f, -0.5f);
-					glTexCoord2d(1.0, 1.0); glVertex2f(0.5f, 0.5f);
-					glTexCoord2d(0.0, 1.0); glVertex2f(-0.5f, 0.5f);
+					glTexCoord2d(0.0, 0.0); glVertex2f(-0.5f, 0.5f);
+					glTexCoord2d(1.0, 0.0); glVertex2f(0.5f, 0.5f);
+					glTexCoord2d(1.0, 1.0); glVertex2f(0.5f, -0.5f);
+					glTexCoord2d(0.0, 1.0); glVertex2f(-0.5f, -0.5f);
 				glEnd();
 			}
 			else
 			{
 				glBegin(GL_QUADS);
-					glVertex2f(-0.5f, -0.5f);
-					glVertex2f(0.5f, -0.5f);
-					glVertex2f(0.5f, 0.5f);
-					glVertex2f(-0.5f, 0.5f);
+				 glVertex2f(-0.5f, 0.5f);
+				 glVertex2f(0.5f, 0.5f);;
+				 glVertex2f(0.5f, -0.5f);
+				 glVertex2f(-0.5f, -0.5f);
 				glEnd();
 			}
 		}

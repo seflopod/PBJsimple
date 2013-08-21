@@ -7,6 +7,7 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -14,7 +15,7 @@
 #include <thread>
 #include <queue>
 #include <map>
-//#include <b2WorldCallbacks.h>
+#include <Box2D/Dynamics/b2WorldCallbacks.h>
 
 #include "pbj/_pbj.h"
 #include "pbj/engine.h"
@@ -22,8 +23,10 @@
 #include "pbj/scene/entity.h"
 #include "pbj/gfx/material.h"
 #include "pbj/input_controller.h"
+#include "be/id.h"
 
 using std::queue;
+using std::unique_ptr;
 using pbj::Engine;
 using pbj::Window;
 using pbj::InputController;
@@ -124,7 +127,7 @@ namespace pbj
 	class Game : public b2ContactListener
 	{
 	public:
-		static const int grid_height = 50;
+		static const int grid_height = 33;
 
 		static Game* instance();
 		static void destroyInstance();
@@ -136,52 +139,49 @@ namespace pbj
 		I32 run();
 		void stop();
 		
-		void spawnBullet(const vec2&, const vec2&);
-	protected:
-        
-    
-	private:
-		typedef queue<std::unique_ptr<Entity>> BulletQueue;
-		typedef std::map<std::string,std::shared_ptr<Material>> MaterialMap;
+		void spawnBullet(const vec2&, const vec2&, void*);
+		void disableBullet(Entity*);
+		void respawnPlayer(Entity*);
 
-		static Game* _instance;
+	private:
+		static unique_ptr<Game> _instance;
 
 		Game();
 		
+		void initTestScene();
+		void initBasicMaterials();
+
 		bool update();
         bool physUpdate();
 
 		void draw();
 
 		void onContextResized(I32, I32);
-
 		void onKeyboard(I32, I32, I32, I32);
 		void onMouseLeftDown(I32);
 		void checkMovement(I32, I32);
-		void initTestScene();
-		void initBasicMaterials();
-
 		virtual void BeginContact(b2Contact*);
         virtual void EndContact(b2Contact*);
         virtual void PreSolve(b2Contact*, const b2Manifold*);
         virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
 		Entity* makeBullet();
-		Entity* makePlayer();
+		Entity* makePlayer(be::Id, F32, F32, bool);
 		Entity* makeTerrain(F32, F32, F32, F32);
+		Entity* makeSpawnPoint(F32, F32);
 
-		//Enginey stuff
 		F32 _dt;
 		bool _running;
 		Engine& _engine;
 		Window& _window;
 		b2World* _world;
 		PhysicsSettings _physSettings;
-
+		queue<Entity*> _toDisable;
+		queue<Entity*> _toRespawn;
 		GameControls _controls;
-		BulletQueue _bullets;
-		MaterialMap _materials;
-
+		U32 _bulletRing[100];
+		I32 _curRingIdx;
+		I32 _bulletNum;
 		//this should be a container for multiple scenes.  Right now only one.
 		pbj::scene::Scene _scene;
 	};

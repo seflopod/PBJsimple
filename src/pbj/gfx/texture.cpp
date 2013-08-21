@@ -15,7 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to load a texture from a sandwich.
 /// \param  1 The id of the texture.
-#define PBJ_GFX_TEXTURE_SQL_LOAD "SELECT data_format, width, height, data, " \
+#define PBJ_GFX_TEXTURE_SQL_LOAD "SELECT data, " \
             "internal_format, srgb, mag_filter, min_filter " \
             "FROM sw_textures WHERE id = ?"
 
@@ -202,7 +202,7 @@ void Texture::enable(GLenum blend_mode) const
 
     if (active_blend_mode_ != blend_mode)
     {
-        glTexEnvi(GL_TEXTURE_2D, GL_TEXTURE_ENV_MODE, blend_mode);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, blend_mode);
         active_blend_mode_ = blend_mode;
     }
 
@@ -241,19 +241,13 @@ std::unique_ptr<Texture> loadTexture(sw::Sandwich& sandwich, const Id& texture_i
         get_texture.bind(1, texture_id.value());
         if (get_texture.step())
         {
-            Id data_format = Id(get_texture.getUInt64(0));
-
-            if (data_format != Id("stbi"))
-                throw std::runtime_error("Unsupported texture data format!");
-
             const void* data;
-            GLsizei data_length = get_texture.getBlob(3, data);
+            GLsizei data_length = get_texture.getBlob(0, data);
 
-            Texture::InternalFormat internal_format = static_cast<Texture::InternalFormat>(get_texture.getInt(4));
-            bool srgb = get_texture.getBool(5);
-            Texture::FilterMode mag_mode = static_cast<Texture::FilterMode>(get_texture.getInt(5));
-            Texture::FilterMode min_mode = static_cast<Texture::FilterMode>(get_texture.getInt(6));
-
+            Texture::InternalFormat internal_format = static_cast<Texture::InternalFormat>(get_texture.getInt(1));
+            bool srgb = get_texture.getBool(2);
+            Texture::FilterMode mag_mode = static_cast<Texture::FilterMode>(get_texture.getInt(3));
+            Texture::FilterMode min_mode = static_cast<Texture::FilterMode>(get_texture.getInt(4));
 
             result.reset(new Texture(static_cast<const GLubyte*>(data), data_length, internal_format, srgb, mag_mode, min_mode));
         }

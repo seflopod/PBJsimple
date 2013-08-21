@@ -4,14 +4,24 @@
 ///
 /// \brief  Implementations of pbj::Editor functions.
 
+#ifdef PBJ_EDITOR
 #include "pbj/editor.h"
 
 #include "pbj/gfx/texture_font.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/ui_button.h"
 #include "pbj/input_controller.h"
-
 #include "pbj/sw/sandwich_open.h"
+
+#include "pbj/look_editor_mode.h"
+#include "pbj/add_editor_mode.h"
+#include "pbj/move_editor_mode.h"
+#include "pbj/rotate_editor_mode.h"
+#include "pbj/scale_editor_mode.h"
+#include "pbj/decorate_editor_mode.h"
+#include "pbj/clobber_editor_mode.h"
+#include "pbj/dupe_editor_mode.h"
+#include "pbj/mimic_editor_mode.h"
 
 #include <iostream>
 #include <thread>
@@ -21,25 +31,113 @@ namespace pbj {
 ///////////////////////////////////////////////////////////////////////////////
 Editor::Editor()
     : engine_(getEngine()),
-      window_(*getEngine().getWindow())
+      window_(*getEngine().getWindow()),
+      menu_toggled_(false),
+      menu_visible_counter_(0)
 {
+    mouse_down_mode_[0] = nullptr;
+    mouse_down_mode_[1] = nullptr;
+    mouse_down_mode_[2] = nullptr;
+
     initUI();
 
-    window_.registerContextResizeListener([=](I32 width, I32 height) { onContextResized_(width, height); });
+    window_.registerContextResizeListener([=](I32 width, I32 height)
+    {
+        onContextResized_(width, height);
+    });
 
     InputController::registerKeyAllListener([&](I32 keycode, I32 scancode, I32 action, I32 modifiers)
     {
-        if (keycode == GLFW_KEY_SPACE && action == GLFW_RELEASE && scene_.ui.getFocus() == &scene_.ui.panel)
+        if (keycode == GLFW_KEY_SPACE ||
+            keycode == GLFW_KEY_A ||
+            keycode == GLFW_KEY_Q ||
+            keycode == GLFW_KEY_W ||
+            keycode == GLFW_KEY_E ||
+            keycode == GLFW_KEY_R ||
+            keycode == GLFW_KEY_F ||
+            keycode == GLFW_KEY_Y ||
+            keycode == GLFW_KEY_D ||
+            keycode == GLFW_KEY_G)
         {
-            //if (menu_->isVisible())
-            //    menu_->setVisible(false);
-            //else if (action == GLFW_RELEASE)
-            //    menu_->setVisible(true);
+            menu_visible_counter_ += action == GLFW_PRESS ? 1 : (action == GLFW_RELEASE ? -1 : 0); 
+        }
+
+        if ((ui_.getFocus() == nullptr || ui_.getFocus() == &ui_.panel) &&
+            action == GLFW_PRESS &&
+            ((modifiers & (GLFW_MOD_ALT | GLFW_MOD_SHIFT | GLFW_MOD_CONTROL)) == 0))
+        {
+            switch (keycode)
+            {
+                case GLFW_KEY_Q: setMode(Id("EditorMode.look"));     break;
+                case GLFW_KEY_A: setMode(Id("EditorMode.add"));      break;
+                case GLFW_KEY_W: setMode(Id("EditorMode.move"));     break;
+                case GLFW_KEY_E: setMode(Id("EditorMode.rotate"));   break;
+                case GLFW_KEY_R: setMode(Id("EditorMode.scale"));    break;
+                case GLFW_KEY_F: setMode(Id("EditorMode.decorate")); break;
+                case GLFW_KEY_Y: setMode(Id("EditorMode.clobber"));  break;
+                case GLFW_KEY_D: setMode(Id("EditorMode.dupe"));     break;
+                case GLFW_KEY_G: setMode(Id("EditorMode.mimic"));    break;
+                default: break;
+            }
+        }
+
+        if (keycode == GLFW_KEY_GRAVE_ACCENT && action == GLFW_RELEASE)
+        {
+            if (menu_toggled_ && (ui_.getFocus() == &ui_.panel || ui_.getFocus() == nullptr))
+            {
+                menu_toggled_ = false;
+                menu_visible_counter_--;
+            }
+            else if (!menu_toggled_)
+            {
+                menu_toggled_ = true;
+                menu_visible_counter_++;
+            }
+        }
+
+        if (menu_visible_counter_ > 0)
+            ui_.panel.setVisible(true);
+        else
+            ui_.panel.setVisible(false);
+    });
+
+    InputController::registerMouseButtonAnyListener([&](I32 button, I32 action, I32 modifiers)
+    {
+        if (current_mode_ && (button == GLFW_MOUSE_BUTTON_1 || button == GLFW_MOUSE_BUTTON_2 || button == GLFW_MOUSE_BUTTON_3))
+        {
+            EditorMode*& down_mode = mouse_down_mode_[button];
+
+            if (action == GLFW_PRESS && ui_.getElementUnderMouse() == nullptr)
+            {
+                down_mode = current_mode_.get();
+                vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                current_mode_->onMouseDown(button, pos);
+            }
+            else if (action == GLFW_RELEASE && down_mode == current_mode_.get())
+            {
+                if (ui_.getElementUnderMouse() == nullptr)
+                {
+                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    current_mode_->onMouseUp(button, pos);
+                }
+                else
+                {
+                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    current_mode_->onMouseCancel(button, pos);
+                }
+            }
         }
     });
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    InputController::registerMouseMotionListener([&](F64 x, F64 y)
+    {
+        if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
+        {
+            mouse_position_ = ivec2(I32(x), I32(y));
+            vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+            current_mode_->onMouseMove(pos);
+        }
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,66 +149,62 @@ Editor::~Editor()
 ///////////////////////////////////////////////////////////////////////////////
 void Editor::initUI()
 {
-  /*  generateButtonStateConfigs_(color3(0.5f, 0.6f, 0.65f), bsc_a_, "a");
-    generateButtonStateConfigs_(color3(0.6f, 0.5f, 0.45f), bsc_b_, "b");
+    sw::ResourceId id;
+    id.sandwich = Id(PBJ_ID_PBJBASE);
 
-    last_created_focusable_element_ = &scene_.ui.panel;
+    scene::UIElement* last_focusable = &ui_.panel;
 
-    scene::UIPanel* menu_parent = new scene::UIPanel();
+    id.resource = Id("menu_panel");
+    ui_.panel.setStyle(id);
+    ui_.panel.setVisible(false);
+    
+    
     menu_ = new scene::UIPanel();
-    scene_.ui.panel.addElement(std::unique_ptr<scene::UIElement>(menu_parent));
-    menu_parent->addElement(std::unique_ptr<scene::UIElement>(menu_));
-    ui_elements_[Id("menu")] = menu_;
-
+    ui_.panel.addElement(std::unique_ptr<scene::UIElement>(menu_));
+    
     scene::UIButton
-        *menu_b_databases = newButton_(Id("menu_b_databases"), "Databases", vec2(0, 0 * 30),  vec2(100, 22), [=]() { setMode(MDatabases); },    menu_),
-        *menu_b_levels    = newButton_(Id("menu_b_levels"),    "Levels",    vec2(0, 1 * 30),  vec2(100, 22), [=]() { setMode(MLevels); },       menu_),
-        *menu_b_world     = newButton_(Id("menu_b_world"),     "World",     vec2(0, 2 * 30),  vec2(100, 22), [=]() { setMode(MWorld); },        menu_),
-        *menu_b_objects   = newButton_(Id("menu_b_objects"),   "Objects",   vec2(0, 3 * 30),  vec2(100, 22), [=]() { setMode(MObjects); },      menu_),
-        *menu_b_textures  = newButton_(Id("menu_b_textures"),  "Textures",  vec2(0, 4 * 30),  vec2(100, 22), [=]() { setMode(MTextures); },     menu_),
-        *menu_b_settings  = newButton_(Id("menu_b_settings"),  "Settings",  vec2(0, 11 * 30), vec2(100, 22), [=]() { setMode(MSettings); },     menu_),
-        *menu_b_exit      = newButton_(Id("menu_b_exit"),      "Exit",      vec2(0, 12 * 30), vec2(100, 22), [&]() { window_.requestClose(); }, menu_);
-
+        *menu_b_look     = newButton_(Id("menu.look_btn"),     "Look",     vec2(0, 0 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.look")); }, menu_, last_focusable),
+        *menu_b_add      = newButton_(Id("menu.add_btn"),      "Add",      vec2(0, 1 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.add")); }, menu_, last_focusable),
+        *menu_b_move     = newButton_(Id("menu.move_btn"),     "Move",     vec2(0, 2 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.move")); }, menu_, last_focusable),
+        *menu_b_rotate   = newButton_(Id("menu.rotate_btn"),   "Rotate",   vec2(0, 3 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.rotate")); }, menu_, last_focusable),
+        *menu_b_scale    = newButton_(Id("menu.scale_btn"),    "Scale",    vec2(0, 4 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.scale")); }, menu_, last_focusable),
+        *menu_b_decorate = newButton_(Id("menu.decorate_btn"), "Decorate", vec2(0, 5 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.decorate")); }, menu_, last_focusable),
+        *menu_b_clobber  = newButton_(Id("menu.clobber_btn"),  "Clobber",  vec2(0, 6 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.clobber")); }, menu_, last_focusable),
+        *menu_b_dupe     = newButton_(Id("menu.dupe_btn"),     "Dupe",     vec2(0, 7 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.dupe")); }, menu_, last_focusable),
+        *menu_b_mimic    = newButton_(Id("menu.mimic_btn"),    "Mimic",    vec2(0, 8 * 22),       vec2(100, 20), [=]() { setMode(Id("EditorMode.mimic")); }, menu_, last_focusable),
+        *menu_b_save     = newButton_(Id("menu.save_btn"),     "Save",     vec2(0, 300 - 2 * 22), vec2(100, 20), [=]() { }, menu_, last_focusable),
+        *menu_b_exit     = newButton_(Id("menu.exit_btn"),     "Exit",     vec2(0, 300 - 1 * 22), vec2(100, 20), [&]() { window_.requestClose(); }, menu_, last_focusable);
+    
     frame_time_label_ = new scene::UILabel();
     menu_->addElement(std::unique_ptr<scene::UIElement>(frame_time_label_));
     frame_time_label_->setAlign(scene::UILabel::AlignRight);
-    frame_time_label_->setDimensions(vec2(200, 22));
-    frame_time_label_->setPosition(vec2(550, 375));
-    frame_time_label_->setFont(builtins_.getTextureFont(Id("TextureFont.default")).getHandle());
+    frame_time_label_->setDimensions(vec2(200, 10));
+    frame_time_label_->setPosition(vec2(400, 290));
+
+    id.resource = Id("std_font");
+    frame_time_label_->setFont(&engine_.getResourceManager().getTextureFont(id));
     frame_time_label_->setTextColor(color4(0.5f, 0.6f, 0.65f, 1.0f));
 
-    //menu_b_levels->setDisabled(true);
-    //menu_b_textures->setDisabled(true);
-    menu_b_settings->setDisabled(true);
-    menu_b_exit->setNextFocusElement(menu_b_databases);
-    
-    newRootPanel_(MDatabases, Id("p_databases"), color3(0.1f, 0.12f, 0.13f));
-    newRootPanel_(MLevels,    Id("p_levels"),    color3(0.1f, 0.12f, 0.13f));
-    newRootPanel_(MObjects,   Id("p_objects"),   color3(0.1f, 0.12f, 0.13f));
-    newRootPanel_(MTextures,  Id("p_textures"),  color3(0.1f, 0.12f, 0.13f));
-    newRootPanel_(MSettings,  Id("p_settings"),  color3(0.1f, 0.12f, 0.13f));
+    last_focusable->setNextFocusElement(menu_b_look);
+    ui_.clearFocus();
 
-
-    scene::UIListbox
-        *lb_databases = newListbox_(Id("lb_databases"), color3(0.5f, 0.6f, 0.65f), vec2(50, 50), vec2(300, 500), panels_[MDatabases]);
-
-    lb_databases->model = std::unique_ptr<scene::UIListboxModel>(new DbListboxModel());
-
-    scene::UIPanel* p_world = new scene::UIPanel();
-    menu_->addElement(std::unique_ptr<scene::UIElement>(p_world));
-    panels_[MWorld] = p_world;
-    ui_elements_[Id("p_world")] = p_world;
-    p_world->setVisible(false);
-
-    ivec2 wnd_size(window_.getSize());
-    onContextResized_(wnd_size.x, wnd_size.y);  */
+    setMode(Id("EditorMode.look"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void Editor::run()
+void Editor::run(const std::string& sw_id, const std::string& map_id)
 {
+    std::shared_ptr<sw::Sandwich> sandwich = sw::open(Id(sw_id));
+    if (sandwich)
+    {
+        scene_ = scene::loadScene(*sandwich, Id(map_id));
+        onContextResized_(window_.getContextSize().x, window_.getContextSize().y);
+        scene_->camera.setTargetPosition(vec2(10, 10));
+    }
+
     double last_frame_time = 0;
     double fps = 0;
+    double last_sim_time = 0;
 
     while (true)
     {
@@ -123,12 +217,27 @@ void Editor::run()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //if (menu_->isVisible())
-        //{
-        //    frame_time_label_->setText(std::to_string(1000.0f * last_frame_time) + " ms");
-        //}
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 
-        scene_.ui.draw();
+        if (menu_->isVisible())
+        {
+            frame_time_label_->setText(std::to_string(1000.0f * last_frame_time) + " ms");
+        }
+
+        if (scene_)
+        {
+            if (last_sim_time == 0)
+                last_sim_time = frame_start;
+
+            scene_->camera.update(frame_start - last_sim_time);
+            last_sim_time = frame_start;
+            scene_->draw();
+        }
+
+        ui_.draw();
 
         GLenum gl_error;
         while ((gl_error = glGetError()) != GL_NO_ERROR)
@@ -141,32 +250,139 @@ void Editor::run()
         glfwSwapBuffers(window_.getGlfwHandle());
 
         double frame_time = last_frame_time = glfwGetTime() - frame_start;
-
         if (last_frame_time < (1.0 / 180.0))
         {
             std::this_thread::sleep_for(std::chrono::microseconds(int(1000000 * ((1.0 / 180.0) - last_frame_time))));
             frame_time = glfwGetTime() - frame_start;
         }
-
         fps = 1.0 / frame_time;
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+scene::UIElement* Editor::getUIElement(const Id& id)
+{
+    auto i = ui_elements_.find(id);
+    if (i != ui_elements_.end())
+        return i->second;
+
+    return nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+EditorMode* Editor::getCurrentMode()
+{
+    return current_mode_.get();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void Editor::setMode(const Id& id)
+{
+    if (current_mode_ && current_mode_->getId() == id)
+        return;
+
+    if (id == Id("EditorMode.look"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new LookEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.add"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new AddEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.move"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new MoveEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.rotate"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new RotateEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.scale"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new ScaleEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.decorate"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new DecorateEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.clobber"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new ClobberEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.dupe"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new DupeEditorMode(*this));
+    }
+    else if (id == Id("EditorMode.mimic"))
+    {
+        current_mode_.reset();
+        current_mode_ = std::unique_ptr<EditorMode>(new MimicEditorMode(*this));
+    }
+}
+
+scene::Camera& Editor::getCamera() const
+{
+    return scene_->camera;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Editor::onContextResized_(I32 width, I32 height)
 {
-    scene_.ui.panel.setDimensions(vec2(width, height));
+    // Place/scale ui correctly
+    const ivec2 min_menu_size(600, 300);
 
-
-    // Place/scale menu panel correctly
-    const ivec2 min_menu_size(760, 400);
     int menu_scale = std::max(1, std::min(width / min_menu_size.x, height / min_menu_size.y));
     vec2 menu_offset = vec2(I32(0.5 * (width - menu_scale * min_menu_size.x)),
                             I32(0.5 * (height - menu_scale * min_menu_size.y)));
-    if (menu_offset.y > menu_offset.x)
-        menu_offset.y = menu_offset.x;
+    //if (menu_offset.y > menu_offset.x)
+    //    menu_offset.y = menu_offset.x;
 
+    if (scene_)
+    {
+        float ratio = width / float(height);
+        scene_->camera.setProjection(glm::ortho(ratio * -75.0f * 0.5f, ratio * 75.0f * 0.5f,
+                                    -75.0f * 0.5f, 75.0f * 0.5f));
+    }
 
+    menu_->setPosition(menu_offset);
+    menu_->setScale(vec2(menu_scale, menu_scale));
+    menu_->setDimensions(vec2(min_menu_size) * float(menu_scale));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+scene::UIButton* Editor::newButton_(const Id& id,
+                                    const std::string& text,
+                                    const vec2& position,
+                                    const vec2& dimensions,
+                                    const std::function<void()>& callback,
+                                    scene::UIPanel* parent,
+                                    scene::UIElement*& previous_focusable)
+{
+    scene::UIButton* btn = new scene::UIButton();
+    parent->addElement(std::unique_ptr<scene::UIElement>(btn));
+    ui_elements_[id] = btn;
+
+    if (previous_focusable)
+        previous_focusable->setNextFocusElement(btn);
+
+    previous_focusable = btn;
+
+    btn->setText(text);
+    btn->setPosition(position);
+    btn->setDimensions(dimensions);
+    btn->setClickCallback(callback);
+
+    return btn;
 }
 
 } // namespace pbj
+
+#endif

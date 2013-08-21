@@ -30,6 +30,7 @@ public:
     virtual ~UIElement();
 
     void setVisible(bool visible);
+    bool isFullyVisible() const;
     bool isVisible() const;
 
     void setFocused();
@@ -80,6 +81,7 @@ protected:
     UIElement* next_focus_;
 
     bool visible_;
+    bool* parent_visible_;
 
     UIElement(const UIElement&);
     void operator=(const UIElement&);

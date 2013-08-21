@@ -8,10 +8,17 @@
 
 #include <vector>
 #include <map>
+#include <random>
+
 #include "pbj/_pbj.h"
+#include "pbj/_math.h"
 #include "pbj/scene/ui_root.h"
+#include "pbj/scene/ui_label.h"
+#include "pbj/engine.h"
 #include "pbj/scene/entity.h"
 #include "pbj/scene/camera.h"
+#include "pbj/sw/sandwich.h"
+#include "be\id.h"
 
 using std::vector;
 using std::unordered_map;
@@ -19,7 +26,6 @@ using std::unique_ptr;
 
 namespace pbj {
 namespace scene {
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Scene
 ///
@@ -38,21 +44,38 @@ namespace scene {
 class Scene
 {
 public:
-
     Scene();
 	~Scene();
-
-    UIRoot ui;
+    
+	void setupCamera(mat4);
 
 	void draw();
 	void update(F32);
+	void initUI();
+
+    void setMapName(const std::string& name);
+    const std::string& getMapName() const;
 
 	U32 addEntity(unique_ptr<Entity>&&);
 	void removeEntity(U32, Entity::EntityType);
     
+	Entity* getBullet(U32);
+	Entity* getPlayer(U32);
+	Entity* getTerrain(U32);
+	Entity* getSpawnPoint(U32);
+	Entity* getCamera(U32);
+	Entity* getRandomSpawnPoint();
+
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
 	Entity* getLocalPlayer();
+
+	void setCurrentCamera(U32);
+	CameraComponent* getCurrentCamera() const;
+
+	Camera* getCamera() const;
+	
+
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -70,9 +93,29 @@ private:
 	EntityMap _terrain;
 	EntityMap _players;
 	EntityMap _bullets;
+	EntityMap _cameras;
+
+	CameraComponent* _curCamera;
+
+	std::unique_ptr<Camera> _camera;
+
+	std::ranlux24_base _rnd;  // ranlux? not mersenne twister?
+
+    std::string _name;
+
     Scene(const Scene&);
     void operator=(const Scene&);
+
+	// Hopeful UI stuffs
+	UIRoot ui_;
+	UIPanel* eInfo_;
+	std::unordered_map<Id, UIElement*> ui_elements;
+	UILabel* frame_label_[5];
+	Engine& engine_;
 };
+
+std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);
+void saveScene(const Id& sandwich_id, const Id& map_id);
 
 } // namespace pbj::scene
 } // namespace pbj

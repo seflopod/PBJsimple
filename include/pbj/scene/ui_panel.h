@@ -39,6 +39,7 @@ public:
 
 private:
     virtual void onBoundsChange_();
+    virtual void onVisibilityChange_();
 
     void calculateTransform_();
 
@@ -52,6 +53,8 @@ private:
     vec2 border_bounds_[4];
     mat4 panel_transform_;
     bool panel_transform_valid_;
+
+    bool fully_visible_;
 
     mat4 view_matrix_;
     mat4 inv_view_matrix_;

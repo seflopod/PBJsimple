@@ -171,6 +171,23 @@ std::string Id::to_string() const
    return oss.str();
 }
 
+
+std::string Id::to_useful_string() const
+{
+   std::ostringstream oss;
+
+#ifdef BE_ID_NAMES_ENABLED
+   std::unordered_map<uint64_t, std::string>& names = getNames();
+   std::mutex& mutex = getNamesMutex();
+   std::lock_guard<std::mutex> lock(mutex);
+   auto i(names.find(id_));
+   if (i != names.end())
+      oss << i->second;
+#endif
+
+   return oss.str();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Retrieves the numeric value of this object.
 ///

@@ -123,6 +123,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\deps\pugixml.cpp" />
     <ClCompile Include="..\..\deps\sqlite3.c" />
     <ClCompile Include="..\..\deps\stb_image.c" />
     <ClCompile Include="..\..\src\be\bed\cached_stmt.cpp" />
@@ -135,10 +136,15 @@
     <ClCompile Include="..\..\src\be\id.cpp" />
     <ClCompile Include="..\..\src\be\verbosity.cpp" />
     <ClCompile Include="..\..\src\pbj\gfx\texture.cpp" />
+    <ClCompile Include="..\..\src\pbj\gfx\texture_font_character.cpp" />
     <ClCompile Include="..\..\src\pbj\sw\resource_id.cpp" />
     <ClCompile Include="..\..\src\pbj\sw\sandwich.cpp" />
     <ClCompile Include="..\..\src\pbj\sw\sandwich_open.cpp" />
+    <ClCompile Include="..\..\src\pbj\win_unicode.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\pbj\win_unicode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

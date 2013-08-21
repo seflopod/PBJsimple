@@ -9,12 +9,13 @@
 // Auto-link with libraries
 #ifdef _WIN32
 #pragma comment (lib, "opengl32.lib")
-
+#pragma comment (lib, "OpenAL32.lib")
 #pragma comment (lib, "alut.lib")
 #ifdef DEBUG
 #pragma comment (lib, "glew32sd.lib")
 #pragma comment (lib, "glfw3sd.lib")
 #pragma comment (lib, "Box2D_d.lib")
+
 #else
 #pragma comment (lib, "glew32s.lib")
 #pragma comment (lib, "glfw3s.lib")
@@ -85,14 +86,24 @@ int main(int argc, char* argv[])
 
 
    // Initialize game engine
-	pbj::Engine e;
+	pbj::Engine e(&argc, argv);
 
 #ifdef PBJ_EDITOR
 
+    if (argc < 3)
+    {
+        PBJ_LOG(pbj::VError) << "No map specified to edit!" << PBJ_LOG_END;
+
+        PBJ_LOG_STREAM << PBJ_LOG_END << "Usage:" << PBJ_LOG_END
+                       << "   editor <sandwich id> <map id>" << PBJ_LOG_END << PBJ_LOG_END;
+        return -1;
+    }
+
     pbj::Editor editor;
 
-#else
+    editor.run(argv[1], argv[2]);
 
+#else
 	//Start and run game
 	pbj::Game::instance()->init(30);
 	pbj::I32 exitCode = pbj::Game::instance()->run();
