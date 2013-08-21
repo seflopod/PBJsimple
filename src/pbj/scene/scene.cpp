@@ -142,7 +142,7 @@ void Scene::draw()
         std::string deaths = std::to_string(p->getDeaths());
 
         //this is going to change when we change how players are id'd
-        frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " health: " + health + 
+        frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " Health: " + health + 
                                                                               " Kills: " + kills + 
                                                                               " Deaths: " +  deaths);
 
@@ -425,13 +425,13 @@ void Scene::initUI()
         frame_label_[i]->setPosition(vec2(0+pad, 0 + j));
 
         //Add data
-        PlayerComponent* p = it->second->getPlayerComponent();
-        std::string health = std::to_string((p->getHealth() / (F32)p->getMaxHealth()) * 100);
+       // PlayerComponent* p = it->second->getPlayerComponent();
+        //std::string health = std::to_string((p->getHealth() / (F32)p->getMaxHealth()) * 100);
         //std::cerr << p->getHealth() << std::endl;
         //this is going to change when we change how players are id'd
-        frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " " + health);
+        //frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " " + health);
 
-        p = nullptr;
+       // p = nullptr;
         ++i;
         j+=30;
     }
