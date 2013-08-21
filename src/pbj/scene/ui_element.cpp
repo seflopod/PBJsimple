@@ -172,7 +172,7 @@ const vec2& UIElement::getDimensions() const
 ///         is no such element.
 UIElement* UIElement::getElementAt(const ivec2& screen_position)
 {
-    if (!inv_view_ || !isVisible())
+    if (!inv_view_ || !isFullyVisible())
         return nullptr;
 
     vec2 pos = vec2(*inv_view_ * vec4(screen_position, 0, 1));

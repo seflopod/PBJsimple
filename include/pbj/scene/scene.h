@@ -21,6 +21,9 @@ using std::unordered_map;
 using std::unique_ptr;
 
 namespace pbj {
+
+class Editor;
+
 namespace scene {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +43,7 @@ namespace scene {
 ////////////////////////////////////////////////////////////////////////////////
 class Scene
 {
+    friend class Editor;
 public:
     Scene();
 	~Scene();
@@ -65,6 +69,8 @@ public:
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
 	Entity* getLocalPlayer();
+
+    void saveScene(const Id& sandwich_id, const Id& map_id);
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -91,7 +97,7 @@ private:
 };
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);
-void saveScene(const Id& sandwich_id, const Id& map_id);
+
 
 } // namespace pbj::scene
 } // namespace pbj

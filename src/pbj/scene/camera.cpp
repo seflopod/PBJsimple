@@ -103,13 +103,24 @@ void Camera::use() const
 vec2 Camera::getWorldPosition(const ivec2& screen_coords, const ivec2& context_size) const
 {
     vec2 pos(screen_coords);
-    pos += vec2(0.5f, 0.5f);
+    pos += vec2(0.5f, 0.5f); // center of pixel, not top left corner
     pos /= context_size;
     pos -= vec2(0.5f, 0.5f);
     pos.x *= 2.0f;
     pos.y *= -2.0f;
 
     return vec2(vp_inv_ * vec4(pos, 0, 1));
+}
+
+vec2 Camera::getScreenPosition(const vec2& world_coords, const ivec2& context_size) const
+{
+    vec2 pos(projection_ * view_ * vec4(world_coords, 0, 1));
+    pos.x *= 0.5f;
+    pos.y *= -0.5f;
+    pos += vec2(0.5f, 0.5f);
+    pos *= context_size;
+
+    return pos;
 }
 
 } // namespace pbj::scene

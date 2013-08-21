@@ -27,8 +27,9 @@ namespace gfx {
 ///
 /// \author	Josh Douglas
 /// \date	2013-08-13
-Material::Material(const color4& color, const Texture* texture, GLenum texture_mode)
-    : color_(color),
+Material::Material(const sw::ResourceId& id, const color4& color, const Texture* texture, GLenum texture_mode)
+    : id_(id),
+      color_(color),
       tex_(texture),
       tex_mode_(texture_mode)
 {
@@ -76,6 +77,11 @@ void Material::use() const
     glColor4fv(glm::value_ptr(color_));
 }
 
+const sw::ResourceId& Material::getId() const
+{
+    return id_;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Material> loadMaterial(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
 {
@@ -107,7 +113,7 @@ std::unique_ptr<Material> loadMaterial(sw::Sandwich& sandwich, const Id& id, sw:
                 default:    texture_mode = GL_REPLACE; break;
             }
 
-            result.reset(new Material(color, tex, texture_mode));
+            result.reset(new Material(sw::ResourceId(sandwich.getId(), id), color, tex, texture_mode));
         }
         else
             throw std::runtime_error("Material not found!");

@@ -19,7 +19,7 @@ namespace gfx {
 class Material
 {
 public:
-	Material(const color4& color, const Texture* texture, GLenum texture_mode);
+	Material(const sw::ResourceId& id, const color4& color, const Texture* texture, GLenum texture_mode);
 	~Material();
 
 	const color4& getColor() const;
@@ -28,7 +28,10 @@ public:
 
     void use() const;
 
+    const sw::ResourceId& getId() const;
+
 private:
+    sw::ResourceId id_;
 	color4 color_;
     const Texture* tex_;
     GLenum tex_mode_;

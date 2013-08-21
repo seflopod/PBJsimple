@@ -107,6 +107,8 @@ public:
 	void enable();
 	void disable();
 
+    void saveEntity(const Id& sandwich_id, const Id& map_id);
+
 private:
     bool _drawable;
 	bool _enabled;
@@ -131,7 +133,6 @@ private:
 };
 
 std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id);
-void saveEntity(const Id& sandwich_id, const Id& map_id);
 
 } //namespace pbj::scene
 } //namespace pbj

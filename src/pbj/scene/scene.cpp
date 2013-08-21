@@ -6,6 +6,9 @@
 
 #include "pbj/scene/scene.h"
 
+#include "pbj/sw/sandwich_open.h"
+#include "be/bed/transaction.h"
+
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,12 +88,13 @@ void Scene::draw()
 {
     camera.use();
 
-	//drawing for debug purposes
+#ifdef PBJ_EDITOR
 	for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
 		if(it->second->isDrawable())
 			it->second->draw();
+#endif
 
 	for(EntityMap::iterator it=_terrain.begin();
 		it!=_terrain.end();
@@ -342,6 +346,8 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
         }
 
         s.reset(new Scene());
+        s->setMapName(map_name);
+
         db::CachedStmt s2 = cache.hold(Id(PBJ_SCENE_SCENE_SQLID_GET_ENTITIES), PBJ_SCENE_SCENE_SQL_GET_ENTITIES);
 
         s2.bind(1, map_id.value());
@@ -374,9 +380,53 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
     return s;
 }
 
-void saveScene(const Id& sandwich_id, const Id& map_id)
+void Scene::saveScene(const Id& sandwich_id, const Id& map_id)
 {
-    PBJ_LOG(VWarning) << "Not yet fully implemented!" << PBJ_LOG_END;
+   try
+   {
+      std::shared_ptr<sw::Sandwich> sandwich = sw::openWritable(sandwich_id);
+      if (!sandwich)
+         throw std::runtime_error("Could not open sandwich for writing!");
+
+      db::Db& db = sandwich->getDb();
+      db::Transaction transaction(db, db::Transaction::Immediate);
+      db::CachedStmt& stmt = sandwich->getStmtCache().hold(Id(PBJ_SCENE_SCENE_SQLID_SET_NAME), PBJ_SCENE_SCENE_SQL_SET_NAME);
+      stmt.bind(1, map_id.value());
+      stmt.bind(2, getMapName());
+      stmt.step();
+
+      db::CachedStmt& s2 = sandwich->getStmtCache().hold(Id(PBJ_SCENE_SCENE_SQLID_CLEAR_ENTITIES), PBJ_SCENE_SCENE_SQL_CLEAR_ENTITIES);
+      s2.bind(1, map_id.value());
+      s2.step();
+
+      transaction.commit();
+      
+      for (auto i(_spawnPoints.begin()), end(_spawnPoints.end()); i != end; ++i)
+      {
+          i->second->saveEntity(sandwich_id, map_id);
+      }
+
+      for (auto i(_terrain.begin()), end(_terrain.end()); i != end; ++i)
+      {
+          i->second->saveEntity(sandwich_id, map_id);
+      }
+
+   }
+   catch (const db::Db::error& err)
+   {
+      PBJ_LOG(VWarning) << "Database error while saving scene!" << PBJ_LOG_NL
+                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
+                       <<      "Map ID: " << map_id << PBJ_LOG_NL
+                       << "  Exception: " << err.what() << PBJ_LOG_NL
+                       << "        SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::runtime_error& err)
+   {
+      PBJ_LOG(VWarning) << "Exception while saving scene!" << PBJ_LOG_NL
+                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
+                       <<      "Map ID: " << map_id << PBJ_LOG_NL
+                       << "  Exception: " << err.what() << PBJ_LOG_END;
+   }
 }
 
 } // namespace pbj::scene

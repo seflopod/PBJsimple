@@ -7,6 +7,9 @@
 #include "pbj/scene/entity.h"
 #endif
 
+#include "be/bed/transaction.h"
+#include "pbj/sw/sandwich_open.h"
+
 #include <iostream>
 #include "pbj/game.h"
 
@@ -574,9 +577,57 @@ std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, con
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void saveEntity(const Id& sandwich_id, const Id& map_id)
+void Entity::saveEntity(const Id& sandwich_id, const Id& map_id)
 {
-    PBJ_LOG(VWarning) << "Not yet fully implemented!" << PBJ_LOG_END;
+    try
+    {
+      std::shared_ptr<sw::Sandwich> sandwich = sw::openWritable(sandwich_id);
+      if (!sandwich)
+         throw std::runtime_error("Could not open sandwich for writing!");
+
+      db::Db& db = sandwich->getDb();
+      db::Transaction transaction(db, db::Transaction::Immediate);
+
+      db::CachedStmt& stmt = sandwich->getStmtCache().hold(Id(PBJ_SCENE_ENTITY_SQLID_SAVE), PBJ_SCENE_ENTITY_SQL_SAVE);
+      stmt.bind(1, map_id.value());
+      stmt.bind(2, getSceneId());
+      stmt.bind(3, getType());
+      stmt.bind(4, getTransform().getRotation());
+      stmt.bind(5, getTransform().getPosition().x);
+      stmt.bind(6, getTransform().getPosition().y);
+      stmt.bind(7, getTransform().getScale().x);
+      stmt.bind(8, getTransform().getScale().y);
+      if (_material)
+      {
+          stmt.bind(9, _material->getId().sandwich.value());
+          stmt.bind(10, _material->getId().resource.value());
+      }
+      else
+      {
+          stmt.bind(9);
+          stmt.bind(10);
+      }
+      stmt.step();
+
+      transaction.commit();
+   }
+   catch (const db::Db::error& err)
+   {
+      PBJ_LOG(VWarning) << "Database error while saving scene!" << PBJ_LOG_NL
+                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
+                       << "     Map ID: " << map_id << PBJ_LOG_NL
+                       << "  Entity ID: " << getSceneId() << PBJ_LOG_NL
+                       << "  Exception: " << err.what() << PBJ_LOG_NL
+                       << "        SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::runtime_error& err)
+   {
+      PBJ_LOG(VWarning) << "Exception while saving scene!" << PBJ_LOG_NL
+                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
+                       << "     Map ID: " << map_id << PBJ_LOG_NL
+                       << "  Entity ID: " << getSceneId() << PBJ_LOG_NL
+                       << "  Exception: " << err.what() << PBJ_LOG_END;
+   }
 }
 
 } // namespace pbj::scene

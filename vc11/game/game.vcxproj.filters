@@ -219,9 +219,6 @@
     <ClCompile Include="..\..\src\pbj\scale_editor_mode.cpp">
       <Filter>Source Files\pbj\%28editor%29</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pbj\clobber_editor_mode.cpp">
-      <Filter>Source Files\pbj\%28editor%29</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pbj\decorate_editor_mode.cpp">
       <Filter>Source Files\pbj\%28editor%29</Filter>
     </ClCompile>
@@ -232,9 +229,6 @@
       <Filter>Source Files\pbj\%28editor%29</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\move_editor_mode.cpp">
-      <Filter>Source Files\pbj\%28editor%29</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pbj\add_editor_mode.cpp">
       <Filter>Source Files\pbj\%28editor%29</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\gfx\material.cpp">
@@ -257,6 +251,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pbj\scene\bullet_component.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pbj\add_clobber_editor_mode.cpp">
+      <Filter>Source Files\pbj\%28editor%29</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -401,9 +398,6 @@
     <ClInclude Include="..\..\include\pbj\look_editor_mode.h">
       <Filter>Header Files\pbj\%28editor%29</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pbj\add_editor_mode.h">
-      <Filter>Header Files\pbj\%28editor%29</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pbj\move_editor_mode.h">
       <Filter>Header Files\pbj\%28editor%29</Filter>
     </ClInclude>
@@ -414,9 +408,6 @@
       <Filter>Header Files\pbj\%28editor%29</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\decorate_editor_mode.h">
-      <Filter>Header Files\pbj\%28editor%29</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pbj\clobber_editor_mode.h">
       <Filter>Header Files\pbj\%28editor%29</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\dupe_editor_mode.h">
@@ -433,6 +424,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pbj\scene\bullet_component.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pbj\add_clobber_editor_mode.h">
+      <Filter>Header Files\pbj\%28editor%29</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

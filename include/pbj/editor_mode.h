@@ -36,6 +36,7 @@ public:
     virtual void onMouseUp(I32 button, const vec2& position);
     virtual void onMouseCancel(I32 button, const vec2& position);
     virtual void onMouseMove(const vec2& position);
+    virtual void onMouseWheel(I32 delta);
 
     virtual void onDragUpdate(I32 button, const vec2& start, const vec2& end);
     virtual void onClick(I32 button, const vec2& start, const vec2& end);

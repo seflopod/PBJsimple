@@ -8,6 +8,7 @@ CREATE TABLE sw_maps
 (
       id                INTEGER PRIMARY KEY,
       name              TEXT NOT NULL,
+      archived          INTEGER NOT NULL                
 );
 
 CREATE TABLE sw_map_entities
@@ -20,9 +21,25 @@ CREATE TABLE sw_map_entities
       pos_y             REAL NOT NULL,
       scale_x           REAL NOT NULL,
       scale_y           REAL NOT NULL,
-      material_sw_id    INTEGER
+      material_sw_id    INTEGER,
       material_id       INTEGER,
       PRIMARY KEY (map_id, entity_id)
+);
+
+CREATE TABLE sw_map_entities_history
+(
+      map_id            INTEGER NOT NULL,
+      history_index     INTEGER NOT NULL,
+      entity_id         INTEGER NOT NULL,
+      entity_type       INTEGER NOT NULL,
+      rotation          REAL NOT NULL,
+      pos_x             REAL NOT NULL,
+      pos_y             REAL NOT NULL,
+      scale_x           REAL NOT NULL,
+      scale_y           REAL NOT NULL,
+      material_sw_id    INTEGER,
+      material_id       INTEGER,
+      PRIMARY KEY (map_id, history_index, entity_id)
 );
 
 CREATE TABLE sw_materials

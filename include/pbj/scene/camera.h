@@ -35,6 +35,7 @@ public:
     void use() const;
 
     vec2 getWorldPosition(const ivec2& screen_coords, const ivec2& context_size) const;
+    vec2 getScreenPosition(const vec2& world_coords, const ivec2& context_size) const;
 
 private:
     vec2 position_;

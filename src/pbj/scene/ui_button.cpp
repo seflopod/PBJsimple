@@ -136,7 +136,7 @@ bool UIButton::isHovered() const
 
 bool UIButton::isFocusable() const
 {
-    return isVisible() && !isDisabled();
+    return isFullyVisible() && !isDisabled();
 }
 
 void UIButton::onMouseIn(const ivec2& position)

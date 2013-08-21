@@ -19,6 +19,8 @@ public:
 
     virtual const Id& getId() const;
 
+    virtual void onClick(I32 button, const vec2& start, const vec2& end);
+
 private:
     static Id id_;
 };
