@@ -65,13 +65,19 @@ public:
 	Entity* getPlayer(U32);
 	Entity* getTerrain(U32);
 	Entity* getSpawnPoint(U32);
+	Entity* getCamera(U32);
 	Entity* getRandomSpawnPoint();
 
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
 	Entity* getLocalPlayer();
 
+	void setCurrentCamera(U32);
+	CameraComponent* getCurrentCamera() const;
+
 	Camera* getCamera() const;
+	
+
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -89,6 +95,9 @@ private:
 	EntityMap _terrain;
 	EntityMap _players;
 	EntityMap _bullets;
+	EntityMap _cameras;
+
+	CameraComponent* _curCamera;
 
 	std::unique_ptr<Camera> _camera;
 

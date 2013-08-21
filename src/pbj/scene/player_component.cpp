@@ -736,11 +736,21 @@ void PlayerComponent::jump()
 ////////////////////////////////////////////////////////////////////////////////
 void PlayerComponent::takeDamage(I32 dmg)
 {
+	Entity* e = (Entity*)_owner;
+
 	_stats.health-=dmg;
+
+	if(e->getAudioSource())
+		e->getAudioSource()->play("dmg");
 	if(_stats.health <= 0)
 	{
-		//std::cerr<<"Dead"<<std::endl;
+		if(e->getAudioSource())
+		{
+			e->getAudioSource()->stop();
+			e->getAudioSource()->play("death");
+		}
 	}
+		
 }
 
 ////////////////////////////////////////////////////////////////////////////////
