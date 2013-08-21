@@ -211,6 +211,7 @@ void Game::initTestScene()
     label.setPosition(vec2(0,0));
     _scene.ui.panel.addElement(unique_ptr<scene::UILabel>(&label));
     */
+	_scene.initUI();
 }
 #pragma endregion
 
