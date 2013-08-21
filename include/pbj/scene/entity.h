@@ -19,6 +19,7 @@
 #include "pbj/scene/player_component.h"
 #include "pbj/scene/ai_component.h"
 #include "pbj/scene/bullet_component.h"
+#include "pbj/scene/camera_component.h"
 #include "pbj/audio/audio_source.h"
 #include "pbj/audio/audio_listener.h"
 #include "pbj/sw/sandwich.h"
@@ -63,7 +64,8 @@ public:
 		Terrain = 0x01,
 		Player = 0x02,
 		SpawnPoint = 0x04,
-		Bullet = 0x08
+		Bullet = 0x08,
+		Camera = 0xF0
 	};
 
 	Entity();
@@ -106,6 +108,9 @@ public:
 	void addAudioSource();
 	AudioSource* getAudioSource() const;
 
+	void addCamera();
+	CameraComponent* getCamera() const;
+
 	EntityType getType() const;
 	void setType(EntityType);
 
@@ -138,6 +143,7 @@ private:
 	unique_ptr<BulletComponent> _bullet;
 	unique_ptr<AudioSource> _src;
 	unique_ptr<AudioListener> _listener;
+	unique_ptr<CameraComponent> _camera;
 
 	Entity(const Entity&);
 	void operator=(const Entity&);

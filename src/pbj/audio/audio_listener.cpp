@@ -37,7 +37,20 @@ void AudioListener::updatePosition()
 void AudioListener::updateVelocity()
 {
 	//since we're in 2d, we'll assume that z=0
-	vec2 xy = ((Entity*)_owner)->getRigidbody()->getVelocity();
+	Entity* e = (Entity*)_owner;
+	vec2 xy;
+	if(e->getType() == Entity::EntityType::Camera)
+	{
+		xy = e->getCamera()->getTargetVelocity();
+	}
+	else if(e->getRigidbody())
+	{
+		xy = e->getRigidbody()->getVelocity();
+	}
+	else
+	{
+		xy = vec2(0.0f, 0.0f);
+	}
 	alListener3f(AL_VELOCITY, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
 }
 
