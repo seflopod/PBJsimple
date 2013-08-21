@@ -17,6 +17,8 @@ public:
     Camera();
     ~Camera();
 
+    void setCoefficients(F32 position_k0, F32 position_k1, F32 velocity_k0, F32 velocity_k1);
+
     void setProjection(const mat4& projection);
     void setTargetPosition(const vec2& position);
     void setTargetVelocity(const vec2& velocity);
@@ -44,6 +46,11 @@ private:
     mat4 view_;
     mat4 vp_inv_;
 
+    F32 pos_k1_;
+    F32 pos_k2_;
+    F32 vel_k1_;
+    F32 vel_k2_;
+            
     Camera(const Camera&);
     void operator=(const Camera&);
 };

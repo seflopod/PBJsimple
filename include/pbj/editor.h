@@ -60,7 +60,7 @@ private:
 
     std::unique_ptr<EditorMode> current_mode_;
     EditorMode* mouse_down_mode_[3];
-    vec2 mouse_position_;
+    ivec2 mouse_position_;
 
     Editor(const Editor&);
     void operator=(const Editor&);

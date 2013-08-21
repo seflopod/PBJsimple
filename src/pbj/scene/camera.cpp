@@ -12,12 +12,25 @@ namespace scene {
 
 ///////////////////////////////////////////////////////////////////////////////
 Camera::Camera()
+    : pos_k1_(20.0f),
+      pos_k2_(0.5f),
+      vel_k1_(5.0f),
+      vel_k2_(0.33f)
+
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 Camera::~Camera()
 {
+}
+
+void Camera::setCoefficients(F32 position_k1, F32 position_k2, F32 velocity_k1, F32 velocity_k2)
+{
+    pos_k1_ = position_k1;
+    pos_k2_ = position_k2;
+    vel_k1_ = velocity_k1;
+    vel_k2_ = velocity_k2;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,11 +76,12 @@ const mat4& Camera::getView() const
 ///////////////////////////////////////////////////////////////////////////////
 void Camera::update(double delta_t)
 {
-    const F32 pos_coeff = 3.9f;
-    const F32 vel_coeff = 3.1f;
-
-    vec2 acceleration = (target_position_ - position_) * pos_coeff;
-    acceleration += (target_velocity_ - velocity_) * vel_coeff;
+    vec2 pos_delta = target_position_ - position_;
+    vec2 vel_delta = target_velocity_ - velocity_;
+    vec2 acceleration = pos_delta * pos_k1_;
+    acceleration += pos_delta * glm::length(pos_delta) * pos_k2_;
+    acceleration += vel_delta * vel_k1_;
+    acceleration += vel_delta * glm::length(vel_delta) * vel_k2_;
 
     position_ += velocity_ * float(delta_t) +
                  acceleration * float(delta_t * delta_t * 0.5);
