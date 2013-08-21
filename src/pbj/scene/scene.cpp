@@ -123,7 +123,7 @@ void Scene::draw()
 			it->second->draw();
 
 	//I assume the ui drawing goes like this.
-	ui.draw();
+	ui_.draw();
 }
 
 void Scene::update(F32 dt)
@@ -378,16 +378,20 @@ void Scene::initUI()
 	eInfo_ = new scene::UIPanel();
     ui_.panel.addElement(std::unique_ptr<UIElement>(eInfo_));
 
-	frame_label_ = new UILabel();
-    eInfo_->addElement(std::unique_ptr<UIElement>(frame_label_));
-    frame_label_->setAlign(scene::UILabel::AlignRight);
-    frame_label_->setDimensions(vec2(200, 10));
-	frame_label_->setPosition(vec2(0, 0));
-	frame_label_->setText("Player");
-
 	id.resource = Id("std_font");
-    frame_label_->setFont(&engine_.getResourceManager().getTextureFont(id));
-    frame_label_->setTextColor(color4(0.0f, 1.0f, 0.0f, 1.0f));
+	for (int i = 0, j = 20; i < 5; i++, j += 30)
+	{
+		frame_label_[i] = new UILabel();
+		eInfo_->addElement(std::unique_ptr<UIElement>(frame_label_[i]));
+		frame_label_[i]->setAlign(scene::UILabel::AlignRight);
+		frame_label_[i]->setFont(&engine_.getResourceManager().getTextureFont(id));
+		frame_label_[i]->setTextScale(vec2(2, 2));
+		frame_label_[i]->setTextColor(color4(0.0f, 1.0f, 0.0f, 1.0f));
+
+		frame_label_[i]->setDimensions(vec2(200, 10));
+		frame_label_[i]->setPosition(vec2(-130, 0 + j));
+		frame_label_[i]->setText("Player");
+	}
 }
 
 

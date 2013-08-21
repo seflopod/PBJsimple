@@ -46,8 +46,6 @@ class Scene
 public:
     Scene();
 	~Scene();
-
-    UIRoot ui;
     
 	void setupCamera(mat4);
 
@@ -112,7 +110,7 @@ private:
 	UIRoot ui_;
 	UIPanel* eInfo_;
 	std::unordered_map<Id, UIElement*> ui_elements;
-	UILabel* frame_label_;
+	UILabel* frame_label_[5];
 	Engine& engine_;
 };
 
