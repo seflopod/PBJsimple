@@ -123,12 +123,6 @@ void Scene::draw()
 			it->second->draw();
 
 	//I assume the ui drawing goes like this.
-
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	//glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
 	ui.draw();
 }
 
@@ -374,19 +368,19 @@ void Scene::initUI()
 
 	UIElement* last_focusable = &ui_.panel;
 
-	score_ = new scene::UIPanel();
-    ui_.panel.addElement(std::unique_ptr<scene::UIElement>(score_));
+	eInfo_ = new scene::UIPanel();
+    ui_.panel.addElement(std::unique_ptr<UIElement>(eInfo_));
 
 	frame_label_ = new UILabel();
-    score_->addElement(std::unique_ptr<scene::UIElement>(frame_label_));
+    eInfo_->addElement(std::unique_ptr<UIElement>(frame_label_));
     frame_label_->setAlign(scene::UILabel::AlignRight);
     frame_label_->setDimensions(vec2(200, 10));
-    frame_label_->setPosition(vec2(0, 0));
+	frame_label_->setPosition(vec2(0, 0));
 	frame_label_->setText("Player");
 
 	id.resource = Id("std_font");
     frame_label_->setFont(&engine_.getResourceManager().getTextureFont(id));
-    frame_label_->setTextColor(color4(1.0f, 1.0f, 1.0f, 1.0f));
+    frame_label_->setTextColor(color4(0.0f, 1.0f, 0.0f, 1.0f));
 }
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)

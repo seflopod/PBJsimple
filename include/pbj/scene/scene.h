@@ -101,7 +101,7 @@ private:
 
 	// Hopeful UI stuffs
 	UIRoot ui_;
-	UIPanel* score_;
+	UIPanel* eInfo_;
 	std::unordered_map<Id, UIElement*> ui_elements;
 	UILabel* frame_label_;
 	Engine& engine_;
