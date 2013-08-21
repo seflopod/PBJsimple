@@ -21,8 +21,6 @@ public:
 
 private:
     static Id id_;
-
-    scene::UIButton* move_btn_;
 };
 
 } // namespace pbj

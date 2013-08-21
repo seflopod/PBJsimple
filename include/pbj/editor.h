@@ -34,6 +34,8 @@ public:
     EditorMode* getCurrentMode();
     void setMode(const Id& id);
 
+    scene::Camera& getCamera() const;
+
 private:
     void onContextResized_(I32 width, I32 height);
     scene::UIButton* newButton_(const Id& id,
@@ -55,9 +57,10 @@ private:
     scene::UILabel* frame_time_label_;
 
     std::unique_ptr<scene::Scene> scene_;
-    mat4 scene_projection_;
 
     std::unique_ptr<EditorMode> current_mode_;
+    EditorMode* mouse_down_mode_[3];
+    ivec2 mouse_position_;
 
     Editor(const Editor&);
     void operator=(const Editor&);

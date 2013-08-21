@@ -35,13 +35,19 @@ Editor::Editor()
       menu_toggled_(false),
       menu_visible_counter_(0)
 {
+    mouse_down_mode_[0] = nullptr;
+    mouse_down_mode_[1] = nullptr;
+    mouse_down_mode_[2] = nullptr;
+
     initUI();
 
-    window_.registerContextResizeListener([=](I32 width, I32 height) { onContextResized_(width, height); });
+    window_.registerContextResizeListener([=](I32 width, I32 height)
+    {
+        onContextResized_(width, height);
+    });
 
     InputController::registerKeyAllListener([&](I32 keycode, I32 scancode, I32 action, I32 modifiers)
     {
-
         if (keycode == GLFW_KEY_SPACE ||
             keycode == GLFW_KEY_A ||
             keycode == GLFW_KEY_Q ||
@@ -94,6 +100,44 @@ Editor::Editor()
         else
             ui_.panel.setVisible(false);
     });
+
+    InputController::registerMouseButtonAnyListener([&](I32 button, I32 action, I32 modifiers)
+    {
+        if (current_mode_ && (button == GLFW_MOUSE_BUTTON_1 || button == GLFW_MOUSE_BUTTON_2 || button == GLFW_MOUSE_BUTTON_3))
+        {
+            EditorMode*& down_mode = mouse_down_mode_[button];
+
+            if (action == GLFW_PRESS && ui_.getElementUnderMouse() == nullptr)
+            {
+                down_mode = current_mode_.get();
+                vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                current_mode_->onMouseDown(button, pos);
+            }
+            else if (action == GLFW_RELEASE && down_mode == current_mode_.get())
+            {
+                if (ui_.getElementUnderMouse() == nullptr)
+                {
+                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    current_mode_->onMouseUp(button, pos);
+                }
+                else
+                {
+                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    current_mode_->onMouseCancel(button, pos);
+                }
+            }
+        }
+    });
+
+    InputController::registerMouseMotionListener([&](F64 x, F64 y)
+    {
+        if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
+        {
+            mouse_position_ = ivec2(I32(x), I32(y));
+            vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+            current_mode_->onMouseMove(pos);
+        }
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,9 +187,6 @@ void Editor::initUI()
 
     last_focusable->setNextFocusElement(menu_b_look);
     ui_.clearFocus();
-    
-    ivec2 wnd_size(window_.getSize());
-    onContextResized_(wnd_size.x, wnd_size.y);
 
     setMode(Id("EditorMode.look"));
 }
@@ -155,10 +196,15 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
 {
     std::shared_ptr<sw::Sandwich> sandwich = sw::open(Id(sw_id));
     if (sandwich)
+    {
         scene_ = scene::loadScene(*sandwich, Id(map_id));
+        onContextResized_(window_.getContextSize().x, window_.getContextSize().y);
+        scene_->camera.setTargetPosition(vec2(10, 10));
+    }
 
     double last_frame_time = 0;
     double fps = 0;
+    double last_sim_time = 0;
 
     while (true)
     {
@@ -183,11 +229,11 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
 
         if (scene_)
         {
-            glMatrixMode(GL_PROJECTION);
-            glLoadMatrixf(glm::value_ptr(scene_projection_));
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
+            if (last_sim_time == 0)
+                last_sim_time = frame_start;
 
+            scene_->camera.update(frame_start - last_sim_time);
+            last_sim_time = frame_start;
             scene_->draw();
         }
 
@@ -282,6 +328,11 @@ void Editor::setMode(const Id& id)
     }
 }
 
+scene::Camera& Editor::getCamera() const
+{
+    return scene_->camera;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 void Editor::onContextResized_(I32 width, I32 height)
 {
@@ -294,10 +345,12 @@ void Editor::onContextResized_(I32 width, I32 height)
     //if (menu_offset.y > menu_offset.x)
     //    menu_offset.y = menu_offset.x;
 
-
-    float ratio = width / float(height);
-    scene_projection_ = glm::ortho(ratio * -75.0f * 0.5f, ratio * 75.0f * 0.5f,
-                                   -75.0f * 0.5f, 75.0f * 0.5f);
+    if (scene_)
+    {
+        float ratio = width / float(height);
+        scene_->camera.setProjection(glm::ortho(ratio * -75.0f * 0.5f, ratio * 75.0f * 0.5f,
+                                    -75.0f * 0.5f, 75.0f * 0.5f));
+    }
 
     menu_->setPosition(menu_offset);
     menu_->setScale(vec2(menu_scale, menu_scale));

@@ -108,12 +108,11 @@ void Entity::update(F32 dt)
 	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
 		Game::instance()->disableBullet(this);
 
-	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height/2.0f)
+	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height)
 	{
 		_player->setTimeOfDeath(glfwGetTime());
 		Game::instance()->respawnPlayer(this);
 	}
-		
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	draws this object.
@@ -130,12 +129,12 @@ void Entity::draw()
         _material->use();
     else
         Texture::disable();
-	
+
 	glPushMatrix();
 		glTranslatef(glmPos.x, glmPos.y, 0.0f);
 		glRotatef(glmRot, 0, 0, 1);
 		glScalef(glmSca.x, glmSca.y, 1.0f);
-		_shape->draw((_material->getTexture() != nullptr));
+        _shape->draw((_material->getTexture() != nullptr));
 	glPopMatrix();
 }
 
@@ -487,6 +486,12 @@ BulletComponent* Entity::getBulletComponent() const
 {
 	return _bullet.get();
 }
+
+void Entity::addAudioListener() { _listener.reset(new AudioListener(this)); }
+AudioListener* Entity::getAudioListener() const { return _listener.get(); }
+
+void Entity::addAudioSource() { _src.reset(new AudioSource(this)); }
+AudioSource* Entity::getAudioSource() const { return _src.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id)

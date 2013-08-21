@@ -110,15 +110,14 @@ bool Game::init(U32 fps)
 
     //seems like an odd place to setup gl matrices, but there we go
     ivec2 ctxtSize = _window.getContextSize();
-    GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
+    F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
     glViewport(0, 0, ctxtSize.x, ctxtSize.y);
     glClear(GL_COLOR_BUFFER_BIT);
-
+    _scene.setupCamera(glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f, -grid_height/2.0f, grid_height/2.0f, 0.1f, -0.1f));
 
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)
     {
-        //_bullets.push(unique_ptr<Entity>(makeBullet()));
         _bulletRing[i] = _scene.addEntity(unique_ptr<Entity>(makeBullet()));
         _scene.getBullet(_bulletRing[i])->getRigidbody()->setBullet(false);
         _scene.getBullet(_bulletRing[i])->disable();
@@ -160,9 +159,13 @@ void Game::initTestScene()
     vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
     U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
-    _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
+    _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
+	_scene.getLocalPlayer()->addAudioListener();
+	_scene.getLocalPlayer()->getAudioListener()->updatePosition();
+	_scene.getLocalPlayer()->getAudioListener()->updateVelocity();
 
 	//add other player Entities
+	I32 ids[4];
 	for(I32 i=0;i<4;++i)
 	{
 		spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
@@ -175,8 +178,12 @@ void Game::initTestScene()
 			name[5] = (char)(49+i-10);
 		}
 		name[8] = '\0';
-		_scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
+		ids[i] = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
 	}
+	_scene.getPlayer(ids[0])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player2_outline"))));
+	_scene.getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
+	_scene.getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
+	_scene.getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
     
     //add some UI to the scene
     //This does not work due to issues with UIRoot and input registration
@@ -342,14 +349,6 @@ void Game::draw()
 {
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-     ivec2 ctxtSize = _window.getContextSize();
-    GLdouble ratio = ctxtSize.x/(GLdouble)ctxtSize.y;
-     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-     
      _scene.draw();
 
      //error pump
@@ -407,13 +406,7 @@ void Game::BeginContact(b2Contact* contact)
     }
 
 	if(b->getType() == Entity::EntityType::Player && a->getType() != Entity::EntityType::Player)
-	{
 		std::swap(a, b);
-		/*Entity* tmp = a;
-		a = b;
-		b = tmp;
-		tmp = nullptr;*/
-	}
 
     if(a->getType() == Entity::EntityType::Player)
     {
@@ -559,11 +552,10 @@ void Game::onMouseLeftDown(I32 mods)
 {
     F64 x,y;
     glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
+	ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
     ivec2 size = getEngine().getWindow()->getContextSize();
-    double ratio = size.x/(double)size.y;
-    x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
-    y = grid_height * (1 - y/size.y) - grid_height/2;
-    _scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x/2.0f,(F32)y);
+	vec2 worldPos = _scene.getCamera()->getWorldPosition(screenCoords, size);
+	_scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -734,18 +726,27 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
     p->setType(Entity::Player);
     p->getTransform().setPosition(vec2(x, y));
     p->getTransform().setScale(vec2(1.0f, 2.0f));
-	if(addAI)
+	/*if(addAI)
 		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bots"))));
 	else
-		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
-    p->setShape(new ShapeSquare());
+		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));*/
+    
+	p->setShape(new ShapeSquare());
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
     p->getRigidbody()->setFixedRotation(true);
-    p->addPlayerComponent(id);
-	if(addAI)
-		p->addAIComponent();
+    
+	p->addPlayerComponent(id);
 	p->getPlayerComponent()->setMaxAmmo(1000);
 	p->getPlayerComponent()->setAmmoRemaining(1000);
+	
+	p->addAudioSource();
+	p->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
+	p->getAudioSource()->updatePosition();
+	p->getAudioSource()->updateVelocity();
+
+	if(addAI)
+		p->addAIComponent();
+
     p->enableDraw();
     return p;
 }

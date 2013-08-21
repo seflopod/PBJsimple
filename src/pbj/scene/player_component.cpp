@@ -677,6 +677,10 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 			_fireCooldown = true;
 		}
 		_canShoot = false;
+
+		//play audio
+		if(((Entity*)_owner)->getAudioSource())
+			((Entity*)_owner)->getAudioSource()->play("fire");
 	}
 }
 

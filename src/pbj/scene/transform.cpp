@@ -169,7 +169,6 @@ Entity* Transform::getOwner()
 
 void Transform::updateOwnerRigidbody()
 {
-	
 	Entity* e = 0;
     e = (Entity*)_owner;
 	if(e && e->getRigidbody())

@@ -17,24 +17,40 @@ public:
     Camera();
     ~Camera();
 
+    void setCoefficients(F32 position_k0, F32 position_k1, F32 velocity_k0, F32 velocity_k1);
+
     void setProjection(const mat4& projection);
-    void setTargetPosition(const vec3& position);
-    void setTargetVelocity(const vec3& velocity);
+    void setTargetPosition(const vec2& position);
+    void setTargetVelocity(const vec2& velocity);
+
+    const vec2& getTargetPosition() const;
+    const vec2& getTargetVelocity() const;
+
 
     const mat4& getProjection() const;
     const mat4& getView() const;
 
     void update(double delta_t);
 
+    void use() const;
+
+    vec2 getWorldPosition(const ivec2& screen_coords, const ivec2& context_size) const;
+
 private:
-    vec3 position_;
-    vec3 velocity_;
-    vec3 target_position_;
-    vec3 target_velocity_;
+    vec2 position_;
+    vec2 velocity_;
+    vec2 target_position_;
+    vec2 target_velocity_;
 
     mat4 projection_;
     mat4 view_;
+    mat4 vp_inv_;
 
+    F32 pos_k1_;
+    F32 pos_k2_;
+    F32 vel_k1_;
+    F32 vel_k2_;
+            
     Camera(const Camera&);
     void operator=(const Camera&);
 };

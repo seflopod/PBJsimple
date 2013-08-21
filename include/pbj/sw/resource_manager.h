@@ -16,6 +16,12 @@
 #include <memory>
 
 namespace pbj {
+namespace audio {
+
+class AudioBuffer;
+
+} // namespace pbj::audio
+
 namespace gfx {
 
 //class Material;
@@ -43,6 +49,7 @@ public:
     ResourceManager();
     ~ResourceManager();
 
+    audio::AudioBuffer* getSound(const ResourceId& id);
     const gfx::Material& getMaterial(const ResourceId& id);
     const gfx::TextureFont& getTextureFont(const ResourceId& id);
     const gfx::Texture& getTexture(const ResourceId& id);
@@ -54,6 +61,7 @@ private:
 
     std::unordered_map<Id, std::shared_ptr<Sandwich> > sandwiches_;
 
+    std::unordered_map<ResourceId, std::unique_ptr<audio::AudioBuffer> > sounds_;
     std::unordered_map<ResourceId, std::unique_ptr<gfx::Material> > materials_;
     std::unordered_map<ResourceId, std::unique_ptr<gfx::TextureFont> > texture_fonts_;
     std::unordered_map<ResourceId, std::unique_ptr<gfx::Texture> > textures_;
