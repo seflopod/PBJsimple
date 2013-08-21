@@ -191,6 +191,7 @@ void Game::initTestScene()
     label.setPosition(vec2(0,0));
     _scene.ui.panel.addElement(unique_ptr<scene::UILabel>(&label));
     */
+	_scene.initUI();
 }
 #pragma endregion
 
@@ -244,6 +245,7 @@ I32 Game::run()
         fpsCStr[12] = '\0';
         ((scene::UILabel*)_scene.ui.panel.getElementAt(ivec2(0,0)))->setText((char*)fpsCStr);
         */
+
      }
      return 0;
 }

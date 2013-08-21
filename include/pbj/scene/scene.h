@@ -13,9 +13,12 @@
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
 #include "pbj/scene/ui_root.h"
+#include "pbj/scene/ui_label.h"
+#include "pbj/engine.h"
 #include "pbj/scene/entity.h"
 #include "pbj/scene/camera.h"
 #include "pbj/sw/sandwich.h"
+#include "be\id.h"
 
 using std::vector;
 using std::unordered_map;
@@ -50,6 +53,7 @@ public:
 
 	void draw();
 	void update(F32);
+	void initUI();
 
     void setMapName(const std::string& name);
     const std::string& getMapName() const;
@@ -94,6 +98,13 @@ private:
 
     Scene(const Scene&);
     void operator=(const Scene&);
+
+	// Hopeful UI stuffs
+	UIRoot ui_;
+	UIPanel* score_;
+	std::unordered_map<Id, UIElement*> ui_elements;
+	UILabel* frame_label_;
+	Engine& engine_;
 };
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);

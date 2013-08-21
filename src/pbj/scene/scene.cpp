@@ -51,7 +51,8 @@ namespace scene {
 /// \date 2013-08-08
 ////////////////////////////////////////////////////////////////////////////////
 Scene::Scene()
-	: _camera(nullptr)
+	: _camera(nullptr),
+	  engine_(getEngine())
 {
 	_nextEntityId = 1;
     _localPlayerId = U32(-1);
@@ -364,6 +365,28 @@ Entity* Scene::getRandomSpawnPoint()
 Camera* Scene::getCamera() const
 {
 	return _camera.get();
+}
+
+void Scene::initUI()
+{
+	sw::ResourceId id;
+    id.sandwich = Id(PBJ_ID_PBJBASE);
+
+	UIElement* last_focusable = &ui_.panel;
+
+	score_ = new scene::UIPanel();
+    ui_.panel.addElement(std::unique_ptr<scene::UIElement>(score_));
+
+	frame_label_ = new UILabel();
+    score_->addElement(std::unique_ptr<scene::UIElement>(frame_label_));
+    frame_label_->setAlign(scene::UILabel::AlignRight);
+    frame_label_->setDimensions(vec2(200, 10));
+    frame_label_->setPosition(vec2(0, 0));
+	frame_label_->setText("Player");
+
+	id.resource = Id("std_font");
+    frame_label_->setFont(&engine_.getResourceManager().getTextureFont(id));
+    frame_label_->setTextColor(color4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
