@@ -379,18 +379,33 @@ void Scene::initUI()
     ui_.panel.addElement(std::unique_ptr<UIElement>(eInfo_));
 
 	id.resource = Id("std_font");
-	for (int i = 0, j = 20; i < 5; i++, j += 30)
+	I32 i=0;
+	I32 j=20;
+	I32 pad = 5;
+	for(EntityMap::iterator it=_players.begin();
+		it!=_players.end();
+		++it)
 	{
+		//Setup positioning and color
 		frame_label_[i] = new UILabel();
 		eInfo_->addElement(std::unique_ptr<UIElement>(frame_label_[i]));
-		frame_label_[i]->setAlign(scene::UILabel::AlignRight);
+		frame_label_[i]->setAlign(scene::UILabel::AlignLeft);
 		frame_label_[i]->setFont(&engine_.getResourceManager().getTextureFont(id));
 		frame_label_[i]->setTextScale(vec2(2, 2));
-		frame_label_[i]->setTextColor(color4(0.0f, 1.0f, 0.0f, 1.0f));
+		frame_label_[i]->setTextColor(it->second->getMaterial()->getColor());
 
 		frame_label_[i]->setDimensions(vec2(200, 10));
-		frame_label_[i]->setPosition(vec2(-130, 0 + j));
-		frame_label_[i]->setText("Player");
+		frame_label_[i]->setPosition(vec2(0+pad, 0 + j));
+
+		//Add data
+		PlayerComponent* p = it->second->getPlayerComponent();
+
+		//this is going to change when we change how players are id'd
+		frame_label_[i]->setText(p->getId().to_useful_string());
+
+		p = nullptr;
+		++i;
+		j+=30;
 	}
 }
 
