@@ -60,6 +60,8 @@ namespace audio
 		void seek(F32);
 		
 		string getPlaying() const;
+
+		void* getOwner() const;
 	private:
 		void* _owner;
 		ALuint _srcId;

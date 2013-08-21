@@ -62,6 +62,6 @@ void AudioListener::setGain(F32 gain)
 
 F32 AudioListener::getGain() const { return _gain; }
 
-void* getOwner() const { return _owner; }
+void* AudioListener::getOwner() const { return _owner; }
 } //namespace audio
 } //namespace pbj

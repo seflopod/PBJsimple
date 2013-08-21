@@ -101,14 +101,14 @@ void AudioSource::updatePosition()
 {
 	//since we're in 2d, we'll assume that z=0
 	vec2 xy = ((Entity*)_owner)->getTransform().getPosition();
-	alSource3f(AL_POSITION, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
+	alSource3f(_srcId, AL_POSITION, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
 }
 
 void AudioSource::updateVelocity()
 {
 	//since we're in 2d, we'll assume that z=0
 	vec2 xy = ((Entity*)_owner)->getRigidbody()->getVelocity();
-	alSource3f(AL_VELOCITY, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
+	alSource3f(_srcId, AL_VELOCITY, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
 }
 
 void AudioSource::addAudioBuffer(string name, AudioBuffer* buffer)
@@ -141,6 +141,23 @@ void AudioSource::playAt(string name, F32 pos)
 	alSourcef(_srcId, AL_SEC_OFFSET, pos);
 	alSourcePlay(_srcId);
 }
+
+void AudioSource::stop()
+{
+	alSourceStop(_srcId);
+}
+
+void AudioSource::pause()
+{
+	alSourcePause(_srcId);
+}
+
+void AudioSource::seek(F32 pos)
+{
+	alSourcef(_srcId, AL_SEC_OFFSET, pos);
+}
+
+void* AudioSource::getOwner() const { return _owner; }
 
 } //namespace audio
 } //namespace pbj

@@ -113,12 +113,7 @@ bool Game::init(U32 fps)
     F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
     glViewport(0, 0, ctxtSize.x, ctxtSize.y);
     glClear(GL_COLOR_BUFFER_BIT);
-    /*glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();*/
-	_scene.setupCamera(glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f, -grid_height/2.0f, grid_height/2.0f, 0.1f, -0.1f));
+    _scene.setupCamera(glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f, -grid_height/2.0f, grid_height/2.0f, 0.1f, -0.1f));
 
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)
@@ -164,9 +159,10 @@ void Game::initTestScene()
     vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
     U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
-    _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));
+    _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
 
 	//add other player Entities
+	I32 ids[4];
 	for(I32 i=0;i<4;++i)
 	{
 		spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
@@ -179,8 +175,12 @@ void Game::initTestScene()
 			name[5] = (char)(49+i-10);
 		}
 		name[8] = '\0';
-		_scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
+		ids[i] = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
 	}
+	_scene.getPlayer(ids[0])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player2_outline"))));
+	_scene.getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
+	_scene.getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
+	_scene.getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
     
     //add some UI to the scene
     //This does not work due to issues with UIRoot and input registration
@@ -558,10 +558,6 @@ void Game::onMouseLeftDown(I32 mods)
 	ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
     ivec2 size = getEngine().getWindow()->getContextSize();
 	vec2 worldPos = _scene.getCamera()->getWorldPosition(screenCoords, size);
-    /*double ratio = size.x/(double)size.y;
-    x = x/((double)size.x) * (2*grid_height*ratio) - grid_height*ratio;
-    y = grid_height * (1 - y/size.y) - grid_height/2;
-    _scene.getLocalPlayer()->getPlayerComponent()->fire((F32)x/2.0f,(F32)y);*/
 	_scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
 }
 

@@ -6,6 +6,7 @@
 
 #include "pbj/engine.h"
 #include "pbj/_gl.h"
+#include "pbj/_al.h"
 #include "pbj/sw/sandwich_open.h"
 #include "pbj/input_controller.h"
 
@@ -34,7 +35,53 @@ void glfwError(int error, const char* description)
 ///         local variable in main().
 Engine::Engine()
 {
-    if (process_engine_)
+    init();
+}
+
+Engine::Engine(int* argc, char** argv)
+{
+	//init audio
+	alutInit(argc, argv);
+	init();
+}
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Destructor.
+Engine::~Engine()
+{
+    pbj::InputController::destroy();
+
+    window_.reset();
+	world_.reset();
+    glfwTerminate();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the engine's window object.
+///
+/// \return The Window object.
+Window* Engine::getWindow() const
+{
+    return window_.get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn b2World* Engine::getWorld() const
+///
+/// \brief Gets the physics world.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+///
+/// \return A pointer to the b2World for Box2D simulations.
+////////////////////////////////////////////////////////////////////////////////
+b2World* Engine::getWorld() const
+{
+	return world_.get();
+}
+
+void Engine::init()
+{
+	if (process_engine_)
         throw std::runtime_error("Engine already initialized!");
 
     process_engine_ = this;
@@ -84,47 +131,11 @@ Engine::Engine()
 
     InputController::init(wnd->getGlfwHandle());
 
-    //no harm in showing a window before physics is started	
-	//For testing in a world with no gravity use 0.0f, 0.0f
+    //For testing in a world with no gravity use 0.0f, 0.0f
 	world_ = std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, -9.822f)));
 	world_->SetAllowSleeping(true);
 
     wnd->show();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief  Destructor.
-Engine::~Engine()
-{
-    pbj::InputController::destroy();
-
-    window_.reset();
-	world_.reset();
-    glfwTerminate();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-/// \brief  Retrieves the engine's window object.
-///
-/// \return The Window object.
-Window* Engine::getWindow() const
-{
-    return window_.get();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn b2World* Engine::getWorld() const
-///
-/// \brief Gets the physics world.
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-///
-/// \return A pointer to the b2World for Box2D simulations.
-////////////////////////////////////////////////////////////////////////////////
-b2World* Engine::getWorld() const
-{
-	return world_.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,3 +158,5 @@ Engine& getEngine()
 }
 
 } // namespace pbj
+
+
