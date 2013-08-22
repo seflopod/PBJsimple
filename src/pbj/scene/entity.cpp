@@ -131,6 +131,7 @@ void Entity::update(F32 dt)
 ///
 /// \author	Peter Bartosch / Josh Douglas / Ben Crist
 /// \date	2013-08-08
+////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
     vec2 glmPos = _transform.getPosition();
@@ -150,6 +151,7 @@ void Entity::draw()
     glPopMatrix();
 }
 
+#pragma region components
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	Transform* Entity::getTransform() const
 ///
@@ -159,6 +161,7 @@ void Entity::draw()
 /// \date	2013-08-05
 ///
 /// \return	the transform.
+////////////////////////////////////////////////////////////////////////////////
 Transform& Entity::getTransform() { return _transform; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +173,7 @@ Transform& Entity::getTransform() { return _transform; }
 /// \date	2013-08-05
 ///
 /// \param	transform	The transform.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setTransform(const Transform& transform) { _transform = transform; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,6 +185,7 @@ void Entity::setTransform(const Transform& transform) { _transform = transform; 
 /// \date	2013-08-13
 ///
 /// \return	null if the shape does not exist; a pointer to the Shape otherwise.
+////////////////////////////////////////////////////////////////////////////////
 Shape* Entity::getShape() const { return _shape.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,6 +199,7 @@ Shape* Entity::getShape() const { return _shape.get(); }
 /// \param [in]	shape	A pointer to the Shape to use.
 /// \details Any class the uses the Shape interface (ShapeSquare, ShapeTriangle)
 /// 		 is acceptable.  This is what will be drawn.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setShape(Shape* shape) { _shape.reset(shape); }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,6 +209,7 @@ void Entity::setShape(Shape* shape) { _shape.reset(shape); }
 /// \date	2013-08-13
 ///
 /// \return	A pointer to the Material.
+////////////////////////////////////////////////////////////////////////////////
 const Material* Entity::getMaterial() { return _material; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,6 +221,7 @@ const Material* Entity::getMaterial() { return _material; }
 /// \param	material A pointer to a material object.  The object's lifetime
 ///         must be at least as long as this entity's.  In the normal usage,
 ///         a ResourceManager will manage the lifetime of the material object.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setMaterial(const Material* material) { _material = material; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -233,62 +241,62 @@ void Entity::setMaterial(const Material* material) { _material = material; }
 /// 		 particular Entity.  This is rather simple and therefore does not
 /// 		 use multiple fixtures for making complex shapes.  Simple boxes,
 /// 		 polygons and circles are used instead.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 {
-	if(!_rigidbody)
-	{
-		vec2 scale = _transform.getScale();
-		vec2 pos = _transform.getPosition();
-		b2PolygonShape shape;
+    if(!_rigidbody)
+    {
+        vec2 scale = _transform.getScale();
+        vec2 pos = _transform.getPosition();
+        b2PolygonShape shape;
 
-		Rigidbody* rigidbody = nullptr;
+        Rigidbody* rigidbody = nullptr;
 
-		switch(_type)
-		{
-		case Player:
-		{
-			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-						_transform.getRotation());
-			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
-			break;
-		}
-		case Terrain:
-		{
-			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-						_transform.getRotation());
-			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
-			break;
-		}
-		case SpawnPoint:
-		{
-			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-						_transform.getRotation());
-			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
-			break;
-		}
-		case Bullet:
-		{
-			b2Vec2 verts[3];
-			verts[0] = b2Vec2(-0.5f*scale.x, -0.433f*scale.y);
-			verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
-			verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
-			shape.Set(verts,3);
-			_rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this));
-		}
-		default:
-		{
-			shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-						_transform.getRotation());
+        switch(_type)
+        {
+        case Player:
+        {
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+            _transform.getRotation());
+            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+            break;
+        }
+        case Terrain:
+        {
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+            _transform.getRotation());
+            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+            break;
+        }
+        case SpawnPoint:
+        {
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+            _transform.getRotation());
             _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
-			_rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
-			break;
-		}
-		}
-		//_rigidbody->setTransform(b2Vec2(pos.x, pos.y),b2Vec2(1.0f, 1.0f),_transform.getRotation());
-	}
+            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+            break;
+        }
+        case Bullet:
+        {
+            b2Vec2 verts[3];
+            verts[0] = b2Vec2(-0.5f*scale.x, -0.433f*scale.y);
+            verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
+            verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
+            shape.Set(verts,3);
+            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this));
+        }
+        default:
+        {
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
+            _transform.getRotation());
+            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
+            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+        break;
+        }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -300,6 +308,7 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 /// \date	2013-08-13
 ///
 /// \return	null if it none exists, else the rigidbody.
+////////////////////////////////////////////////////////////////////////////////
 Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -309,6 +318,7 @@ Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addPlayerComponent(Id id)
 {
 	if(!_player)
@@ -324,23 +334,120 @@ void Entity::addPlayerComponent(Id id)
 /// \date	2013-08-13
 ///
 /// \return	null if none exists, else the player component.
+////////////////////////////////////////////////////////////////////////////////
 PlayerComponent* Entity::getPlayerComponent() const { return _player.get(); }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Entity::addAIComponent()
+///
+/// \brief  Adds an AI component.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addAIComponent() { _ai.reset(new AIComponent(this)); }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn AIComponent* Entity::getAIComponent() const
+///
+/// \brief  Gets an AI component.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the AI component.
+////////////////////////////////////////////////////////////////////////////////
 AIComponent* Entity::getAIComponent() const { return _ai.get(); }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Entity::addBulletComponent()
+///
+/// \brief  Adds bullet component.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addBulletComponent() { _bullet.reset(new BulletComponent(this)); }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn BulletComponent* Entity::getBulletComponent() const
+///
+/// \brief  Gets bullet component.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the bullet component.
+////////////////////////////////////////////////////////////////////////////////
 BulletComponent* Entity::getBulletComponent() const { return _bullet.get(); }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Entity::addAudioListener()
+///
+/// \brief  Adds audio listener.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addAudioListener() { _listener.reset(new AudioListener(this)); }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn AudioListener* Entity::getAudioListener() const
+///
+/// \brief  Gets audio listener.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the audio listener.
+////////////////////////////////////////////////////////////////////////////////
 AudioListener* Entity::getAudioListener() const { return _listener.get(); }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Entity::addAudioSource()
+///
+/// \brief  Adds audio source.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addAudioSource() { _src.reset(new AudioSource(this)); }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn AudioSource* Entity::getAudioSource() const
+///
+/// \brief  Gets audio source.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the audio source.
+////////////////////////////////////////////////////////////////////////////////
 AudioSource* Entity::getAudioSource() const { return _src.get(); }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Entity::addCamera()
+///
+/// \brief  Adds camera.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Entity::addCamera() { _camera.reset(new CameraComponent(this)); }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn CameraComponent* Entity::getCamera() const
+///
+/// \brief  Gets the camera.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the camera.
+////////////////////////////////////////////////////////////////////////////////
 CameraComponent* Entity::getCamera() const { return _camera.get(); }
 
+#pragma endregion
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	U32 Entity::getSceneId() const
 ///
@@ -377,12 +484,14 @@ Entity::EntityType Entity::getType() const
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void Entity::setType(EntityType et)
 ///
-/// \brief	Sets a type.
+/// \brief	Sets the EntityType and adds the Rigidbody to the right collision
+///         group.
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
 ///
 /// \param	et	The EntityType to use.
+////////////////////////////////////////////////////////////////////////////////
 void Entity::setType(EntityType et)
 {
 	_type = et;
@@ -413,6 +522,7 @@ void Entity::setType(EntityType et)
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
+////////////////////////////////////////////////////////////////////////////////
 void Entity::enableDraw()
 {
     _drawable = true;
@@ -439,6 +549,7 @@ void Entity::disableDraw()
 /// \date	2013-08-13
 ///
 /// \return	true if drawable, false if not.
+////////////////////////////////////////////////////////////////////////////////
 bool Entity::isDrawable() const
 {
     return _drawable;
