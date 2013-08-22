@@ -38,6 +38,18 @@ Engine::Engine()
     init();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Engine::Engine(int* argc, char** argv)
+///
+/// \brief  Alternate constructor that takes command line arguments for
+///         initializing alut.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param [in,out] argc    If non-null, the argc.
+/// \param [in,out] argv    If non-null, the argv.
+////////////////////////////////////////////////////////////////////////////////
 Engine::Engine(int* argc, char** argv)
 {
 	//init audio
@@ -118,6 +130,15 @@ void Engine::init()
     wnd->show();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn sw::ResourceManager& Engine::getResourceManager()
+///
+/// \brief  Gets resource manager.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \return The resource manager.
 ////////////////////////////////////////////////////////////////////////////////
 sw::ResourceManager& Engine::getResourceManager()
 {

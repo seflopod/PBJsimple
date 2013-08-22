@@ -526,10 +526,7 @@ void Entity::setType(EntityType et)
 /// \author	Peter Bartosch
 /// \date	2013-08-13
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::enableDraw()
-{
-    _drawable = true;
-}
+void Entity::enableDraw() { _drawable = true; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void Entity::disableDraw()
@@ -538,10 +535,7 @@ void Entity::enableDraw()
 ///
 /// \author	Peter Bartosch
 /// \date	2013-08-13
-void Entity::disableDraw()
-{
-    _drawable = false;
-}
+void Entity::disableDraw() { _drawable = false; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	bool Entity::isDrawable() const
@@ -553,17 +547,28 @@ void Entity::disableDraw()
 ///
 /// \return	true if drawable, false if not.
 ////////////////////////////////////////////////////////////////////////////////
-bool Entity::isDrawable() const
-{
-    return _drawable;
-}
+bool Entity::isDrawable() const { return _drawable; }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn bool Entity::isEnabled() const
+///
+/// \brief  Query if this Entity is enabled.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return true if enabled, false if not.
+////////////////////////////////////////////////////////////////////////////////
+bool Entity::isEnabled() const { return _enabled; }
 
-bool Entity::isEnabled() const
-{
-	return _enabled;
-}
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Entity::enable()
+///
+/// \brief  Enables this Entity by turning on drawing and its Rigidbody.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Entity::enable()
 {
 	if(_shape.get())
@@ -573,6 +578,15 @@ void Entity::enable()
 
 	_enabled = true;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Entity::disable()
+///
+/// \brief  Disables this Entity by turning off drawing and its Rigidybody.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Entity::disable()
 {
 	_drawable = false;
@@ -582,6 +596,23 @@ void Entity::disable()
 	_enabled = false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich,
+///     const Id& map_id, const Id& entity_id)
+///
+/// \brief  Loads an entity.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \exception  std::runtime_error  Thrown when a runtime error error
+///                                 condition occurs.
+///
+/// \param [in,out] sandwich    The sandwich.
+/// \param  map_id              Identifier for the map.
+/// \param  entity_id           Identifier for the entity.
+///
+/// \return The entity.
 ////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id)
 {
@@ -668,6 +699,16 @@ std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, con
     return value;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void saveEntity(const Id& sandwich_id, const Id& map_id)
+///
+/// \brief  Saves an entity.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  sandwich_id Identifier for the sandwich.
+/// \param  map_id      Identifier for the map.
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::saveEntity(const Id& sandwich_id, const Id& map_id)
 {
