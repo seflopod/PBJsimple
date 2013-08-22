@@ -18,12 +18,16 @@
 #include "pbj/scene/transform.h"
 #include "pbj/scene/player_component.h"
 #include "pbj/scene/ai_component.h"
-#include "pbj/sw/sandwich.h"
 #include "pbj/scene/bullet_component.h"
+#include "pbj/scene/camera_component.h"
+#include "pbj/audio/audio_source.h"
+#include "pbj/audio/audio_listener.h"
+#include "pbj/sw/sandwich.h"
 #include "be/id.h"
 
 #include <memory>
 
+using std::unique_ptr;
 using pbj::gfx::ComponentCallback;
 using pbj::gfx::Texture;
 using pbj::gfx::Shape;
@@ -31,6 +35,8 @@ using pbj::gfx::ShapeSquare;
 using pbj::gfx::ShapeTriangle;
 using pbj::gfx::Material;
 using pbj::physics::Rigidbody;
+using pbj::audio::AudioSource;
+using pbj::audio::AudioListener;
 using be::Id;
 
 namespace pbj {
@@ -58,7 +64,8 @@ public:
 		Terrain = 0x01,
 		Player = 0x02,
 		SpawnPoint = 0x04,
-		Bullet = 0x08
+		Bullet = 0x08,
+		Camera = 0xF0
 	};
 
 	Entity();
@@ -95,6 +102,15 @@ public:
 	void addBulletComponent();
 	BulletComponent* getBulletComponent() const;
 
+	void addAudioListener();
+	AudioListener* getAudioListener() const;
+
+	void addAudioSource();
+	AudioSource* getAudioSource() const;
+
+	void addCamera();
+	CameraComponent* getCamera() const;
+
 	EntityType getType() const;
 	void setType(EntityType);
 
@@ -121,12 +137,15 @@ private:
 
 	//components
 	Transform _transform;
-	std::unique_ptr<Shape> _shape;
+	unique_ptr<Shape> _shape;
 	const Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
-	std::unique_ptr<Rigidbody> _rigidbody;
-	std::unique_ptr<PlayerComponent> _player;
-	std::unique_ptr<AIComponent> _ai;
-	std::unique_ptr<BulletComponent> _bullet;
+	unique_ptr<Rigidbody> _rigidbody;
+	unique_ptr<PlayerComponent> _player;
+	unique_ptr<AIComponent> _ai;
+	unique_ptr<BulletComponent> _bullet;
+	unique_ptr<AudioSource> _src;
+	unique_ptr<AudioListener> _listener;
+	unique_ptr<CameraComponent> _camera;
 
 	Entity(const Entity&);
 	void operator=(const Entity&);

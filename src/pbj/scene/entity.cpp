@@ -111,10 +111,21 @@ void Entity::update(F32 dt)
 	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
 		Game::instance()->disableBullet(this);
 
-	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height/2.0f)
+	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height)
 	{
 		_player->setTimeOfDeath(glfwGetTime());
 		Game::instance()->respawnPlayer(this);
+	}
+
+	if(_type == Camera)
+	{
+		if(_camera)
+			_camera->update(dt);
+		if(_listener)
+		{
+			_listener->updatePosition();
+			_listener->updateVelocity();
+		}
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,10 +161,7 @@ void Entity::draw()
 /// \date	2013-08-05
 ///
 /// \return	the transform.
-Transform& Entity::getTransform()
-{
-	return _transform;
-}
+Transform& Entity::getTransform() { return _transform; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void Entity::setTransform(Transform transform)
@@ -164,10 +172,7 @@ Transform& Entity::getTransform()
 /// \date	2013-08-05
 ///
 /// \param	transform	The transform.
-void Entity::setTransform(const Transform& transform)
-{
-	_transform = transform;
-}
+void Entity::setTransform(const Transform& transform) { _transform = transform; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	Shape* Entity::getShape() const
@@ -178,10 +183,7 @@ void Entity::setTransform(const Transform& transform)
 /// \date	2013-08-13
 ///
 /// \return	null if the shape does not exist; a pointer to the Shape otherwise.
-Shape* Entity::getShape() const
-{
-	return _shape.get();
-}
+Shape* Entity::getShape() const { return _shape.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void Entity::setShape(Shape* shape)
@@ -194,10 +196,7 @@ Shape* Entity::getShape() const
 /// \param [in]	shape	A pointer to the Shape to use.
 /// \details Any class the uses the Shape interface (ShapeSquare, ShapeTriangle)
 /// 		 is acceptable.  This is what will be drawn.
-void Entity::setShape(Shape* shape)
-{
-	_shape.reset(shape);
-}
+void Entity::setShape(Shape* shape) { _shape.reset(shape); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	Gets the entity's material.
@@ -206,10 +205,7 @@ void Entity::setShape(Shape* shape)
 /// \date	2013-08-13
 ///
 /// \return	A pointer to the Material.
-const Material* Entity::getMaterial()
-{
-	return _material;
-}
+const Material* Entity::getMaterial() { return _material; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	Adds a material.
@@ -220,10 +216,7 @@ const Material* Entity::getMaterial()
 /// \param	material A pointer to a material object.  The object's lifetime
 ///         must be at least as long as this entity's.  In the normal usage,
 ///         a ResourceManager will manage the lifetime of the material object.
-void Entity::setMaterial(const Material* material)
-{
-	_material = material;
-}
+void Entity::setMaterial(const Material* material) { _material = material; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void Entity::addRigidbody(Rigidbody::BodyType bodyType,
@@ -309,10 +302,7 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 /// \date	2013-08-13
 ///
 /// \return	null if it none exists, else the rigidbody.
-Rigidbody* Entity::getRigidbody() const
-{
-	return _rigidbody.get();
-}
+Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	void Entity::addPlayerComponent()
@@ -324,9 +314,7 @@ Rigidbody* Entity::getRigidbody() const
 void Entity::addPlayerComponent(Id id)
 {
 	if(!_player)
-	{
 		_player.reset(new PlayerComponent(id, PlayerStats(), this));
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -338,10 +326,22 @@ void Entity::addPlayerComponent(Id id)
 /// \date	2013-08-13
 ///
 /// \return	null if none exists, else the player component.
-PlayerComponent* Entity::getPlayerComponent() const
-{
-	return _player.get();
-}
+PlayerComponent* Entity::getPlayerComponent() const { return _player.get(); }
+
+void Entity::addAIComponent() { _ai.reset(new AIComponent(this)); }
+AIComponent* Entity::getAIComponent() const { return _ai.get(); }
+
+void Entity::addBulletComponent() { _bullet.reset(new BulletComponent(this)); }
+BulletComponent* Entity::getBulletComponent() const { return _bullet.get(); }
+
+void Entity::addAudioListener() { _listener.reset(new AudioListener(this)); }
+AudioListener* Entity::getAudioListener() const { return _listener.get(); }
+
+void Entity::addAudioSource() { _src.reset(new AudioSource(this)); }
+AudioSource* Entity::getAudioSource() const { return _src.get(); }
+
+void Entity::addCamera() { _camera.reset(new CameraComponent(this)); }
+CameraComponent* Entity::getCamera() const { return _camera.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn	U32 Entity::getSceneId() const
@@ -468,26 +468,6 @@ void Entity::disable()
 		_rigidbody->setActive(false);
 
 	_enabled = false;
-}
-
-void Entity::addAIComponent()
-{
-	_ai.reset(new AIComponent(this));
-}
-
-AIComponent* Entity::getAIComponent() const
-{
-	return _ai.get();
-}
-
-void Entity::addBulletComponent()
-{
-	_bullet.reset(new BulletComponent(this));
-}
-
-BulletComponent* Entity::getBulletComponent() const
-{
-	return _bullet.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

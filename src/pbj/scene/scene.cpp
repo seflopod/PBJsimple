@@ -8,7 +8,7 @@
 
 #include "pbj/sw/sandwich_open.h"
 #include "be/bed/transaction.h"
-
+#include "pbj/game.h"
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,7 @@
 #define PBJ_SCENE_SCENE_SQLID_CLEAR_ENTITIES PBJ_SCENE_SCENE_SQL_CLEAR_ENTITIES
 #endif
 
+using pbj::Game;
 namespace pbj {
 namespace scene {
 
@@ -53,9 +54,10 @@ namespace scene {
 /// \date 2013-08-08
 ////////////////////////////////////////////////////////////////////////////////
 Scene::Scene()
+	: _camera(nullptr)
 {
 	_nextEntityId = 1;
-    _localPlayerId = U32(-1);
+   _localPlayerId = U32(-1);
 	std::random_device rd;
 	_rnd = std::ranlux24_base(rd());
 }
@@ -70,6 +72,15 @@ Scene::Scene()
 ////////////////////////////////////////////////////////////////////////////////
 Scene::~Scene()
 {
+	_camera.reset();
+}
+
+void Scene::setupCamera(mat4 ortho)
+{
+	mat4 proj = mat4();
+	proj*=ortho;
+	_camera.reset(new Camera());
+	_camera->setProjection(proj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +97,7 @@ Scene::~Scene()
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
-    camera.use();
+	_curCamera->use();
 
 #ifdef PBJ_EDITOR
 	for(EntityMap::iterator it=_spawnPoints.begin();
@@ -115,21 +126,18 @@ void Scene::draw()
 			it->second->draw();
 
 	//I assume the ui drawing goes like this.
+
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	//glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 	ui.draw();
 }
 
 void Scene::update(F32 dt)
 {
-    Entity* player = getLocalPlayer();
-    if (player)
-    {
-        camera.setTargetPosition(player->getTransform().getPosition());
-        camera.setTargetPosition(player->getRigidbody()->getVelocity());
-    }
-
-    camera.update(dt);
-
-	for(EntityMap::iterator it=_spawnPoints.begin();
+    for(EntityMap::iterator it=_spawnPoints.begin();
 		it!=_spawnPoints.end();
 		it++)
 		if(it->second->isEnabled())
@@ -145,6 +153,38 @@ void Scene::update(F32 dt)
 		it!=_players.end();
 		it++)
 		if(it->second->isEnabled())
+		{
+			it->second->update(dt);
+			vec2 pos = it->second->getTransform().getPosition();
+			if(it->second->getAudioListener())
+			{
+				it->second->getAudioListener()->updatePosition();
+				it->second->getAudioListener()->updateVelocity();
+			}
+			it->second->getAudioSource()->updatePosition();
+			it->second->getAudioSource()->updateVelocity();
+			ivec2 size = getEngine().getWindow()->getContextSize();
+			F32 ratio = size.x/(F32)size.y;
+			if(pos.y < -Game::grid_height*2 || pos.x < -Game::grid_height*ratio*2 ||
+				pos.x > Game::grid_height*ratio*2)
+			{
+				it->second->getPlayerComponent()->setTimeOfDeath(glfwGetTime());
+				it->second->getPlayerComponent()->setDeaths(
+					it->second->getPlayerComponent()->getDeaths()+1);
+				Game::instance()->respawnPlayer(it->second.get());
+			}
+		}
+
+	Entity* player = getLocalPlayer();
+    if (player && _curCamera)
+    {
+		_curCamera->setTargetPosition(player->getTransform().getPosition());
+        _curCamera->setTargetVelocity(player->getRigidbody()->getVelocity());
+    }
+
+	for(EntityMap::iterator it=_cameras.begin();
+		it!=_cameras.end();
+		++it)
 			it->second->update(dt);
 
 	for(EntityMap::iterator it=_bullets.begin();
@@ -200,6 +240,9 @@ U32 Scene::addEntity(unique_ptr<Entity>&& e)
 		_bullets[id] = std::move(e);
 		_bullets[id]->setSceneId(id);
 		break;
+	case Entity::EntityType::Camera:
+		_cameras[id] = std::move(e);
+		_cameras[id]->setSceneId(id);
 	default:
 		break;
 	}
@@ -327,6 +370,19 @@ Entity* Scene::getRandomSpawnPoint()
 
 	return it->second.get();
 }
+
+Camera* Scene::getCamera() const
+{
+	return _camera.get();
+}
+
+void Scene::setCurrentCamera(U32 id)
+{
+	if(_cameras.find(id) != _cameras.end())
+		_curCamera = _cameras[id]->getCamera();
+}
+
+CameraComponent* Scene::getCurrentCamera() const { return _curCamera; }
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
 {

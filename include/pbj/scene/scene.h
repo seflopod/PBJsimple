@@ -11,6 +11,7 @@
 #include <random>
 
 #include "pbj/_pbj.h"
+#include "pbj/_math.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/entity.h"
 #include "pbj/scene/camera.h"
@@ -25,7 +26,6 @@ namespace pbj {
 class Editor;
 
 namespace scene {
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Scene
 ///
@@ -49,7 +49,8 @@ public:
 	~Scene();
 
     UIRoot ui;
-    Camera camera; // public member var for now.
+    
+	void setupCamera(mat4);
 
 	void draw();
 	void update(F32);
@@ -64,13 +65,19 @@ public:
 	Entity* getPlayer(U32);
 	Entity* getTerrain(U32);
 	Entity* getSpawnPoint(U32);
+	Entity* getCamera(U32);
 	Entity* getRandomSpawnPoint();
 
 	void setLocalPlayer(U32);
 	void clearLocalPlayer();
 	Entity* getLocalPlayer();
 
-    void saveScene(const Id& sandwich_id, const Id& map_id);
+   void saveScene(const Id& sandwich_id, const Id& map_id);
+    
+	void setCurrentCamera(U32);
+	CameraComponent* getCurrentCamera() const;
+
+	Camera* getCamera() const;
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -81,13 +88,19 @@ private:
 	typedef unordered_map<U32,unique_ptr<Entity>> EntityMap;
 
 	U32 _nextEntityId;
-    U32 _localPlayerId;
+   U32 _localPlayerId;
 	U32 _nextBulletId;
 	//as we get more Entity types this may have to expand/change entirely
 	EntityMap _spawnPoints;
 	EntityMap _terrain;
 	EntityMap _players;
 	EntityMap _bullets;
+	EntityMap _cameras;
+
+	CameraComponent* _curCamera;
+
+	std::unique_ptr<Camera> _camera;
+
 	std::ranlux24_base _rnd;  // ranlux? not mersenne twister?
 
     std::string _name;

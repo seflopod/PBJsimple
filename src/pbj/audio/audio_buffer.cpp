@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to load a audio buffer from a sandwich.
 /// \param  1 The id of the texture.
-#define PBJ_AUDIO_AUDIO_BUFFER_SQL_LOAD "SELECT data, " \
+#define PBJ_AUDIO_AUDIO_BUFFER_SQL_LOAD "SELECT data " \
             "FROM sw_sounds WHERE id = ?"
 
 #ifdef BE_ID_NAMES_ENABLED

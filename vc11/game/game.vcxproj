@@ -38,6 +38,9 @@
     <ClCompile Include="..\..\src\be\verbosity.cpp" />
     <ClCompile Include="..\..\src\pbj\add_clobber_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\audio\audio_buffer.cpp" />
+    <ClCompile Include="..\..\src\pbj\audio\audio_listener.cpp" />
+    <ClCompile Include="..\..\src\pbj\audio\audio_source.cpp" />
+    <ClCompile Include="..\..\src\pbj\clobber_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\decorate_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\dupe_editor_mode.cpp" />
     <ClCompile Include="..\..\src\pbj\editor.cpp" />
@@ -58,6 +61,7 @@
     <ClCompile Include="..\..\src\pbj\scene\ai_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\bullet_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\camera.cpp" />
+    <ClCompile Include="..\..\src\pbj\scene\camera_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\entity.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\player_component.cpp" />
     <ClCompile Include="..\..\src\pbj\scene\scene.cpp" />
@@ -89,6 +93,9 @@
     <ClInclude Include="..\..\include\be\_be.h" />
     <ClInclude Include="..\..\include\pbj\add_clobber_editor_mode.h" />
     <ClInclude Include="..\..\include\pbj\audio\audio_buffer.h" />
+    <ClInclude Include="..\..\include\pbj\audio\audio_listener.h" />
+    <ClInclude Include="..\..\include\pbj\audio\audio_source.h" />
+    <ClInclude Include="..\..\include\pbj\clobber_editor_mode.h" />
     <ClInclude Include="..\..\include\pbj\decorate_editor_mode.h" />
     <ClInclude Include="..\..\include\pbj\dupe_editor_mode.h" />
     <ClInclude Include="..\..\include\pbj\editor.h" />
@@ -112,6 +119,7 @@
     <ClInclude Include="..\..\include\pbj\scene\ai_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\bullet_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\camera.h" />
+    <ClInclude Include="..\..\include\pbj\scene\camera_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\entity.h" />
     <ClInclude Include="..\..\include\pbj\scene\player_component.h" />
     <ClInclude Include="..\..\include\pbj\scene\scene.h" />

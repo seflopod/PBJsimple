@@ -24,6 +24,7 @@ class Engine
 {
 public:
    Engine();
+   Engine(int*, char**);
    ~Engine();
 
    Window* getWindow() const;
@@ -31,6 +32,8 @@ public:
    sw::ResourceManager& getResourceManager();
 
 private:
+	void init();
+
     std::unique_ptr<Window> window_;
     std::unique_ptr<b2World> world_;
     sw::ResourceManager resource_mgr_;

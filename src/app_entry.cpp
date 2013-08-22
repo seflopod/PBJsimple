@@ -9,7 +9,7 @@
 // Auto-link with libraries
 #ifdef _WIN32
 #pragma comment (lib, "opengl32.lib")
-
+#pragma comment (lib, "OpenAL32.lib")
 #pragma comment (lib, "alut.lib")
 #ifdef DEBUG
 #pragma comment (lib, "glew32sd.lib")
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 
 
    // Initialize game engine
-	pbj::Engine e;
+	pbj::Engine e(&argc, argv);
 
 #ifdef PBJ_EDITOR
 
