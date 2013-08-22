@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJsimple\src\pbj\scene\entity.cpp
+/// \file   Z:\Documents\PBJsimple\src\pbj\scene\entity.cpp
 ///
-/// \brief	Implements the entity class.
+/// \brief  Implements the entity class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef ENTITY_H_
 #include "pbj/scene/entity.h"
 #endif
@@ -85,45 +85,46 @@ Entity::~Entity()
 /// 		 up-to-date.
 void Entity::update(F32 dt)
 {
-	if(_rigidbody)
-		_rigidbody->updateOwnerTransform();
+    if(_rigidbody)
+        _rigidbody->updateOwnerTransform();
 	
-	if(_ai.get())
-		_ai->update(dt);
+    if(_ai.get())
+        _ai->update(dt);
 
-	if(_player)
-	{
-		if(!_player->isThrusting())
-			_player->regenFuel();
+    if(_player)
+    {
+        if(!_player->isThrusting())
+            _player->regenFuel();
 		
-		if(_player->reloading())
-			_player->stepReloadTimer(dt);
+        if(_player->reloading())
+            _player->stepReloadTimer(dt);
 
-		if(_player->fireOnCooldown())
-			_player->stepFireTimer(dt);
+        if(_player->fireOnCooldown())
+            _player->stepFireTimer(dt);
+    }
 
-		//std::cerr << _player->getFuelRemaining() << std::endl;
-	}
+    //If a bullet isn't moving fast enough, make it disappear
+    if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
+        Game::instance()->disableBullet(this);
 
-	if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
-		Game::instance()->disableBullet(this);
+    //If a player moves too far out of range, kill it.
+    if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height)
+    {
+        _player->setTimeOfDeath(glfwGetTime());
+        Game::instance()->respawnPlayer(this);
+    }
 
-	if(_type == Player && _transform.getPosition().y - _transform.getScale().y/2 < -Game::grid_height)
-	{
-		_player->setTimeOfDeath(glfwGetTime());
-		Game::instance()->respawnPlayer(this);
-	}
-
-	if(_type == Camera)
-	{
-		if(_camera)
-			_camera->update(dt);
-		if(_listener)
-		{
-			_listener->updatePosition();
-			_listener->updateVelocity();
-		}
-	}
+    //Make sure the camera is doing as it needs to do.
+    if(_type == Camera)
+    {
+        if(_camera)
+            _camera->update(dt);
+        if(_listener)
+        {
+            _listener->updatePosition();
+            _listener->updateVelocity();
+        }
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief	draws this object.
@@ -132,21 +133,21 @@ void Entity::update(F32 dt)
 /// \date	2013-08-08
 void Entity::draw()
 {
-	vec2 glmPos = _transform.getPosition();
-	F32 glmRot = _transform.getRotation();
-	vec2 glmSca = _transform.getScale();
+    vec2 glmPos = _transform.getPosition();
+    F32 glmRot = _transform.getRotation();
+    vec2 glmSca = _transform.getScale();
 
     if (_material)
         _material->use();
     else
         Texture::disable();
 
-	glPushMatrix();
-		glTranslatef(glmPos.x, glmPos.y, 0.0f);
-		glRotatef(glmRot, 0, 0, 1);
-		glScalef(glmSca.x, glmSca.y, 1.0f);
+    glPushMatrix();
+        glTranslatef(glmPos.x, glmPos.y, 0.0f);
+        glRotatef(glmRot, 0, 0, 1);
+        glScalef(glmSca.x, glmSca.y, 1.0f);
         _shape->draw((_material->getTexture() != nullptr));
-	glPopMatrix();
+    glPopMatrix();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

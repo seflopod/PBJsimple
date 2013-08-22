@@ -35,18 +35,18 @@ unique_ptr<Game> Game::_instance = unique_ptr<Game>(nullptr);
 ////////////////////////////////////////////////////////////////////////////////
 Game* Game::instance()
 {
-     if(_instance.get() == 0) //no instance yet
-          _instance = unique_ptr<Game>(new Game());
-     return _instance.get();
+    if(_instance.get() == 0) //no instance yet
+        _instance = unique_ptr<Game>(new Game());
+    return _instance.get();
 }
 
 void Game::destroyInstance()
 {
-     if(_instance != 0)
-     {
-          _instance->stop();
-          _instance.reset();
-     }
+    if(_instance != 0)
+    {
+        _instance->stop();
+        _instance.reset();
+    }
 }
 #pragma endregion
 
@@ -80,12 +80,25 @@ Game::~Game()
 #pragma endregion
 
 #pragma region init_funcs
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	bool Game::init(U32 fps)
+///
+/// \brief	Initialises this Game.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-22
+///
+/// \param	fps	The FPS.
+///
+/// \return	true if it succeeds, false if it fails.
+////////////////////////////////////////////////////////////////////////////////
 bool Game::init(U32 fps)
 {
-     _dt = 1.0f/fps;
-     _window.registerContextResizeListener([=](I32 width, I32 height) {
-          _instance->onContextResized(width, height);
-     });
+    _dt = 1.0f/fps;
+    _window.registerContextResizeListener([=](I32 width, I32 height) {
+            _instance->onContextResized(width, height);
+        });
 
     //Register for input event handling
     InputController::registerKeyAllListener(
@@ -97,16 +110,16 @@ bool Game::init(U32 fps)
         [&](I32 mods) {
             onMouseLeftDown(mods);
         });
-     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-     glEnable(GL_BLEND);
 
-	 //setup physics, using variables instead of straight numbers so I can
-     //remember what does what.
-	 
-     _physSettings = PhysicsSettings();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 
-     //remove when making for reals
-     initTestScene();
+    //setup physics, using variables instead of straight numbers so I can
+    //remember what does what.
+    _physSettings = PhysicsSettings();
+
+    //remove when making for reals
+    initTestScene();
 
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)
@@ -115,10 +128,11 @@ bool Game::init(U32 fps)
         _scene.getBullet(_bulletRing[i])->getRigidbody()->setBullet(false);
         _scene.getBullet(_bulletRing[i])->disable();
     }
+
     _curRingIdx = 0;
-     _running = true;
-     _bulletNum = 0;
-     return true;
+    _running = true;
+    _bulletNum = 0;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,8 +145,6 @@ bool Game::init(U32 fps)
 ////////////////////////////////////////////////////////////////////////////////
 void Game::initTestScene()
 {
-	
-
     //first define terrain
     _scene.addEntity(unique_ptr<Entity>(makeTerrain(-37.0f, 8.0f, 15.0f, 5.0f)));
     _scene.addEntity(unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f, 25.0f, 5.0f)));
@@ -220,43 +232,45 @@ void Game::initTestScene()
 ////////////////////////////////////////////////////////////////////////////////
 I32 Game::run()
 {
-     F64 lastFrameTime = 0.0;
-     F64 fps = 0.0;
-     F32 nonPhysTimer = 0.0f;
+    F64 lastFrameTime = 0.0;
+    F64 fps = 0.0;
+    F32 nonPhysTimer = 0.0f;
      
-     //start main loop
-     while(_running)
-     {
-          F64 frameStart = glfwGetTime();
+    //start main loop
+    while(_running)
+    {
+        F64 frameStart = glfwGetTime();
           
-          glfwPollEvents();
+        glfwPollEvents();
           
-		  if(_paused)
-			  continue;
+        if(_paused)
+            continue;
 
-		  _scene.physUpdate(_physSettings.dt, _physSettings.velocityIterations,
-							_physSettings.positionIterations);
+        //since physics is in Scene, run that loop first
+        _scene.physUpdate(_physSettings.dt, _physSettings.velocityIterations,
+        _physSettings.positionIterations);
 
-          if(nonPhysTimer >= _dt)
-          {
-                update();
-                draw();
-                nonPhysTimer-=_dt;
-          }
+        if(nonPhysTimer >= _dt)
+        {   //physics should execute more than drawing and other loops, so
+            //only do those after a certain amount of time.
+            update();
+            draw();
+            nonPhysTimer-=_dt;
+        }
 
-          F64 frameTime = lastFrameTime = glfwGetTime() - frameStart;
+        F64 frameTime = lastFrameTime = glfwGetTime() - frameStart;
 
-          if(lastFrameTime < _physSettings.dt)
-          {
-                std::this_thread::sleep_for(std::chrono::microseconds(I32(
-                     1000000 * (_physSettings.dt - lastFrameTime))));
-                frameTime = glfwGetTime() - frameStart;
-          }
-          nonPhysTimer += _physSettings.dt;
+        if(lastFrameTime < _physSettings.dt)
+        {   //make sure all frames last at least as long as the dt for phsyics
+            std::this_thread::sleep_for(std::chrono::microseconds(I32(
+            1000000 * (_physSettings.dt - lastFrameTime))));
+            frameTime = glfwGetTime() - frameStart;
+        }
+        nonPhysTimer += _physSettings.dt;
 
         fps = 1.0/frameTime;
-     }
-     return 0;
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -269,14 +283,13 @@ I32 Game::run()
 ////////////////////////////////////////////////////////////////////////////////
 void Game::stop()
 {
-     _running = false;
-     //right now not much else that I can think of, but we'll see.
+    _running = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn     bool Game::update()
 ///
-/// \brief     Updates this object.
+/// \brief     Updates for the game.
 ///
 /// \author     Peter Bartosch
 /// \date     2013-08-05
@@ -290,24 +303,27 @@ void Game::update()
     if(!_toRespawn.empty())
     {
         F64 t = glfwGetTime();
+
+        //if the front of the queue isn't ready to respawn, we can assume that
+        //nothing behind it is ready.
         while(!_toRespawn.empty() &&
-                _toRespawn.front()->getPlayerComponent()->getTimeOfDeath() + 2 <= t)
-         {  // five second delay to respawn
+                _toRespawn.front()->getPlayerComponent()->getTimeOfDeath()+2<=t)
+        {   // five second delay to respawn
             vec2 spwn = _scene.getRandomSpawnPoint()->getTransform().getPosition();
             _toRespawn.front()->enable();
             _toRespawn.front()->getTransform().setPosition(spwn.x, spwn.y);
             _toRespawn.front()->getTransform().updateOwnerRigidbody();
             _toRespawn.front()->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
             _toRespawn.front()->getPlayerComponent()->setHealth(
-                        _toRespawn.front()->getPlayerComponent()->getMaxHealth());
+            _toRespawn.front()->getPlayerComponent()->getMaxHealth());
             _toRespawn.front()->getPlayerComponent()->setAmmoRemaining(
-                        _toRespawn.front()->getPlayerComponent()->getMaxAmmo());
+            _toRespawn.front()->getPlayerComponent()->getMaxAmmo());
             _toRespawn.pop();
         }
     }
 
     if(_window.isClosePending() && _running)
-         _running = false;
+        _running = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,21 +336,21 @@ void Game::update()
 ////////////////////////////////////////////////////////////////////////////////
 void Game::draw()
 {
-     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-     _scene.draw();
+    _scene.draw();
 
-     //error pump
-     GLenum glError;
-     while((glError = glGetError()) != GL_NO_ERROR)
-     {
-          PBJ_LOG(VWarning) << "OpenGL error while rendering" << PBJ_LOG_NL
-                                     << "Error code: " << glError << PBJ_LOG_NL
-                                     << "Error:        " << getGlErrorString(glError)
-                                     << PBJ_LOG_END;
-     }
+    //error pump
+    GLenum glError;
+    while((glError = glGetError()) != GL_NO_ERROR)
+    {
+        PBJ_LOG(VWarning) << "OpenGL error while rendering" << PBJ_LOG_NL
+                            << "Error code: " << glError << PBJ_LOG_NL
+                            << "Error:        " << getGlErrorString(glError)
+                            << PBJ_LOG_END;
+    }
 
-     glfwSwapBuffers(_window.getGlfwHandle());
+    glfwSwapBuffers(_window.getGlfwHandle());
 }
 #pragma endregion
 
@@ -342,7 +358,7 @@ void Game::draw()
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::onContextResized(I32 width, I32 height)
 ///
-/// \brief    Executes the context resized action.
+/// \brief    Deals with window resizing.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
@@ -352,70 +368,96 @@ void Game::draw()
 ////////////////////////////////////////////////////////////////////////////////
 void Game::onContextResized(I32 width, I32 height)
 {
-     GLdouble ratio = width/(GLdouble)height;
-     glViewport(0, 0, width, height);
+    GLdouble ratio = width/(GLdouble)height;
+    glViewport(0, 0, width, height);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::BeginContact(b2Contact* contact)
 ///
-/// \brief    Begins a contact.
+/// \brief    Handles the beginning of contact between two rigidbodies.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
-/// \param [in,out]    contact    If non-null, the contact.
+/// \param [in,out]    contact    The contact data.
 ////////////////////////////////////////////////////////////////////////////////
 void Game::BeginContact(b2Contact* contact)
 {
     //handle collisions for the entire game here
+    
+    //Anything colliding should be an Entity, so cast and check
     Entity* a = (Entity*)(contact->GetFixtureA()->GetBody()->GetUserData());
     Entity* b = (Entity*)(contact->GetFixtureB()->GetBody()->GetUserData());
     if(!a || !b)
-    {
-        PBJ_LOG(pbj::VError) << "Collision between untracked rigidbodies. "<< PBJ_LOG_END;
+    {   //if either was not an Entity we have some issues and should do any more
+        //processing
+        PBJ_LOG(pbj::VError) << "Collision between untracked rigidbodies. "
+                                << PBJ_LOG_END;
         return;
     }
 
-    if(b->getType() == Entity::EntityType::Player && a->getType() != Entity::EntityType::Player)
+    //To cut down on the number of if-checks, make sure the player Entity is
+    //in a (assuming one of the objects is a player).
+    if(b->getType() == Entity::EntityType::Player &&
+        a->getType() != Entity::EntityType::Player)
         std::swap(a, b);
 
+    //if one of the objects is a player, we have some stuff to do.  Let's do it.
     if(a->getType() == Entity::EntityType::Player)
     {
+        //make life easier by getting a pointer to the PlayerComponent on the
+        //Entity.
         scene::PlayerComponent* p = a->getPlayerComponent();
+
         switch(b->getType())
         {
         case Entity::EntityType::Terrain:
+        {   //A player hitting terrain usually means that it can jump again
             p->enableJump();
             break;
+        }
         case Entity::EntityType::Bullet:
-        {
-            scene::PlayerComponent* q = ((Entity*)b->getBulletComponent()->getShooter())->getPlayerComponent();
-            I32 dmg = (I32)std::floor(glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
+        {   //First we need to do damage calculations and then we need to check
+            //for death.
+            scene::PlayerComponent* q = ((Entity*)(b->getBulletComponent()->getShooter()))->getPlayerComponent();
+
+            //being a little too fancy with damage.  Base damage taken on
+            //velocity of bullet.
+            I32 dmg = 100 + (I32)std::floor(
+                        glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
+
+            //scoring stuff.  Do damage to the hit party, make sure the shooter
+            //knows that its bullet did the damage.
             p->takeDamage(dmg);
             q->setBulletsHit(q->getBulletsHit()+1);
+
             if(p->isDead())
-            {
+            {   //If the player is dead we need to check how that death happened
+                //then make sure it knows it died and ready the respawn
+                p->setDeaths(p->getDeaths()+1);
+                p->setTimeOfDeath(glfwGetTime());
+
                 if(p->getId() == q->getId())
                 {   //self-kill
-                    p->setDeaths(p->getDeaths()+1);
                     std::cerr<<p->getId().to_useful_string()<<" suicided ("
                                 << p->getDeaths() << ")" << std::endl << std::endl;
                 }
                 else
                 {
-                    p->setTimeOfDeath(glfwGetTime());
-                    p->setDeaths(p->getDeaths()+1);
+                    //make sure the shooter gets credit for the kill
                     q->setKills(q->getKills()+1);
                     std::cerr << p->getId().to_useful_string() << " died ("
                                 << p->getDeaths() << ")" << std::endl << q->getId().to_useful_string()
                                 << " got the kill (" << q->getKills() << ")"
                                 << std::endl << std::endl;
                 }
-                _toRespawn.push(a);
-				_scene.addToDisable(a->getSceneId());
+                _toRespawn.push(a); //queue for respawning players
+				_scene.addToDisable(a->getSceneId()); //queue to remove an Entity from game.
             }
 
+            //since the other object was a bullet, disable it so that disappears
+            //after hitting someone
 			_scene.addToDisable(b->getSceneId());
             break;
         }
@@ -429,7 +471,7 @@ void Game::BeginContact(b2Contact* contact)
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::EndContact(b2Contact* contact)
 ///
-/// \brief    Ends a contact.
+/// \brief    Preforms actions necessary after contact has ended.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
@@ -444,7 +486,7 @@ void Game::EndContact(b2Contact* contact)
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 ///
-/// \brief    Pre solve.
+/// \brief    Handles the pre solve event for the physics world.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
@@ -462,7 +504,7 @@ void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 /// \fn    void Game::PostSolve(b2Contact* contact,
 ///     const b2ContactImpulse* impulse)
 ///
-/// \brief    Posts a solve.
+/// \brief    Handles the post solve event for the physics world.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
@@ -480,70 +522,75 @@ void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 /// \fn    void Game::onKeyboard(I32 keycode, I32 scancode, I32 action,
 ///     I32 modifiers)
 ///
-/// \brief    Executes the keyboard action.
+/// \brief    Processes keyboard input for the game.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
 /// \param    keycode      The keycode.
 /// \param    scancode     The scancode.
-/// \param    action        The action.
-/// \param    modifiers    The modifiers.
+/// \param    action        The action (GLFW_PRESS, GLFW_RELEASE, GLFW_REPEAT).
+/// \param    modifiers    The modifiers for the keyboard action.
 ////////////////////////////////////////////////////////////////////////////////
 void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 {
     if(action == GLFW_PRESS || action == GLFW_REPEAT)
         checkMovement(keycode, action);
+
     if(action == GLFW_RELEASE)
     {
-		_instance->_running = !(keycode == GLFW_KEY_ESCAPE);
+        _instance->_running = !(keycode == GLFW_KEY_ESCAPE);
         
-		if(keycode == GLFW_KEY_H)
-		{
-			_paused = true;
-			help();
-		}
+        if(keycode == GLFW_KEY_H)
+        {   //This should show the help menu.  It pauses the game while doing so.
+            _paused = true;
+            help();
+        }
         else if(keycode == _controls.keyJump[0] || keycode == _controls.keyJump[1])
         {
-			if(_paused)
-				_paused = false;
-			else
-				_scene.getLocalPlayer()->getPlayerComponent()->endThrust();
+            if(_paused) //unpause if paused
+                _paused = false;
+            else
+                _scene.getLocalPlayer()->getPlayerComponent()->endThrust();
         }
-
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::onMouseLeftDown(I32 mods)
 ///
-/// \brief    Executes the mouse left down action.
+/// \brief    Executes the mouse left down action, which in this case is
+/// 		  shooting a bullet.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
-/// \param    mods    The mods.
+/// \param    mods    The modifiers for the mouse click.  These are unused.
 ////////////////////////////////////////////////////////////////////////////////
 void Game::onMouseLeftDown(I32 mods)
 {
     F64 x,y;
     glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
+
+    //do conversion for mouse click from screen coordinates to world coordinates
     ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
     ivec2 size = getEngine().getWindow()->getContextSize();
     vec2 worldPos = _scene.getCurrentCamera()->getWorldPosition(screenCoords, size);
+
+    //mouse left-click means fire for the main player.
     _scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::checkMovement(I32 keycode, I32 action)
 ///
-/// \brief    Check movement.
+/// \brief    Check to see if a keypress should be used for movement.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
 /// \param    keycode    The keycode.
-/// \param    action     The action.
+/// \param    action     The action (GLFW_PRESS, GLFW_RELEASE, etc)
 ////////////////////////////////////////////////////////////////////////////////
 void Game::checkMovement(I32 keycode, I32 action)
 {
@@ -567,9 +614,11 @@ void Game::checkMovement(I32 keycode, I32 action)
     }
     else if(keycode == _controls.keyFire1[0] || keycode == _controls.keyFire1[1])
     {
+        //do nothing
     }
     else if(keycode == _controls.keyFire2[0] || keycode == _controls.keyFire2[1])
     {
+        //do nothing
     }
     else if(keycode == _controls.keyJump[0] || keycode == _controls.keyJump[1])
     {
@@ -577,15 +626,16 @@ void Game::checkMovement(I32 keycode, I32 action)
     }
     else if(keycode == _controls.keyAction[0] || keycode == _controls.keyAction[1])
     {
+        //do nothing
     }
 }
 #pragma endregion
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::help()
 ///
-/// \brief    Helps this object.
+/// \brief    Displays the help menu in STDERR.
 ///
-/// \author    Peter Bartosch
+/// \author    Josh Douglas
 /// \date    2013-08-13
 ////////////////////////////////////////////////////////////////////////////////
 void Game::help()
@@ -595,15 +645,19 @@ void Game::help()
     std::cerr << std::endl << std::endl;
     std::cerr << "--Controls--" << std::endl;
     std::cerr << std::endl;
-    std::cerr << "w - Press w to jump" << std::endl;
+    std::cerr << "w - Press w to activate thrusters" << std::endl;
     std::cerr << "a - Press a to move left" << std::endl;
-    std::cerr << "s - Press s to duck(tentative)" << std::endl;
+    std::cerr << "s - Press s to quickly stop and accelerate down" << std::endl;
     std::cerr << "d - Press d to move right" << std::endl;
+    std::cerr << "space - jump" << std::endl;
+    std::cerr << "Mouse left click - fire bullet" << std::endl;
     std::cerr << "h - Press h to display help menu" << std::endl;
     std::cerr << "ESC - Press ESC to exit the game" << std::endl;
     std::cerr << std::endl << std::endl;
     std::cerr << "Move the mouse to change the fire direction" << std::endl;
-    std::cerr << "Press the left mouse button to fire the weapon" << std::endl;
+    std::cerr << "Press the left mouse button to fire the weapon" << std::endl
+                << std::endl;
+    std::cerr << "Press space to continue" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -614,8 +668,8 @@ void Game::help()
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
-/// \param    position    The position.
-/// \param    velocity    The velocity.
+/// \param    position    The position of the bullet.
+/// \param    velocity    The velocity for the bullet to have.
 ////////////////////////////////////////////////////////////////////////////////
 void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter)
 {
@@ -631,18 +685,19 @@ void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::disableBullet(Entity* e)
+/// \fn	void Game::disableBullet(Entity* e)
 ///
-/// \brief    Disables the bullet.
+/// \brief	Disables a bullet.
 ///
-/// \author    Peter Bartosch
-/// \date    2013-08-14
+/// \author	Peter Bartosch
+/// \date	2013-08-22
 ///
-/// \param [in,out]    e    If non-null, the Entity* to process.
+/// \param [in]	e	Sends a the id of the passed Entity to the Scene so that it
+/// 			    can be disabled at the end of the physics loop.
 ////////////////////////////////////////////////////////////////////////////////
 void Game::disableBullet(Entity* e)
 {
-	_scene.addToDisable(e->getSceneId());
+    _scene.addToDisable(e->getSceneId());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -661,18 +716,29 @@ void Game::respawnPlayer(Entity* e)
     _toRespawn.push(e);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	scene::Scene& Game::currentScene()
+///
+/// \brief	Gets the current scene.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-22
+///
+/// \return	A reference to the current scene.
+////////////////////////////////////////////////////////////////////////////////
 scene::Scene& Game::currentScene() { return _scene; }
 
 #pragma region entity_makes
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    Entity* Game::makeBullet()
 ///
-/// \brief    Makes the bullet.
+/// \brief    Makes a bullet.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
-/// \return    null if it fails, else.
+/// \return    A pointer to an Entity that has all the characteristics of a
+/// 		   bullet.
 ////////////////////////////////////////////////////////////////////////////////
 Entity* Game::makeBullet()
 {
@@ -696,7 +762,8 @@ Entity* Game::makeBullet()
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
-/// \return    null if it fails, else.
+/// \return    A pointer to an Entity that has all the characteristics of a
+/// 		   player.
 ////////////////////////////////////////////////////////////////////////////////
 Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
 {
@@ -704,10 +771,6 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
     p->setType(Entity::Player);
     p->getTransform().setPosition(vec2(x, y));
     p->getTransform().setScale(vec2(1.0f, 2.0f));
-    /*if(addAI)
-        p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bots"))));
-    else
-        p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));*/
     
     p->setShape(new ShapeSquare());
     p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene.getWorld());
@@ -739,10 +802,8 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ///
-/// \return    null if it fails, else.
-///
-/// \details Since we can't change the size of a Rigidbody yet, this is a kind
-///             useless function unless something changes.
+/// \return    A pointer to an Entity that has all the characteristics of a
+/// 		   piece of terrain.
 ////////////////////////////////////////////////////////////////////////////////
 Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
 {
@@ -757,6 +818,20 @@ Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
     return t;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn	Entity* Game::makeSpawnPoint(F32 x, F32 y)
+///
+/// \brief	Makes spawn point.
+///
+/// \author	Peter Bartosch
+/// \date	2013-08-22
+///
+/// \param	x	The F32 to process.
+/// \param	y	The F32 to process.
+///
+/// \return	A pointer to an Entity that has all the characteristics of a
+/// 		spawn point.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Game::makeSpawnPoint(F32 x, F32 y)
 {
     Entity* s = new Entity();
