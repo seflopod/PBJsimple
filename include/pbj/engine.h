@@ -28,14 +28,12 @@ public:
    ~Engine();
 
    Window* getWindow() const;
-   b2World* getWorld() const;
    sw::ResourceManager& getResourceManager();
 
 private:
 	void init();
 
     std::unique_ptr<Window> window_;
-    std::unique_ptr<b2World> world_;
     sw::ResourceManager resource_mgr_;
     
 

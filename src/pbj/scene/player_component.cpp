@@ -680,7 +680,10 @@ void PlayerComponent::fire(F32 mouseX, F32 mouseY)
 
 		//play audio
 		if(((Entity*)_owner)->getAudioSource())
+		{
+			((Entity*)_owner)->getAudioSource()->stop();
 			((Entity*)_owner)->getAudioSource()->play("fire");
+		}
 	}
 }
 
@@ -741,7 +744,10 @@ void PlayerComponent::takeDamage(I32 dmg)
 	_stats.health-=dmg;
 
 	if(e->getAudioSource())
+	{
+		e->getAudioSource()->stop();
 		e->getAudioSource()->play("dmg");
+	}
 	if(_stats.health <= 0)
 	{
 		if(e->getAudioSource())

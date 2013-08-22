@@ -143,6 +143,9 @@ namespace pbj
 		void disableBullet(Entity*);
 		void respawnPlayer(Entity*);
 
+		scene::Scene& currentScene();
+		
+		
 	private:
 		static unique_ptr<Game> _instance;
 
@@ -151,8 +154,7 @@ namespace pbj
 		void initTestScene();
 		void initBasicMaterials();
 
-		bool update();
-        bool physUpdate();
+		void update();
 
 		void draw();
 
@@ -172,11 +174,11 @@ namespace pbj
 
 		F32 _dt;
 		bool _running;
+		bool _paused;
 		Engine& _engine;
 		Window& _window;
 		b2World* _world;
 		PhysicsSettings _physSettings;
-		queue<Entity*> _toDisable;
 		queue<Entity*> _toRespawn;
 		GameControls _controls;
 		U32 _bulletRing[100];
