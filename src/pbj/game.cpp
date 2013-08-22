@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "pbj/scene/ui_label.h"
 #include "pbj/scene/player_component.h"
+#include "pbj/sw/sandwich_open.h"
 
 using pbj::scene::Entity;
 
@@ -18,7 +19,7 @@ namespace pbj {
 
 #pragma region statics
 /// \brief     The client instance pointer.
-unique_ptr<Game> Game::_instance = unique_ptr<Game>(nullptr);
+unique_ptr<Game> Game::_instance;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,17 +37,12 @@ unique_ptr<Game> Game::_instance = unique_ptr<Game>(nullptr);
 Game* Game::instance()
 {
     if(_instance.get() == 0) //no instance yet
-        _instance = unique_ptr<Game>(new Game());
-    return _instance.get();
-}
-
-void Game::destroyInstance()
-{
-    if(_instance != 0)
     {
-        _instance->stop();
-        _instance.reset();
+        PBJ_LOG(VError) << "No game object available!" << PBJ_LOG_END;
+        assert(false);
+        //throw std::runtime_error("No game object available!");
     }
+    return _instance.get();
 }
 #pragma endregion
 
@@ -59,42 +55,18 @@ void Game::destroyInstance()
 /// \author     Peter Bartosch
 /// \date     2013-08-05
 ////////////////////////////////////////////////////////////////////////////////
-Game::Game() :
+Game::Game()
+    : _prng(std::mt19937::result_type(time(nullptr))),
      _dt(0.0f),
      _running(false),
 	 _paused(false),
      _engine(getEngine()),
      _window(*getEngine().getWindow())
-{}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn     Game::~Game()
-///
-/// \brief     Destructor.
-///
-/// \author     Peter Bartosch
-/// \date     2013-08-05
-////////////////////////////////////////////////////////////////////////////////
-Game::~Game()
-{}
-#pragma endregion
-
-#pragma region init_funcs
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	bool Game::init(U32 fps)
-///
-/// \brief	Initialises this Game.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-22
-///
-/// \param	fps	The FPS.
-///
-/// \return	true if it succeeds, false if it fails.
-////////////////////////////////////////////////////////////////////////////////
-bool Game::init(U32 fps)
 {
+    const U32 fps = 30;
+
+    _instance.reset(this);
+
     _dt = 1.0f/fps;
     _window.registerContextResizeListener([=](I32 width, I32 height) {
             _instance->onContextResized(width, height);
@@ -106,10 +78,10 @@ bool Game::init(U32 fps)
             onKeyboard(keycode, scancode, action, modifiers);
         });
 
-    InputController::registerMouseLeftDownListener(
-        [&](I32 mods) {
+    InputController::registerMouseLeftDownListener(std::bind(onMouseLeftDown, this));
+        /*[&](I32 mods) {
             onMouseLeftDown(mods);
-        });
+        });*/
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -118,9 +90,14 @@ bool Game::init(U32 fps)
     //remember what does what.
     _physSettings = PhysicsSettings();
 
-    //remove when making for reals
-    initTestScene();
+    std::vector<Id> sws = sw::getSandwichIds();
+    for (Id id : sws)
+    {
+        getSceneIds(id);
+    }
 
+
+    /*
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)
     {
@@ -132,36 +109,56 @@ bool Game::init(U32 fps)
     _curRingIdx = 0;
     _running = true;
     _bulletNum = 0;
-    return true;
+    */
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::initTestScene()
+/// \fn     Game::~Game()
 ///
-/// \brief    Initialises the test scene.
+/// \brief     Destructor.
 ///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
+/// \author     Peter Bartosch
+/// \date     2013-08-05
 ////////////////////////////////////////////////////////////////////////////////
-void Game::initTestScene()
+Game::~Game()
 {
-    //first define terrain
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(-37.0f, 8.0f, 15.0f, 5.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f, 25.0f, 5.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(-7.5f, 13.75f, 10.0f, 2.5f)));
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, -20.0f, 100.0f, 5.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, 20.0f, 5.0f, 15.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, 30.0f, 100.0f, 10.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(10.0f, -5.0f, 5.0f, 5.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeTerrain(37.0f, 5.0f, 10.0f, 5.0f)));
-    
-    //second add spawn points to scene
-    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(-15.0f, 3.5f)));
-    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(-7.5f, 16.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(0.0f, 0.0f)));
-    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(10.0f, -1.5f)));
-    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(37.0f, 3.5f)));
+    stop();
+}
+#pragma endregion
 
+
+void Game::getSceneIds(const Id& sw_id)
+{
+    std::shared_ptr<sw::Sandwich> ptr = sw::open(sw_id);
+
+    if (ptr)
+    {
+        db::CachedStmt& stmt = ptr->getStmtCache().hold(Id("SELECT id FROM sw_maps"), "SELECT id FROM sw_maps");
+
+        while (stmt.step())
+        {
+            _scene_ids.push_back(sw::ResourceId(sw_id, Id(stmt.getUInt64(0))));
+        }
+    }
+}
+
+sw::ResourceId Game::getRandomSceneId() const
+{
+    std::uniform_int_distribution<int> dist(0, _scene_ids.size() - 1);
+    return _scene_ids[dist(_prng)];
+}
+
+void Game::loadScene(const sw::ResourceId& scene_id)
+{
+    auto ptr = sw::open(scene_id.sandwich);
+    if (!ptr)
+        return;
+
+    _scene = scene::loadScene(*ptr, scene_id.resource);
+}
+
+/*void Game::initTestScene()
+{
     //add the local player to the scene
     vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
     U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
@@ -216,8 +213,7 @@ void Game::initTestScene()
     _scene.initUI();
 
 	_scene.getWorld()->SetContactListener(this);
-}
-#pragma endregion
+}*/
 
 #pragma region run_game
 ////////////////////////////////////////////////////////////////////////////////
@@ -794,62 +790,6 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
     return p;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    Entity* Game::makeTerrain()
-///
-/// \brief    Makes the terrain.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \return    A pointer to an Entity that has all the characteristics of a
-/// 		   piece of terrain.
-////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
-{
-    Entity* t = new Entity();
-    t->setType(Entity::EntityType::Terrain);
-    t->getTransform().setPosition(x, y);
-    t->getTransform().setScale(width, height);
-    t->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("terrain_big"))));
-    t->setShape(new ShapeSquare());
-    t->addRigidbody(Rigidbody::BodyType::Static, _scene.getWorld());
-    t->enableDraw();
-    return t;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	Entity* Game::makeSpawnPoint(F32 x, F32 y)
-///
-/// \brief	Makes spawn point.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-22
-///
-/// \param	x	The F32 to process.
-/// \param	y	The F32 to process.
-///
-/// \return	A pointer to an Entity that has all the characteristics of a
-/// 		spawn point.
-////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makeSpawnPoint(F32 x, F32 y)
-{
-    Entity* s = new Entity();
-    s->setType(Entity::EntityType::SpawnPoint);
-    s->getTransform().setPosition(x, y);
-    s->getTransform().setScale(1.0f, 1.0f);
-    s->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("red"))));
-    s->setShape(new ShapeSquare());
-
-#ifndef PBJ_EDITOR
-    //disable this when not testing
-    //s->enableDraw();
-    s->disableDraw();
-#else
-    // When in the editor, draw spawnpoints no matter what.
-    s->enableDraw();
-#endif
-    return s;
-}
 #pragma endregion
+
 } // namespace pbj

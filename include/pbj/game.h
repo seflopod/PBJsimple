@@ -130,12 +130,12 @@ namespace pbj
 		static const int grid_height = 33;
 
 		static Game* instance();
-		static void destroyInstance();
 
+        Game();
 		~Game();
+
 		void help();
 
-		bool init(U32);
 		I32 run();
 		void stop();
 		
@@ -144,19 +144,24 @@ namespace pbj
 		void respawnPlayer(Entity*);
 
 		scene::Scene& currentScene();
-		
+
+        sw::ResourceId getRandomSceneId() const;
+        void loadScene(const sw::ResourceId& scene_id);
 		
 	private:
+        void update();
+		void draw();
+
+        void getSceneIds(const Id& sw_id);
+
+        std::vector<sw::ResourceId> _scene_ids;
+
 		static unique_ptr<Game> _instance;
 
-		Game();
-		
-		void initTestScene();
-		void initBasicMaterials();
+		std::mt19937 _prng;
 
-		void update();
+        std::unique_ptr<scene::Scene> _scene;
 
-		void draw();
 
 		void onContextResized(I32, I32);
 		void onKeyboard(I32, I32, I32, I32);
@@ -169,8 +174,6 @@ namespace pbj
 
 		Entity* makeBullet();
 		Entity* makePlayer(be::Id, F32, F32, bool);
-		Entity* makeTerrain(F32, F32, F32, F32);
-		Entity* makeSpawnPoint(F32, F32);
 		
 		F32 _dt;
 		bool _running;
@@ -184,8 +187,6 @@ namespace pbj
 		U32 _bulletRing[100];
 		I32 _curRingIdx;
 		I32 _bulletNum;
-		//this should be a container for multiple scenes.  Right now only one.
-		pbj::scene::Scene _scene;
 	};
 
 	

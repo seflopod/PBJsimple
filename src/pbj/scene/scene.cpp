@@ -740,9 +740,7 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
           while (s2.step())
           {
                 Id entity_id(s2.getUInt64(0));
-                std::unique_ptr<Entity> e = loadEntity(sandwich, map_id, entity_id);
-                if (e)
-                     s->addEntity(std::move(e));
+                loadEntity(sandwich, map_id, entity_id, *s);
           }
      }
      catch (const db::Db::error& err)

@@ -600,7 +600,7 @@ void Entity::disable()
 /// \fn std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich,
 ///     const Id& map_id, const Id& entity_id)
 ///
-/// \brief  Loads an entity.
+/// \brief  Loads an entity and adds it to the provided scene.
 ///
 /// \author Ben Crist
 /// \date   2013-08-22
@@ -611,10 +611,8 @@ void Entity::disable()
 /// \param [in,out] sandwich    The sandwich.
 /// \param  map_id              Identifier for the map.
 /// \param  entity_id           Identifier for the entity.
-///
-/// \return The entity.
 ////////////////////////////////////////////////////////////////////////////////
-std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id)
+void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene)
 {
     std::unique_ptr<Entity> value;
 
@@ -654,8 +652,7 @@ std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, con
             {
                 case Entity::Terrain:
                     value->setShape(new ShapeSquare());
-                    /// TODO: fix physics world part of engine instead of scene?
-                    value->addRigidbody(Rigidbody::BodyType::Static, Game::instance()->currentScene().getWorld());
+                    value->addRigidbody(Rigidbody::BodyType::Static, scene.getWorld());
                     value->enableDraw();
                     break;
 
@@ -696,7 +693,8 @@ std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, con
                           << "  Exception: " << err.what() << PBJ_LOG_END;
    }
 
-    return value;
+    if (value)
+        scene.addEntity(std::move(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

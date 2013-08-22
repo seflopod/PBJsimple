@@ -105,12 +105,9 @@ int main(int argc, char* argv[])
 
 #else
 	//Start and run game
-	pbj::Game::instance()->init(30);
-	pbj::I32 exitCode = pbj::Game::instance()->run();
-
-	//Do teardown
-	pbj::Game::instance()->stop();
-	pbj::Game::destroyInstance();
+	pbj::Game game;
+    game.loadScene(game.getRandomSceneId());
+	pbj::I32 exitCode = game.run();
 
 	return exitCode;
 #endif

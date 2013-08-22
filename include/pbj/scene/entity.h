@@ -42,6 +42,8 @@ using be::Id;
 namespace pbj {
 namespace scene {
 
+class Scene;
+
 ////////////////////////////////////////////////////////////////////////////
 /// \class	Entity
 ///
@@ -151,7 +153,7 @@ private:
 	void operator=(const Entity&);
 };
 
-std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id);
+void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene);
 
 } //namespace pbj::scene
 } //namespace pbj

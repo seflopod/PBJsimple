@@ -76,7 +76,7 @@ void RotateEditorMode::onDragUpdate(I32 button, const vec2& start, const vec2& e
     if (active_entity_ && (button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT))
     {
         vec2 delta = end - start;
-        active_entity_->getTransform().setRotation(original_rotation_ + 3 * (delta.x + delta.y) / editor_.getZoom());
+        active_entity_->getTransform().setRotation(original_rotation_ + F32(3 * (delta.x + delta.y) / editor_.getZoom()));
     }
 }
 
