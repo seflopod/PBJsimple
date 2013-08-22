@@ -16,13 +16,33 @@ namespace pbj
 {
 namespace gfx
 {
-
+    ////////////////////////////////////////////////////////////////////////////
+    /// \class  ShapeTriangle
+    ///
+    /// \brief  Josh Douglas / Peter Bartosch
+    ///
+    /// \author Peter Bartosch
+    /// \date   2013-08-22
+    ////////////////////////////////////////////////////////////////////////////
 	class ShapeTriangle : public Shape
 	{
 	public:
 		ShapeTriangle() {}
 		~ShapeTriangle() {}
 
+        ////////////////////////////////////////////////////////////////////////
+        /// \fn virtual void ShapeTriangle::draw(bool hasTexture)
+        ///
+        /// \brief  Draws.
+        ///
+        /// \author Josh Douglas / Peter Bartosch
+        /// \date   2013-08-22
+        ///
+        /// \param  hasTexture  true if this ShapeTriangle has texture.
+        /// 
+        /// \details    Draws a 1 unit per side equilateral triangle around
+        ///             this Shape's origin.
+        ////////////////////////////////////////////////////////////////////////
 		virtual void draw(bool hasTexture)
 		{
 			if(hasTexture)

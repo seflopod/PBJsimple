@@ -10,7 +10,20 @@ namespace pbj
 {
 namespace audio
 {
-	
+    ////////////////////////////////////////////////////////////////////////////
+    /// \class  AudioListener
+    ///
+    /// \brief  Audio listener.
+    ///
+    /// \author Peter Bartosch
+    /// \date   2013-08-22
+    /// 
+    /// \details    Wraps OpenAL for alListener* functions.  To make this work
+    ///             within our architecture I had to make the position and
+    ///             velocity updates more automatic, but they work.  I left in
+    ///             the ability to change the orientation of the AudioListener,
+    ///             but I do not think we will need to use it.
+    ////////////////////////////////////////////////////////////////////////////
 	class AudioListener
 	{
 	public:

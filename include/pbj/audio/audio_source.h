@@ -1,3 +1,8 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file   Z:\Documents\PBJsimple\include\pbj\audio\audio_source.h
+///
+/// \brief  Declares the audio source class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef AUDIO_SOURCE_H_
 #define AUDIO_SOURCE_H_
 
@@ -18,6 +23,19 @@ namespace pbj
 {
 namespace audio
 {
+    ////////////////////////////////////////////////////////////////////////////
+    /// \class  AudioSource
+    ///
+    /// \brief  Audio source.
+    ///
+    /// \author Peter Bartosch
+    /// \date   2013-08-22
+    /// 
+    /// \details    AudioSource provide functions for wrapping around OpenAL's
+    ///             alSource* functions.  I didn't provide all of the same
+    ///             functionality (such as cone-directed sounds) because we did
+    ///             not appear to need them.
+    ////////////////////////////////////////////////////////////////////////////
 	class AudioSource
 	{
 	public:

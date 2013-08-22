@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJsimple\include\pbj\scene\entity.h
+/// \file    C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
+///         PBJsimple\include\pbj\scene\entity.h
 ///
-/// \brief	Declares the entity class.
+/// \brief    Declares the entity class.
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef ENTITY_H_
 #define ENTITY_H_
@@ -42,115 +42,116 @@ using be::Id;
 namespace pbj {
 namespace scene {
 
-////////////////////////////////////////////////////////////////////////////
-/// \class	Entity
-///
-/// \brief	Entity keeps track of all data relating to an object within a
-/// 		scene.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
-////////////////////////////////////////////////////////////////////////////
-class Entity
-{
-public:
-	////////////////////////////////////////////////////////////////////////
-	/// \enum EntityType
-	///
-	/// \brief Values that represent EntityType.
-	////////////////////////////////////////////////////////////////////////
-	enum EntityType
-	{
-		Terrain = 0x01,
-		Player = 0x02,
-		SpawnPoint = 0x04,
-		Bullet = 0x08,
-		Camera = 0xF0
-	};
+    ////////////////////////////////////////////////////////////////////////////
+    /// \class  Entity
+    ///
+    /// \brief  Entity keeps track of all data relating to an object within a
+    ///         scene.
+    ///
+    /// \author Peter Bartosch
+    /// \date   2013-08-05
+    ////////////////////////////////////////////////////////////////////////////
+    class Entity
+    {
+    public:
 
-	Entity();
-	~Entity();
-		
-	void update(F32);
-	void draw();
-		
-	//accessors, these will expand as the class gains more component
-	//possiblities
-	Transform& getTransform();
-	void setTransform(const Transform&);
-		
-	Shape* getShape() const;
-	void setShape(Shape*);
+        ////////////////////////////////////////////////////////////////////////
+        /// \enum   EntityType
+        ///
+        /// \brief  Values that represent EntityType.
+        ////////////////////////////////////////////////////////////////////////
+        enum EntityType
+        {
+            Terrain = 0x01,
+            Player = 0x02,
+            SpawnPoint = 0x04,
+            Bullet = 0x08,
+            Camera = 0xF0
+        };
 
-	const Material* getMaterial();
-	void setMaterial(const Material*);
+        Entity();
+        ~Entity();
+        
+        void update(F32);
+        void draw();
+        
+        //accessors, these will expand as the class gains more component
+        //possiblities
+        Transform& getTransform();
+        void setTransform(const Transform&);
+        
+        Shape* getShape() const;
+        void setShape(Shape*);
 
-	GLuint getTextureId() const;
-	void setTextureId(const GLuint);
-		
-	void addRigidbody(Rigidbody::BodyType, b2World*);
-	Rigidbody* getRigidbody() const;
+        const Material* getMaterial();
+        void setMaterial(const Material*);
 
-	void addPlayerComponent(Id);
-	PlayerComponent* getPlayerComponent() const;
+        GLuint getTextureId() const;
+        void setTextureId(const GLuint);
+        
+        void addRigidbody(Rigidbody::BodyType, b2World*);
+        Rigidbody* getRigidbody() const;
 
-	void addAIComponent();
-	AIComponent* getAIComponent() const;
-	U32 getSceneId() const;
-	void setSceneId(U32);
+        void addPlayerComponent(Id);
+        PlayerComponent* getPlayerComponent() const;
 
-	void addBulletComponent();
-	BulletComponent* getBulletComponent() const;
+        void addAIComponent();
+        AIComponent* getAIComponent() const;
+        U32 getSceneId() const;
+        void setSceneId(U32);
 
-	void addAudioListener();
-	AudioListener* getAudioListener() const;
+        void addBulletComponent();
+        BulletComponent* getBulletComponent() const;
 
-	void addAudioSource();
-	AudioSource* getAudioSource() const;
+        void addAudioListener();
+        AudioListener* getAudioListener() const;
 
-	void addCamera();
-	CameraComponent* getCamera() const;
+        void addAudioSource();
+        AudioSource* getAudioSource() const;
 
-	EntityType getType() const;
-	void setType(EntityType);
+        void addCamera();
+        CameraComponent* getCamera() const;
+
+        EntityType getType() const;
+        void setType(EntityType);
 
 
-	bool isDrawable() const;
-	void enableDraw();
-	void disableDraw();
+        bool isDrawable() const;
+        void enableDraw();
+        void disableDraw();
 
-	bool isEnabled() const;
-	void enable();
-	void disable();
+        bool isEnabled() const;
+        void enable();
+        void disable();
 
-private:
-    bool _drawable;
-	bool _enabled;
-	//bool _toDisable;
-	//bool _toEnable;
+    private:
+        bool _drawable;
+        bool _enabled;
+        //bool _toDisable;
+        //bool _toEnable;
 
-	U32 _transformCallbackId;
-	U32 _sceneId;
-	EntityType _type;
+        U32 _transformCallbackId;
+        U32 _sceneId;
+        EntityType _type;
 
-	//components
-	Transform _transform;
-	unique_ptr<Shape> _shape;
-	const Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
-	unique_ptr<Rigidbody> _rigidbody;
-	unique_ptr<PlayerComponent> _player;
-	unique_ptr<AIComponent> _ai;
-	unique_ptr<BulletComponent> _bullet;
-	unique_ptr<AudioSource> _src;
-	unique_ptr<AudioListener> _listener;
-	unique_ptr<CameraComponent> _camera;
+        //components
+        Transform _transform;
+        unique_ptr<Shape> _shape;
+        const Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
+        unique_ptr<Rigidbody> _rigidbody;
+        unique_ptr<PlayerComponent> _player;
+        unique_ptr<AIComponent> _ai;
+        unique_ptr<BulletComponent> _bullet;
+        unique_ptr<AudioSource> _src;
+        unique_ptr<AudioListener> _listener;
+        unique_ptr<CameraComponent> _camera;
 
-	Entity(const Entity&);
-	void operator=(const Entity&);
-};
+        Entity(const Entity&);
+        void operator=(const Entity&);
+    };
 
-unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id);
-void saveEntity(const Id& sandwich_id, const Id& map_id);
+    unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id);
+    void saveEntity(const Id& sandwich_id, const Id& map_id);
 
 } //namespace pbj::scene
 } //namespace pbj

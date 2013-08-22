@@ -16,13 +16,32 @@ namespace pbj
 {
 namespace gfx
 {
+    ////////////////////////////////////////////////////////////////////////////
+    /// \class  ShapeSquare
+    ///
+    /// \brief  Shape square.
+    ///
+    /// \author Peter Bartosch
+    /// \date   2013-08-22
+    ////////////////////////////////////////////////////////////////////////////
 	class ShapeSquare : public Shape
 	{
 	public:
 		ShapeSquare() {}
-
 		~ShapeSquare() {}
 
+        ////////////////////////////////////////////////////////////////////////
+        /// \fn virtual void ShapeTriangle::draw(bool hasTexture)
+        ///
+        /// \brief  Draws.
+        ///
+        /// \author Peter Bartosch
+        /// \date   2013-08-22
+        ///
+        /// \param  hasTexture  true if this ShapeTriangle has texture.
+        /// 
+        /// \details    Draws a unit square around this Shape's origin.
+        ////////////////////////////////////////////////////////////////////////
 		virtual void draw(bool hasTexture)
 		{
 			if(hasTexture)
