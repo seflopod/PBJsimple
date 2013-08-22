@@ -111,6 +111,7 @@ private:
 	UIPanel* eInfo_;
 	std::unordered_map<Id, UIElement*> ui_elements;
 	UILabel* frame_label_[5];
+	UILabel* frame_kd_[5];
 	Engine& engine_;
 };
 

@@ -8,6 +8,8 @@
 #include "pbj/game.h"
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to load a scene's name from a sandwich.
@@ -127,6 +129,7 @@ void Scene::draw()
     sw::ResourceId id;
     id.sandwich = Id(PBJ_ID_PBJBASE);
     id.resource = Id("std_font");
+	std::setprecision(2);
     I32 i=0;
     I32 j=20;
     I32 pad = 5;
@@ -141,12 +144,20 @@ void Scene::draw()
         std::string kills = std::to_string(p->getKills());
         std::string deaths = std::to_string(p->getDeaths());
 
-        //this is going to change when we change how players are id'd
-        frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " Health: " + health + 
-                                                                              " Kills: " + kills + 
-                                                                              " Deaths: " +  deaths);
+		//this is going to change when we change how players are id'd
+		std::ostringstream osh;
+		osh << p->getId().to_useful_string() << " Health: " <<  health;
 
-        p = nullptr;
+		frame_label_[i]->setText(osh.str());
+
+		std::ostringstream oss;
+		oss << p->getId().to_useful_string()
+			<< " Kills: " << kills
+			<< " Deaths: " << deaths;
+
+		frame_kd_[i]->setText(oss.str());
+ 
+		//p = nullptr;
         ++i;
         j+=30;
     }
@@ -405,35 +416,42 @@ void Scene::initUI()
     eInfo_ = new scene::UIPanel();
     ui_.panel.addElement(std::unique_ptr<UIElement>(eInfo_));
 
-    id.resource = Id("std_font");
-    I32 i=0;
-    I32 j=20;
+	id.resource = Id("std_font");
+	const gfx::TextureFont* font = &engine_.getResourceManager().getTextureFont(id);
+
+    
+    I32 i = 0;
+    I32 j = 20;
+	I32 k = 40;
     I32 pad = 5;
     for(EntityMap::iterator it=_players.begin();
         it!=_players.end();
         ++it)
     {
-        //Setup positioning and color
-        frame_label_[i] = new UILabel();
-        eInfo_->addElement(std::unique_ptr<UIElement>(frame_label_[i]));
-        frame_label_[i]->setAlign(scene::UILabel::AlignLeft);
-        frame_label_[i]->setFont(&engine_.getResourceManager().getTextureFont(id));
-        frame_label_[i]->setTextScale(vec2(2, 2));
-        frame_label_[i]->setTextColor(it->second->getMaterial()->getColor());
+			//Setup positioning and color
+			frame_label_[i] = new UILabel();
+			eInfo_->addElement(std::unique_ptr<UIElement>(frame_label_[i]));
+			frame_label_[i]->setAlign(scene::UILabel::AlignLeft);
+			frame_label_[i]->setFont(font);
+			frame_label_[i]->setTextScale(vec2(2, 2));
+			frame_label_[i]->setTextColor(it->second->getMaterial()->getColor());
 
-        frame_label_[i]->setDimensions(vec2(200, 10));
-        frame_label_[i]->setPosition(vec2(0+pad, 0 + j));
+			frame_label_[i]->setDimensions(vec2(200, 10));
+			frame_label_[i]->setPosition(vec2(0+pad, 0 + j));
 
-        //Add data
-       // PlayerComponent* p = it->second->getPlayerComponent();
-        //std::string health = std::to_string((p->getHealth() / (F32)p->getMaxHealth()) * 100);
-        //std::cerr << p->getHealth() << std::endl;
-        //this is going to change when we change how players are id'd
-        //frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " " + health);
+			//Setup positioning and color
+			frame_kd_[i] = new UILabel();
+			eInfo_->addElement(std::unique_ptr<UIElement>(frame_kd_[i]));
+			frame_kd_[i]->setAlign(scene::UILabel::AlignLeft);
+			frame_kd_[i]->setFont(font);
+			frame_kd_[i]->setTextScale(vec2(2, 2));
+			frame_kd_[i]->setTextColor(it->second->getMaterial()->getColor());
 
-       // p = nullptr;
+			frame_kd_[i]->setDimensions(vec2(200, 10));
+			frame_kd_[i]->setPosition(vec2(0+pad, 0 + k));
         ++i;
-        j+=30;
+        j += 50;
+		k += 50;
     }
 }
 
