@@ -119,13 +119,9 @@ void Scene::draw()
         if(it->second->isDrawable())
             it->second->draw();
 
-    /*for(EntityMap::iterator it=_players.begin();
-        it!=_players.end();
-        it++)
-        if(it->second->isDrawable())
-            it->second->draw();*/
 
-    //I assume the ui drawing goes like this.
+    // Updates the UI to display the correct number of kills
+	// deaths and health, Josh
     sw::ResourceId id;
     id.sandwich = Id(PBJ_ID_PBJBASE);
     id.resource = Id("std_font");
@@ -419,7 +415,7 @@ void Scene::initUI()
 	id.resource = Id("std_font");
 	const gfx::TextureFont* font = &engine_.getResourceManager().getTextureFont(id);
 
-    
+    // Draws the UI to the screen with seperate lines for the kills/deaths and health, Josh
     I32 i = 0;
     I32 j = 20;
 	I32 k = 40;
