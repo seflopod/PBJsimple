@@ -509,7 +509,7 @@ std::unique_ptr<Entity> loadEntity(sw::Sandwich& sandwich, const Id& map_id, con
                 case Entity::Terrain:
                     value->setShape(new ShapeSquare());
                     /// TODO: fix physics world part of engine instead of scene?
-                    value->addRigidbody(Rigidbody::BodyType::Static, getEngine().getWorld());
+                    value->addRigidbody(Rigidbody::BodyType::Static, Game::instance()->currentScene().getWorld());
                     value->enableDraw();
                     break;
 

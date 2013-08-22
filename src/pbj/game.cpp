@@ -62,6 +62,7 @@ void Game::destroyInstance()
 Game::Game() :
      _dt(0.0f),
      _running(false),
+	 _paused(false),
      _engine(getEngine()),
      _window(*getEngine().getWindow())
 {}
@@ -99,21 +100,13 @@ bool Game::init(U32 fps)
      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
      glEnable(GL_BLEND);
 
-     //setup physics, using variables instead of straight numbers so I can
+	 //setup physics, using variables instead of straight numbers so I can
      //remember what does what.
-     _world = getEngine().getWorld();
-     _world->SetContactListener(this);
+	 
      _physSettings = PhysicsSettings();
-    
+
      //remove when making for reals
      initTestScene();
-
-    //seems like an odd place to setup gl matrices, but there we go
-    /*ivec2 ctxtSize = _window.getContextSize();
-    F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
-    glViewport(0, 0, ctxtSize.x, ctxtSize.y);
-    glClear(GL_COLOR_BUFFER_BIT);*/
-    //_scene.setupCamera(glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f, -grid_height/2.0f, grid_height/2.0f, 0.1f, -0.1f));
 
     //make all the bullets we'll ever need
     for(I32 i=0;i<100;++i)
@@ -124,7 +117,7 @@ bool Game::init(U32 fps)
     }
     _curRingIdx = 0;
      _running = true;
-	 _bulletNum = 0;
+     _bulletNum = 0;
      return true;
 }
 
@@ -138,22 +131,24 @@ bool Game::init(U32 fps)
 ////////////////////////////////////////////////////////////////////////////////
 void Game::initTestScene()
 {
+	
+
     //first define terrain
     _scene.addEntity(unique_ptr<Entity>(makeTerrain(-37.0f, 8.0f, 15.0f, 5.0f)));
-	_scene.addEntity(unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f, 25.0f, 5.0f)));
-	_scene.addEntity(unique_ptr<Entity>(makeTerrain(-7.5f, 13.75f, 10.0f, 2.5f)));
-	_scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, -20.0f, 100.0f, 5.0f)));
-	_scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, 20.0f, 5.0f, 15.0f)));
-	_scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, 30.0f, 100.0f, 10.0f)));
-	_scene.addEntity(unique_ptr<Entity>(makeTerrain(10.0f, -5.0f, 5.0f, 5.0f)));
+    _scene.addEntity(unique_ptr<Entity>(makeTerrain(-15.0f, 0.0f, 25.0f, 5.0f)));
+    _scene.addEntity(unique_ptr<Entity>(makeTerrain(-7.5f, 13.75f, 10.0f, 2.5f)));
+    _scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, -20.0f, 100.0f, 5.0f)));
+    _scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, 20.0f, 5.0f, 15.0f)));
+    _scene.addEntity(unique_ptr<Entity>(makeTerrain(0.0f, 30.0f, 100.0f, 10.0f)));
+    _scene.addEntity(unique_ptr<Entity>(makeTerrain(10.0f, -5.0f, 5.0f, 5.0f)));
     _scene.addEntity(unique_ptr<Entity>(makeTerrain(37.0f, 5.0f, 10.0f, 5.0f)));
     
-	//second add spawn points to scene
-	_scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(-15.0f, 3.5f)));
-	_scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(-7.5f, 16.0f)));
-	_scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(0.0f, 0.0f)));
-	_scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(10.0f, -1.5f)));
-	_scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(37.0f, 3.5f)));
+    //second add spawn points to scene
+    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(-15.0f, 3.5f)));
+    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(-7.5f, 16.0f)));
+    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(0.0f, 0.0f)));
+    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(10.0f, -1.5f)));
+    _scene.addEntity(unique_ptr<Entity>(makeSpawnPoint(37.0f, 3.5f)));
 
     //add the local player to the scene
     vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
@@ -161,57 +156,54 @@ void Game::initTestScene()
     _scene.setLocalPlayer(id);
     _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
 
-	//since the player will be the focus of the camera, reduce the volume of its output
-	_scene.getLocalPlayer()->getAudioSource()->setGain(0.65f);
+    //since the player will be the focus of the camera, reduce the volume of its output
+    _scene.getLocalPlayer()->getAudioSource()->setGain(0.65f);
 
-	//add other player Entities
-	I32 ids[4];
-	for(I32 i=0;i<4;++i)
-	{
-		spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
-		char name[9] = "CPU ";
-		if(i<10)
-			name[4] = (char)(49+i);
-		else //I'm assuming that there will never be more than 19 ai players
-		{
-			name[4] = '1';
-			name[5] = (char)(49+i-10);
-		}
-		name[8] = '\0';
-		ids[i] = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
-	}
-	_scene.getPlayer(ids[0])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player2_outline"))));
-	_scene.getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
-	_scene.getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
-	_scene.getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
+    //add other player Entities
+    I32 ids[4];
+    for(I32 i=0;i<4;++i)
+    {
+        spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
+        char name[9] = "CPU ";
+        if(i<10)
+            name[4] = (char)(49+i);
+        else //I'm assuming that there will never be more than 19 ai players
+        {
+            name[4] = '1';
+            name[5] = (char)(49+i-10);
+        }
+        name[8] = '\0';
+        ids[i] = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
+    }
+    _scene.getPlayer(ids[0])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player2_outline"))));
+    _scene.getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
+    _scene.getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
+    _scene.getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
     
-	//add the camera
-	Entity* e = new Entity();
-	e->setType(Entity::EntityType::Camera);
-	e->addAudioListener();
-	e->addCamera();
+    //add the camera
+    Entity* e = new Entity();
+    e->setType(Entity::EntityType::Camera);
+    e->addAudioListener();
+    e->addCamera();
 
-	//now that the camera is made, do matrix setup
-	ivec2 ctxtSize = _window.getContextSize();
+    //now that the camera is made, do matrix setup
+    ivec2 ctxtSize = _window.getContextSize();
     F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
     glViewport(0, 0, ctxtSize.x, ctxtSize.y);
     glClear(GL_COLOR_BUFFER_BIT);
-	mat4 ortho = glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f,
-							-grid_height/2.0f, grid_height/2.0f,
-							0.1f, -0.1f);
-	e->getCamera()->setProjection(ortho);
+    mat4 ortho = glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f,
+                            -grid_height/2.0f, grid_height/2.0f,
+                            0.1f, -0.1f);
+    e->getCamera()->setProjection(ortho);
 
-	//and finally add the camera to the scene and mark it as the current camera
-	id = _scene.addEntity(unique_ptr<Entity>(e));
-	_scene.setCurrentCamera(id);
+    //and finally add the camera to the scene and mark it as the current camera
+    id = _scene.addEntity(unique_ptr<Entity>(e));
+    _scene.setCurrentCamera(id);
 
-    //add some UI to the scene
-    //This does not work due to issues with UIRoot and input registration
-    /*scene::UILabel label;
-    label.setPosition(vec2(0,0));
-    _scene.ui.panel.addElement(unique_ptr<scene::UILabel>(&label));
-    */
-	_scene.initUI();
+    //add the UI to the scene.
+    _scene.initUI();
+
+	_scene.getWorld()->SetContactListener(this);
 }
 #pragma endregion
 
@@ -239,7 +231,12 @@ I32 Game::run()
           
           glfwPollEvents();
           
-          physUpdate();
+		  if(_paused)
+			  continue;
+
+		  _scene.physUpdate(_physSettings.dt, _physSettings.velocityIterations,
+							_physSettings.positionIterations);
+
           if(nonPhysTimer >= _dt)
           {
                 update();
@@ -284,71 +281,33 @@ void Game::stop()
 /// \author     Peter Bartosch
 /// \date     2013-08-05
 ///
-/// \return     true if the next loop should happen; false otherwise.  This is being
-///            changed to a void eventually.
 ////////////////////////////////////////////////////////////////////////////////
-bool Game::update()
+void Game::update()
 {
     _scene.update(_dt);
-	
-	//check for any respawns that need to be done
-	if(!_toRespawn.empty())
-	{
-		F64 t = glfwGetTime();
-		while(!_toRespawn.empty() &&
-				_toRespawn.front()->getPlayerComponent()->getTimeOfDeath() + 2 <= t)
-		 {  // five second delay to respawn
-			vec2 spwn = _scene.getRandomSpawnPoint()->getTransform().getPosition();
-			_toRespawn.front()->enable();
-			_toRespawn.front()->getTransform().setPosition(spwn.x, spwn.y);
-			_toRespawn.front()->getTransform().updateOwnerRigidbody();
-			_toRespawn.front()->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
-			_toRespawn.front()->getPlayerComponent()->setHealth(
-						_toRespawn.front()->getPlayerComponent()->getMaxHealth());
-			_toRespawn.front()->getPlayerComponent()->setAmmoRemaining(
-						_toRespawn.front()->getPlayerComponent()->getMaxAmmo());
-			_toRespawn.pop();
-		}
-	}
+    
+    //check for any respawns that need to be done
+    if(!_toRespawn.empty())
+    {
+        F64 t = glfwGetTime();
+        while(!_toRespawn.empty() &&
+                _toRespawn.front()->getPlayerComponent()->getTimeOfDeath() + 2 <= t)
+         {  // five second delay to respawn
+            vec2 spwn = _scene.getRandomSpawnPoint()->getTransform().getPosition();
+            _toRespawn.front()->enable();
+            _toRespawn.front()->getTransform().setPosition(spwn.x, spwn.y);
+            _toRespawn.front()->getTransform().updateOwnerRigidbody();
+            _toRespawn.front()->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
+            _toRespawn.front()->getPlayerComponent()->setHealth(
+                        _toRespawn.front()->getPlayerComponent()->getMaxHealth());
+            _toRespawn.front()->getPlayerComponent()->setAmmoRemaining(
+                        _toRespawn.front()->getPlayerComponent()->getMaxAmmo());
+            _toRespawn.pop();
+        }
+    }
 
     if(_window.isClosePending() && _running)
          _running = false;
-
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn bool Game::physUpdate()
-///
-/// \brief Does the update for the physics portion of the game
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-///
-/// \return     true if the next loop should happen; false otherwise.  This is being
-///            changed to a void eventually.
-/// 
-/// \details This needs to be separate loop because it is likely that the
-///             physics (and thus collision) step is shorter than the normal update
-///             and draw step.  This will take care of anything being done that
-///             relates to physics.
-////////////////////////////////////////////////////////////////////////////////
-bool Game::physUpdate()
-{
-     _world->Step(_physSettings.dt, _physSettings.velocityIterations,
-                          _physSettings.positionIterations);
-     
-     //after all other physics updates, clear forces
-     _world->ClearForces();
-
-    //after we're done with the physics step, we need to disable anything queued
-    //for it
-    while(!_toDisable.empty())
-    {
-        _toDisable.front()->disable();
-        _toDisable.pop();
-    }
-     return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -418,51 +377,51 @@ void Game::BeginContact(b2Contact* contact)
         return;
     }
 
-	if(b->getType() == Entity::EntityType::Player && a->getType() != Entity::EntityType::Player)
-		std::swap(a, b);
+    if(b->getType() == Entity::EntityType::Player && a->getType() != Entity::EntityType::Player)
+        std::swap(a, b);
 
     if(a->getType() == Entity::EntityType::Player)
     {
-		scene::PlayerComponent* p = a->getPlayerComponent();
-		switch(b->getType())
-		{
-		case Entity::EntityType::Terrain:
-			p->enableJump();
-			break;
-		case Entity::EntityType::Bullet:
-		{
-			scene::PlayerComponent* q = ((Entity*)b->getBulletComponent()->getShooter())->getPlayerComponent();
-			I32 dmg = (I32)std::floor(glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
-			p->takeDamage(dmg);
-			q->setBulletsHit(q->getBulletsHit()+1);
-			if(p->isDead())
-			{
-				if(p->getId() == q->getId())
-				{   //self-kill
-					p->setDeaths(p->getDeaths()+1);
-					std::cerr<<p->getId().to_useful_string()<<" suicided ("
-								<< p->getDeaths() << ")" << std::endl << std::endl;
-				}
-				else
-				{
-					p->setTimeOfDeath(glfwGetTime());
-					p->setDeaths(p->getDeaths()+1);
-					q->setKills(q->getKills()+1);
-					std::cerr << p->getId().to_useful_string() << " died ("
-								<< p->getDeaths() << ")" << std::endl << q->getId().to_useful_string()
-								<< " got the kill (" << q->getKills() << ")"
-								<< std::endl << std::endl;
-				}
-				_toRespawn.push(a);
-				_toDisable.push(a);
-			}
+        scene::PlayerComponent* p = a->getPlayerComponent();
+        switch(b->getType())
+        {
+        case Entity::EntityType::Terrain:
+            p->enableJump();
+            break;
+        case Entity::EntityType::Bullet:
+        {
+            scene::PlayerComponent* q = ((Entity*)b->getBulletComponent()->getShooter())->getPlayerComponent();
+            I32 dmg = (I32)std::floor(glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
+            p->takeDamage(dmg);
+            q->setBulletsHit(q->getBulletsHit()+1);
+            if(p->isDead())
+            {
+                if(p->getId() == q->getId())
+                {   //self-kill
+                    p->setDeaths(p->getDeaths()+1);
+                    std::cerr<<p->getId().to_useful_string()<<" suicided ("
+                                << p->getDeaths() << ")" << std::endl << std::endl;
+                }
+                else
+                {
+                    p->setTimeOfDeath(glfwGetTime());
+                    p->setDeaths(p->getDeaths()+1);
+                    q->setKills(q->getKills()+1);
+                    std::cerr << p->getId().to_useful_string() << " died ("
+                                << p->getDeaths() << ")" << std::endl << q->getId().to_useful_string()
+                                << " got the kill (" << q->getKills() << ")"
+                                << std::endl << std::endl;
+                }
+                _toRespawn.push(a);
+				_scene.addToDisable(a->getSceneId());
+            }
 
-			_toDisable.push(b);
-			break;
-		}
-		default:
-			break;
-		}
+			_scene.addToDisable(b->getSceneId());
+            break;
+        }
+        default:
+            break;
+        }
         
     }
 }
@@ -537,15 +496,19 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
         checkMovement(keycode, action);
     if(action == GLFW_RELEASE)
     {
-        _instance->_running = !(keycode == GLFW_KEY_ESCAPE);
+		_instance->_running = !(keycode == GLFW_KEY_ESCAPE);
         
-          if(keycode == GLFW_KEY_H)
-          {
-                help();
-          }
+		if(keycode == GLFW_KEY_H)
+		{
+			_paused = true;
+			help();
+		}
         else if(keycode == _controls.keyJump[0] || keycode == _controls.keyJump[1])
         {
-            _scene.getLocalPlayer()->getPlayerComponent()->endThrust();
+			if(_paused)
+				_paused = false;
+			else
+				_scene.getLocalPlayer()->getPlayerComponent()->endThrust();
         }
 
     }
@@ -565,10 +528,10 @@ void Game::onMouseLeftDown(I32 mods)
 {
     F64 x,y;
     glfwGetCursorPos(getEngine().getWindow()->getGlfwHandle(), &x, &y);
-	ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
+    ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
     ivec2 size = getEngine().getWindow()->getContextSize();
-	vec2 worldPos = _scene.getCurrentCamera()->getWorldPosition(screenCoords, size);
-	_scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
+    vec2 worldPos = _scene.getCurrentCamera()->getWorldPosition(screenCoords, size);
+    _scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -661,42 +624,44 @@ void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter
     bullet->getTransform().updateOwnerRigidbody();
     bullet->getRigidbody()->setVelocity(velocity);
     bullet->getRigidbody()->setAngularVelocity(6.28318f);
-	bullet->getBulletComponent()->setShooter(shooter);
-	bullet->enable();
+    bullet->getBulletComponent()->setShooter(shooter);
+    bullet->enable();
     if(_curRingIdx >= 100)
         _curRingIdx -= 100;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Game::disableBullet(Entity* e)
+/// \fn    void Game::disableBullet(Entity* e)
 ///
-/// \brief	Disables the bullet.
+/// \brief    Disables the bullet.
 ///
-/// \author	Peter Bartosch
-/// \date	2013-08-14
+/// \author    Peter Bartosch
+/// \date    2013-08-14
 ///
-/// \param [in,out]	e	If non-null, the Entity* to process.
+/// \param [in,out]    e    If non-null, the Entity* to process.
 ////////////////////////////////////////////////////////////////////////////////
 void Game::disableBullet(Entity* e)
 {
-	_toDisable.push(e);
+	_scene.addToDisable(e->getSceneId());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Game::respawnPlayer(Entity* e)
+/// \fn    void Game::respawnPlayer(Entity* e)
 ///
-/// \brief	Respawn player.
+/// \brief    Respawn player.
 ///
-/// \author	Peter Bartosch
-/// \date	2013-08-14
+/// \author    Peter Bartosch
+/// \date    2013-08-14
 ///
-/// \param [in,out]	e	If non-null, the Entity* to process.
+/// \param [in,out]    e    If non-null, the Entity* to process.
 ////////////////////////////////////////////////////////////////////////////////
 void Game::respawnPlayer(Entity* e)
 {
-	_toDisable.push(e);
-	_toRespawn.push(e);
+    _scene.addToDisable(e->getSceneId());
+    _toRespawn.push(e);
 }
+
+scene::Scene& Game::currentScene() { return _scene; }
 
 #pragma region entity_makes
 ////////////////////////////////////////////////////////////////////////////////
@@ -717,7 +682,7 @@ Entity* Game::makeBullet()
     e->addBulletComponent();
     e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullet"))));
     e->setShape(new ShapeTriangle());
-    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
+    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene.getWorld());
     e->getRigidbody()->setBullet(true);
     e->getRigidbody()->setActive(false);
     return e;
@@ -739,28 +704,28 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
     p->setType(Entity::Player);
     p->getTransform().setPosition(vec2(x, y));
     p->getTransform().setScale(vec2(1.0f, 2.0f));
-	/*if(addAI)
-		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bots"))));
-	else
-		p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));*/
+    /*if(addAI)
+        p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bots"))));
+    else
+        p->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player"))));*/
     
-	p->setShape(new ShapeSquare());
-    p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _world);
+    p->setShape(new ShapeSquare());
+    p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene.getWorld());
     p->getRigidbody()->setFixedRotation(true);
     
-	p->addPlayerComponent(id);
-	p->getPlayerComponent()->setMaxAmmo(1000);
-	p->getPlayerComponent()->setAmmoRemaining(1000);
-	
-	p->addAudioSource();
-	p->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
-	p->getAudioSource()->addAudioBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
-	p->getAudioSource()->addAudioBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
-	p->getAudioSource()->updatePosition();
-	p->getAudioSource()->updateVelocity();
+    p->addPlayerComponent(id);
+    p->getPlayerComponent()->setMaxAmmo(1000);
+    p->getPlayerComponent()->setAmmoRemaining(1000);
+    
+    p->addAudioSource();
+    p->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
+    p->getAudioSource()->addAudioBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
+    p->getAudioSource()->addAudioBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
+    p->getAudioSource()->updatePosition();
+    p->getAudioSource()->updateVelocity();
 
-	if(addAI)
-		p->addAIComponent();
+    if(addAI)
+        p->addAIComponent();
 
     p->enableDraw();
     return p;
@@ -787,7 +752,7 @@ Entity* Game::makeTerrain(F32 x, F32 y, F32 width, F32 height)
     t->getTransform().setScale(width, height);
     t->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("terrain_big"))));
     t->setShape(new ShapeSquare());
-    t->addRigidbody(Rigidbody::BodyType::Static, _world);
+    t->addRigidbody(Rigidbody::BodyType::Static, _scene.getWorld());
     t->enableDraw();
     return t;
 }
@@ -804,7 +769,7 @@ Entity* Game::makeSpawnPoint(F32 x, F32 y)
 #ifndef PBJ_EDITOR
     //disable this when not testing
     //s->enableDraw();
-	s->disableDraw();
+    s->disableDraw();
 #else
     // When in the editor, draw spawnpoints no matter what.
     s->enableDraw();

@@ -59,6 +59,10 @@ Scene::Scene()
      _localPlayerId = U32(-1);
     std::random_device rd;
     _rnd = std::ranlux24_base(rd());
+
+	//For testing in a world with no gravity use 0.0f, 0.0f
+	_physWorld = std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, -9.822f)));
+	_physWorld->SetAllowSleeping(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,12 +121,6 @@ void Scene::draw()
         if(it->second->isDrawable())
             it->second->draw();
 
-    /*for(EntityMap::iterator it=_players.begin();
-        it!=_players.end();
-        it++)
-        if(it->second->isDrawable())
-            it->second->draw();*/
-
     //I assume the ui drawing goes like this.
     sw::ResourceId id;
     id.sandwich = Id(PBJ_ID_PBJBASE);
@@ -151,6 +149,35 @@ void Scene::draw()
         j+=30;
     }
     ui_.draw();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn bool Game::physUpdate()
+///
+/// \brief Does the update for the physics portion of the game
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+/// 
+/// \details This needs to be separate loop because it is likely that the
+///             physics (and thus collision) step is shorter than the normal update
+///             and draw step.  This will take care of anything being done that
+///             relates to physics.
+////////////////////////////////////////////////////////////////////////////////
+void Scene::physUpdate(F32 dt, I32 velIter, I32 posIter)
+{
+	_physWorld->Step(dt, velIter, posIter);
+
+	//after all other physics updates, clear forces
+     _physWorld->ClearForces();
+
+    //after we're done with the physics step, we need to disable anything queued
+    //for it
+    while(!_toDisable.empty())
+    {
+        _toDisable.front()->disable();
+        _toDisable.pop();
+    }
 }
 
 void Scene::update(F32 dt)
@@ -262,6 +289,8 @@ U32 Scene::addEntity(unique_ptr<Entity>&& e)
         _cameras[id] = std::move(e);
         _cameras[id]->setSceneId(id);
     default:
+		_others[id] = std::move(e);
+		_cameras[id]->setSceneId(id);
         break;
     }
     return id;
@@ -446,6 +475,69 @@ void Scene::setCurrentCamera(U32 id)
 
 CameraComponent* Scene::getCurrentCamera() const { return _curCamera; }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn b2World* Scene::getWorld() const
+///
+/// \brief Gets the physics world.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+///
+/// \return A pointer to the b2World for Box2D simulations.
+////////////////////////////////////////////////////////////////////////////////
+
+b2World* Scene::getWorld() const
+{
+	return _physWorld.get();
+}
+
+
+void Scene::addToDisable(U32 id)
+{
+	EntityMap::iterator res;
+	res = _bullets.find(id);
+	if(res != _bullets.end())
+	{
+		_toDisable.push(res->second.get());
+		return;
+	}
+
+	res = _players.find(id);
+	if(res != _players.end())
+	{
+		_toDisable.push(res->second.get());
+		return;
+	}
+	
+	res = _others.find(id);
+	if(res != _others.end())
+	{
+		_toDisable.push(res->second.get());
+		return;
+	}
+
+	res = _terrain.find(id);
+	if(res != _terrain.end())
+	{
+		_toDisable.push(res->second.get());
+		return;
+	}
+
+	res = _cameras.find(id);
+	if(res != _cameras.end())
+	{
+		_toDisable.push(res->second.get());
+		return;
+	}
+
+	res = _spawnPoints.find(id);
+	if(res != _bullets.end())
+	{
+		_toDisable.push(res->second.get());
+		return;
+	}
+	
+}
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
 {
      std::unique_ptr<Scene> s;

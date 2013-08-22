@@ -9,6 +9,8 @@
 #include <vector>
 #include <map>
 #include <random>
+#include <queue>
+#include <Box2D/Box2D.h>
 
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
@@ -20,6 +22,8 @@
 #include "pbj/sw/sandwich.h"
 #include "be\id.h"
 
+
+using std::queue;
 using std::vector;
 using std::unordered_map;
 using std::unique_ptr;
@@ -51,6 +55,7 @@ public:
 
 	void draw();
 	void update(F32);
+	void physUpdate(F32, I32, I32);
 	void initUI();
 
     void setMapName(const std::string& name);
@@ -75,7 +80,8 @@ public:
 
 	Camera* getCamera() const;
 	
-
+	b2World* getWorld() const;
+	void addToDisable(U32);
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -88,12 +94,17 @@ private:
 	U32 _nextEntityId;
     U32 _localPlayerId;
 	U32 _nextBulletId;
+	unique_ptr<b2World> _physWorld;
+
+	queue<Entity*> _toDisable;
+
 	//as we get more Entity types this may have to expand/change entirely
 	EntityMap _spawnPoints;
 	EntityMap _terrain;
 	EntityMap _players;
 	EntityMap _bullets;
 	EntityMap _cameras;
+	EntityMap _others;
 
 	CameraComponent* _curCamera;
 

@@ -51,7 +51,6 @@ Engine::~Engine()
     pbj::InputController::destroy();
 
     window_.reset();
-	world_.reset();
     glfwTerminate();
 }
 
@@ -62,21 +61,6 @@ Engine::~Engine()
 Window* Engine::getWindow() const
 {
     return window_.get();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn b2World* Engine::getWorld() const
-///
-/// \brief Gets the physics world.
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-///
-/// \return A pointer to the b2World for Box2D simulations.
-////////////////////////////////////////////////////////////////////////////////
-b2World* Engine::getWorld() const
-{
-	return world_.get();
 }
 
 void Engine::init()
@@ -130,10 +114,6 @@ void Engine::init()
     PBJ_LOG(VInfo) << glGetString(GL_VERSION) << PBJ_LOG_END;
 
     InputController::init(wnd->getGlfwHandle());
-
-    //For testing in a world with no gravity use 0.0f, 0.0f
-	world_ = std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, -9.822f)));
-	world_->SetAllowSleeping(true);
 
     wnd->show();
 }
