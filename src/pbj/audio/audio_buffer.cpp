@@ -24,20 +24,66 @@
 namespace pbj {
 namespace audio {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn AudioBuffer::AudioBuffer(const ALubyte* data, size_t size)
+///
+/// \brief  Constructor.
+///
+/// \author Josh Douglas
+/// \date   2013-08-22
+///
+/// \param  data    The data.
+/// \param  size    The size.
+////////////////////////////////////////////////////////////////////////////////
 AudioBuffer::AudioBuffer(const ALubyte* data, size_t size)
 {
     buffer_id_ = alutCreateBufferFromFileImage(data, size);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn AudioBuffer::~AudioBuffer()
+///
+/// \brief  Destructor.
+///
+/// \author Josh Douglas
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 AudioBuffer::~AudioBuffer()
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn ALuint AudioBuffer::getBufferID()
+///
+/// \brief  Gets buffer identifier.
+///
+/// \author Josh Douglas
+/// \date   2013-08-22
+///
+/// \return The buffer identifier.
+////////////////////////////////////////////////////////////////////////////////
 ALuint AudioBuffer::getBufferID()
 {
 	return buffer_id_;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn std::unique_ptr<AudioBuffer> loadSound(sw::Sandwich& sandwich,
+///     const Id& id)
+///
+/// \brief  Loads a sound.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \exception  std::runtime_error  Thrown when a runtime error error
+///                                 condition occurs.
+///
+/// \param [in,out] sandwich    The sandwich.
+/// \param  id                  The identifier.
+///
+/// \return The sound.
+////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<AudioBuffer> loadSound(sw::Sandwich& sandwich, const Id& id)
 {
     std::unique_ptr<AudioBuffer> result;
