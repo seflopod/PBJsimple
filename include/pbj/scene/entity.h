@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJsimple\include\pbj\scene\entity.h
+/// \file    C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
+///         PBJsimple\include\pbj\scene\entity.h
 ///
-/// \brief	Declares the entity class.
+/// \brief    Declares the entity class.
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef ENTITY_H_
 #define ENTITY_H_

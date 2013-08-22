@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file Z:\Documents\PBJsimple\src\pbj\physics\rigidbody.cpp
+/// \file   Z:\Documents\PBJsimple\src\pbj\physics\rigidbody.cpp
 ///
-/// \brief Implements the rigidbody class.
+/// \brief  Implements the rigidbody class.
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef RIGIDBODY_H_
 #include "pbj/physics/rigidbody.h"
@@ -152,47 +152,88 @@ const b2ContactEdge* Rigidbody::getContactList() const
 	return _body->GetContactList();
 }
 
-#pragma endregion
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void Rigidbody::applyForce(const vec2& force)
+/// \fn Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 ///
-/// \brief Applies the force described by force.
+/// \brief  Gets collision group.
 ///
 /// \author Peter Bartosch
-/// \date 2013-08-08
+/// \date   2013-08-22
 ///
-/// \param force The force.
+/// \return The collision group.
 ////////////////////////////////////////////////////////////////////////////////
-void Rigidbody::applyForce(const vec2& force)
+Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 {
-	_body->ApplyForceToCenter(b2Vec2(force.x, force.y));
+	return (CollisionGroup)_body->GetFixtureList()->GetFilterData().groupIndex;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void Rigidbody::applyForce(const vec2& force,
-/// 	Rigidbody::ForceMode mode)
+/// \fn void Rigidbody::setCollisionGroup(CollisionGroup cg)
 ///
-/// \brief Applies the force.
+/// \brief  Sets collision group.
 ///
 /// \author Peter Bartosch
-/// \date 2013-08-08
+/// \date   2013-08-22
 ///
-/// \param force The force.
-/// \param mode  The mode.
+/// \param  cg  The collision group for the Rigidbody.
 ////////////////////////////////////////////////////////////////////////////////
-void Rigidbody::applyForce(const vec2& force, Rigidbody::ForceMode mode)
+void Rigidbody::setCollisionGroup(CollisionGroup cg)
 {
-	switch(mode)
-	{
-	case Rigidbody::ForceMode::Constant:
-		_body->ApplyForceToCenter(b2Vec2(force.x, force.y));
-		break;
-	case Rigidbody::ForceMode::Impulse:
-		_body->ApplyLinearImpulse(b2Vec2(force.x,force.y), _body->GetPosition());
-		break;
-	default:
-		break;
-	}
+	b2Filter f;
+    f.groupIndex = (I32)cg;
+    _body->GetFixtureList()->SetFilterData(f);
+}
+
+void Rigidbody::setFixedRotation(bool isFixed)
+{
+	_body->SetFixedRotation(isFixed);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
+///
+/// \brief Sets the transform on the b2Body that this object wraps.
+/// 
+/// \author Peter Bartosch
+/// \date   2013-08-10
+/// \details Because the scale paraemeter does nothing right now, this funciton
+///          just wraps the SetTransform method of b2Body.  Scaling would
+///          involve destroying the shape and the making a new one of the proper
+///          size.  Not too difficult, but difficult (and unnecessary) enough
+///          for me to ignore it.
+void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
+{
+	_body->SetTransform(pos, rot);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn F32 Rigidbody::getAngularVelocity() const
+///
+/// \brief  Gets angular velocity.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return The angular velocity.
+////////////////////////////////////////////////////////////////////////////////
+F32 Rigidbody::getAngularVelocity() const
+{
+	return _body->GetAngularVelocity();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Rigidbody::setAngularVelocity(F32 angVel)
+///
+/// \brief  Sets angular velocity.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  angVel  The angle velocity.
+////////////////////////////////////////////////////////////////////////////////
+void Rigidbody::setAngularVelocity(F32 angVel)
+{
+	_body->SetAngularVelocity((float32)angVel);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -333,6 +374,16 @@ bool Rigidbody::isActive()
 	return _body->IsActive();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Rigidbody::setActive(bool active)
+///
+/// \brief  (De)activates the Rigidbody.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  active  true to activate.
+////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setActive(bool active)
 {
 	_body->SetActive(active);
@@ -351,6 +402,48 @@ void Rigidbody::setActive(bool active)
 void* Rigidbody::getOwner()
 {
 	return _owner;
+}
+#pragma endregion
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Rigidbody::applyForce(const vec2& force)
+///
+/// \brief Applies the force described by force.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+///
+/// \param force The force.
+////////////////////////////////////////////////////////////////////////////////
+void Rigidbody::applyForce(const vec2& force)
+{
+	_body->ApplyForceToCenter(b2Vec2(force.x, force.y));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Rigidbody::applyForce(const vec2& force,
+/// 	Rigidbody::ForceMode mode)
+///
+/// \brief Applies the force.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+///
+/// \param force The force.
+/// \param mode  The mode.
+////////////////////////////////////////////////////////////////////////////////
+void Rigidbody::applyForce(const vec2& force, Rigidbody::ForceMode mode)
+{
+	switch(mode)
+	{
+	case Rigidbody::ForceMode::Constant:
+		_body->ApplyForceToCenter(b2Vec2(force.x, force.y));
+		break;
+	case Rigidbody::ForceMode::Impulse:
+		_body->ApplyLinearImpulse(b2Vec2(force.x,force.y), _body->GetPosition());
+		break;
+	default:
+		break;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -394,46 +487,4 @@ void Rigidbody::destroy()
 	_body->GetWorld()->DestroyBody(_body);
 	_body = 0;
 	_owner = 0;
-}
-
-Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
-{
-	return Other;
-}
-
-void Rigidbody::setCollisionGroup(CollisionGroup cg)
-{
-	
-}
-
-void Rigidbody::setFixedRotation(bool isFixed)
-{
-	_body->SetFixedRotation(isFixed);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
-///
-/// \brief Sets the transform on the b2Body that this object wraps.
-/// 
-/// \author Peter Bartosch
-/// \date   2013-08-10
-/// \details Because the scale paraemeter does nothing right now, this funciton
-///          just wraps the SetTransform method of b2Body.  Scaling would
-///          involve destroying the shape and the making a new one of the proper
-///          size.  Not too difficult, but difficult (and unnecessary) enough
-///          for me to ignore it.
-void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
-{
-	_body->SetTransform(pos, rot);
-}
-
-F32 Rigidbody::getAngularVelocity() const
-{
-	return _body->GetAngularVelocity();
-}
-
-void Rigidbody::setAngularVelocity(F32 angVel)
-{
-	_body->SetAngularVelocity((float32)angVel);
 }

@@ -1,3 +1,8 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file   Z:\Documents\PBJsimple\src\pbj\scene\camera_component.cpp
+///
+/// \brief  Implements the camera component class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef CAMERA_COMPONENT_H_
 #include "pbj/scene/camera_component.h"
 #endif
@@ -8,7 +13,16 @@
 namespace pbj {
 namespace scene {
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn CameraComponent::CameraComponent(void* owner)
+///
+/// \brief  Constructor.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param [in] owner   If non-null, the owner.  This must be an Entity.
+////////////////////////////////////////////////////////////////////////////////
 CameraComponent::CameraComponent(Entity* owner)
     : _owner(owner),
       _pos_k1(20.0f),
@@ -18,63 +32,171 @@ CameraComponent::CameraComponent(Entity* owner)
 {
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn CameraComponent::~CameraComponent()
+///
+/// \brief  Destructor.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 CameraComponent::~CameraComponent()
 {
 }
 
-///////////////////////////////////////////////////////////////////////////////
-void CameraComponent::setCoefficients(F32 position_k1, F32 position_k2, F32 velocity_k1, F32 velocity_k2)
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::setCoefficients(F32 a,
+///     F32 b, F32 c, F32 d)
+///
+/// \brief  Sets the coefficients that determine the camera's acceleration.
+/// 
+/// \details The acceleration is defined by the eqation:
+///
+///          camera_acceleration  = a * position_delta +
+///                                 b * position_delta * ||position_delta|| +
+///                                 c * velocity_delta +
+///                                 d * velocity_delta * ||velocity_delta||
+///
+///         where position_delta = target_position - camera_position
+///         and   velocity_delta = target_velocity - camera_velocity
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  a The first-order delta-position coefficient.
+/// \param  b The second-order delta-position coefficient.
+/// \param  c The first-order delta-velocity coefficient.
+/// \param  d The second-order delta-velocity coefficient.
+////////////////////////////////////////////////////////////////////////////////
+void CameraComponent::setCoefficients(F32 a, F32 b, F32 d)
 {
-    _pos_k1 = position_k1;
-    _pos_k2 = position_k2;
-    _vel_k1 = velocity_k1;
-    _vel_k2 = velocity_k2;
+    _pos_k1 = a;
+    _pos_k2 = b;
+    _vel_k1 = c;
+    _vel_k2 = d;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::setProjection(const mat4& projection)
+///
+/// \brief  Sets a projection.  Straight copy from Camera.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  projection  The projection.
+////////////////////////////////////////////////////////////////////////////////
 void CameraComponent::setProjection(const mat4& projection)
 {
     _projection = projection;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::setTargetPosition(const vec2& position)
+///
+/// \brief  Sets target position.  Straight copy from Camera
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  position    The position.
+////////////////////////////////////////////////////////////////////////////////
 void CameraComponent::setTargetPosition(const vec2& position)
 {
     _target_position = position;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::setTargetVelocity(const vec2& velocity)
+///
+/// \brief  Sets target velocity.  Straight copy from Camera
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  velocity    The velocity.
+////////////////////////////////////////////////////////////////////////////////
 void CameraComponent::setTargetVelocity(const vec2& velocity)
 {
     _target_velocity = velocity;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn const vec2& CameraComponent::getTargetPosition() const
+///
+/// \brief  Gets target position.  Straight copy from Camera.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \return The target position.
+////////////////////////////////////////////////////////////////////////////////
 const vec2& CameraComponent::getTargetPosition() const
 {
     return _target_position;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn const vec2& CameraComponent::getTargetVelocity() const
+///
+/// \brief  Gets target velocity.  Straight copy from Camera.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \return The target velocity.
+////////////////////////////////////////////////////////////////////////////////
 const vec2& CameraComponent::getTargetVelocity() const
 {
     return _target_velocity;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn const mat4& CameraComponent::getProjection() const
+///
+/// \brief  Gets the projection.  Straight copy from Camera.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \return The projection.
+////////////////////////////////////////////////////////////////////////////////
 const mat4& CameraComponent::getProjection() const
 {
     return _projection;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn const mat4& CameraComponent::getView() const
+///
+/// \brief  Gets the view.  Straight copy from Camera
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \return The view.
+////////////////////////////////////////////////////////////////////////////////
 const mat4& CameraComponent::getView() const
 {
     return _view;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::update(F32 dt)
+///
+/// \brief  Updates this CameraComponent.
+///
+/// \author Ben Crist / Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  dt  The delta time.
+/// 
+/// \details    This will set move the position and increase the velocity for
+///             the CameraComponent. The velocity is tracked locally since we
+///             assume that the Entity with a camera will not have a Rigidbody.
+///             Once position is updated here it is passed back to the owner's
+///             Transform.
+////////////////////////////////////////////////////////////////////////////////
 void CameraComponent::update(F32 dt)
 {
     if (_owner)
@@ -103,7 +225,14 @@ void CameraComponent::update(F32 dt)
     _vp_inv = glm::inverse(_projection * _view);
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::use() const
+///
+/// \brief  Uses this CameraComponent. Straight copy from Camera
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void CameraComponent::use() const
 {
     glMatrixMode(GL_PROJECTION);
@@ -112,8 +241,22 @@ void CameraComponent::use() const
     glLoadMatrixf(glm::value_ptr(_view));
 }
 
-///////////////////////////////////////////////////////////////////////////////
-vec2 CameraComponent::getWorldPosition(const ivec2& screen_coords, const ivec2& context_size) const
+////////////////////////////////////////////////////////////////////////////////
+/// \fn vec2 CameraComponent::getWorldPosition(const ivec2& screen_coords,
+///     const ivec2& context_size) const
+///
+/// \brief  Gets world position.  Straight copy from Camera
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  screen_coords   The screen coords.
+/// \param  context_size    Size of the context.
+///
+/// \return The world position.
+////////////////////////////////////////////////////////////////////////////////
+vec2 CameraComponent::getWorldPosition(const ivec2& screen_coords,
+                                       const ivec2& context_size) const
 {
     vec2 pos(screen_coords);
     pos += vec2(0.5f, 0.5f);
@@ -124,6 +267,7 @@ vec2 CameraComponent::getWorldPosition(const ivec2& screen_coords, const ivec2& 
 
     return vec2(_vp_inv * vec4(pos, 0, 1));
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 vec2 CameraComponent::getScreenPosition(const vec2& world_coords, const ivec2& context_size) const
@@ -137,7 +281,16 @@ vec2 CameraComponent::getScreenPosition(const vec2& world_coords, const ivec2& c
     return pos;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* CameraComponent::getOwner() const
+///
+/// \brief  Gets the owner of this item.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the owner.
+////////////////////////////////////////////////////////////////////////////////
 Entity* CameraComponent::getOwner() const
 {
     return _owner;

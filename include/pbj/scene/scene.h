@@ -53,27 +53,27 @@ public:
     Scene();
 	~Scene();
 
-	void draw();
-	void update(F32);
-	void physUpdate(F32, I32, I32);
-	void initUI();
+	    void draw();
+	    void update(F32);
+	    void physUpdate(F32, I32, I32);
+	    void initUI();
 
-    void setMapName(const std::string& name);
-    const std::string& getMapName() const;
+        void setMapName(const std::string& name);
+        const std::string& getMapName() const;
 
-	U32 addEntity(unique_ptr<Entity>&&);
-	void removeEntity(U32, Entity::EntityType);
+	    U32 addEntity(unique_ptr<Entity>&&);
+	    void removeEntity(U32, Entity::EntityType);
     
-	Entity* getBullet(U32);
-	Entity* getPlayer(U32);
-	Entity* getTerrain(U32);
-	Entity* getSpawnPoint(U32);
-	Entity* getCamera(U32);
-	Entity* getRandomSpawnPoint();
+	    Entity* getBullet(U32);
+	    Entity* getPlayer(U32);
+	    Entity* getTerrain(U32);
+	    Entity* getSpawnPoint(U32);
+	    Entity* getCamera(U32);
+	    Entity* getRandomSpawnPoint();
 
-	void setLocalPlayer(U32);
-	void clearLocalPlayer();
-	Entity* getLocalPlayer();
+	    void setLocalPlayer(U32);
+	    void clearLocalPlayer();
+	    Entity* getLocalPlayer();
 
    void saveScene(const Id& sandwich_id, const Id& map_id);
     
@@ -112,22 +112,23 @@ private:
     I32 _curRingIdx;
     I32 _bulletNum;
 
-	//as we get more Entity types this may have to expand/change entirely
-	EntityMap _spawnPoints;
-	EntityMap _terrain;
-	EntityMap _players;
-	EntityMap _bullets;
-	EntityMap _cameras;
-	EntityMap _others;
+	    //as we get more Entity types this may have to expand/change entirely
+	    EntityMap _spawnPoints;
+	    EntityMap _terrain;
+	    EntityMap _players;
+	    EntityMap _bullets;
+	    EntityMap _cameras;
+	    EntityMap _others;
 
-	CameraComponent* _curCamera;
+	    CameraComponent* _curCamera;
 
 	std::ranlux24_base _rnd;  // ranlux? not mersenne twister?
 
-    std::string _name;
+        std::string _name;
 
-    Scene(const Scene&);
-    void operator=(const Scene&);
+        Scene(const Scene&);
+        void operator=(const Scene&);
+
 
 	// Hopeful UI stuffs
 	UIRoot ui_;
@@ -139,7 +140,6 @@ private:
 };
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);
-
 
 } // namespace pbj::scene
 } // namespace pbj

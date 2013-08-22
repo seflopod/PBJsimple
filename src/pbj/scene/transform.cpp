@@ -12,11 +12,20 @@ using pbj::scene::Entity;
 namespace pbj {
 namespace scene {
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Constructor for Transform class
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Transform::Transform(Entity* owner)
+///
+/// \brief  Constructor for Transform class.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param [in,out] owner   If non-null, the owner.
+///
 /// \details Sets the position, rotation and scale for the Transform to
 ///          defaults.  For position this is the origin, rotation the
 ///          identity quaternion, and for scale 1.0.
+////////////////////////////////////////////////////////////////////////////////
 Transform::Transform(Entity* owner)
 	: _owner(owner)
 {
@@ -25,14 +34,27 @@ Transform::Transform(Entity* owner)
 	_scale = vec2(1.0f);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Destructor for Transform class, left empty.
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Transform::~Transform()
+///
+/// \brief  Destructor for Transform class, left empty.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 Transform::~Transform()
 {}
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Rotate the Transform along the z axis.
-/// \param angle The angle to rotate, in degrees.
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::rotate(F32 angle)
+///
+/// \brief  Rotate the Transform along the z axis.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \param  angle   The angle to rotate, in degrees.
+////////////////////////////////////////////////////////////////////////////////
 void Transform::rotate(F32 angle)
 {
 	while (_rotation >= 360)
@@ -44,129 +66,160 @@ void Transform::rotate(F32 angle)
 	{
 		_rotation += 360 + angle;
 	}
-
-	/*
-	if(_owner->rigidbody!=0)
-		//convert y rotation to euler angles and set the rigidbody accordingly
-	*/
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Move the Transform.
-/// \param dx The distance to move along the x-axis.
-/// \param dy The distance to move along the y-axis.
-void Transform::move(F32 dx, F32 dy)
-{
-	move(vec2(dx, dy));	
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::move(F32 dx, F32 dy)
+///
+/// \brief  Move the Transform.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  dx  The distance to move along the x-axis.
+/// \param  dy  The distance to move along the y-axis.
+////////////////////////////////////////////////////////////////////////////////
+void Transform::move(F32 dx, F32 dy) { move(vec2(dx, dy)); }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Move the transform
-/// \param deltas A glm::vec3 containing the distance to move along each axis.
-void Transform::move(const vec2& deltas)
-{
-	_position += deltas;
-	/*
-	if(_owner->rigidbody!=0)
-		_owner->rigidbody->moveBody(_position.x, _position.y);
-	*/
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::move(const vec2& deltas)
+///
+/// \brief  Move the transform.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  deltas  A glm::vec3 containing the distance to move along each
+///                 axis.
+////////////////////////////////////////////////////////////////////////////////
+void Transform::move(const vec2& deltas) { _position += deltas; }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief The position of the Transform.
-/// \return The position of the Transform as a glm::vec3 (x,y,z).
-const vec2& Transform::getPosition() const
-{
-	return _position;
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn const vec2& Transform::getPosition() const
+///
+/// \brief  The position of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \return The position of the Transform as a glm::vec2 (x,y).
+////////////////////////////////////////////////////////////////////////////////
+const vec2& Transform::getPosition() const { return _position; }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Sets the position of the Transform
-/// \param x The x position
-/// \param y The y position
-/// \param z The z position
-void Transform::setPosition(F32 x, F32 y)
-{
-	_position = vec2(x, y);
-	/*
-	if(_owner->rigidbody!=0)
-		_owner->rigidbody->moveBody(_position.x, _position.y);
-	*/
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::setPosition(F32 x, F32 y)
+///
+/// \brief  Sets the position of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \param  x   The x position.
+/// \param  y   The y position.
+////////////////////////////////////////////////////////////////////////////////
+void Transform::setPosition(F32 x, F32 y) { _position = vec2(x, y); }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Sets the position of the Transform
-/// \param pos The new position as a glm::vec3.
-void Transform::setPosition(const vec2& pos)
-{
-	setPosition(pos.x, pos.y);
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::setPosition(const vec2& pos)
+///
+/// \brief  Sets the position of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \param  pos The new position as a glm::vec2.
+////////////////////////////////////////////////////////////////////////////////
+void Transform::setPosition(const vec2& pos) { setPosition(pos.x, pos.y); }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Get the rotation of the Transform as a quaternion
-/// \return A quaternion representing the rotation of the Transform.
-/// \details I have no idea why we might want to get the rotation is this manner
-///          but it seems like a good idea.  So here it is.
-F32 Transform::getRotation() const
-{
-	return _rotation;
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn F32 Transform::getRotation() const
+///
+/// \brief  Get the rotation of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \return A float representing the rotation of the Transform.
+////////////////////////////////////////////////////////////////////////////////
+F32 Transform::getRotation() const { return _rotation; }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Sets the rotation of the Transform
-/// \param rotation The new rotation as a F32.
-void Transform::setRotation(F32 rotation)
-{
-	_rotation = rotation;
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::setRotation(F32 rotation)
+///
+/// \brief  Sets the rotation of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \param  rotation    The new rotation as a F32.
+////////////////////////////////////////////////////////////////////////////////
+void Transform::setRotation(F32 rotation) { _rotation = rotation; }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Get the scale of the Transform.
-/// \return A glm::vec3 representing the scale along the x-, y-, and z- axis.
-const vec2& Transform::getScale() const
-{
-	return _scale;
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn const vec2& Transform::getScale() const
+///
+/// \brief  Get the scale of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \return A glm::vec2 representing the scale along the x-axis and y-axis.
+////////////////////////////////////////////////////////////////////////////////
+const vec2& Transform::getScale() const { return _scale; }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Set the scale of the Transform
-/// \param x The scale along the x-axis.
-/// \param y The scale along the y-axis.
-/// \param z The scale along the z-axis.
-void Transform::setScale(F32 x, F32 y)
-{
-	_scale = glm::vec2(x, y);
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::setScale(F32 x, F32 y)
+///
+/// \brief  Set the scale of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \param  x   The scale along the x-axis.
+/// \param  y   The scale along the y-axis.
+////////////////////////////////////////////////////////////////////////////////
+void Transform::setScale(F32 x, F32 y) { _scale = glm::vec2(x, y); }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Set the scale of the Transform
-/// \param scale A glm::vec3 of for the scale in the x, y, and z directions.
-void Transform::setScale(const vec2& scale)
-{
-	_scale = scale;
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::setScale(const vec2& scale)
+///
+/// \brief  Set the scale of the Transform.
+///
+/// \author Peter Bartosch / Josh Douglas
+/// \date   2013-08-22
+///
+/// \param  scale   A glm::vec2 of for the scale in the x and y directions.
+////////////////////////////////////////////////////////////////////////////////
+void Transform::setScale(const vec2& scale) { _scale = scale; }
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief Get the Transform as a 4x4 matrix.
-/// \returns The Transform as a 4x4 matrix.
-/// \details Since our call require a transformation matrix, this will provide
-///          one.
-//mat4 Transform::getMatrix() const
-//{
-//	mat4 ret = mat4();
-//	vec3 v = _position.xyz;
-//	ret = glm::translate(ret, v);
-//	ret = glm::rotate(ret, glm::angle(_rotation), glm::axis(_rotation));
-//	ret = glm::scale(ret, _scale);
-//	return ret;
-//}
-
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Transform::getOwner()
+///
+/// \brief  Gets the owner of this item.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the owner.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Transform::getOwner()
 {
 	return _owner;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Transform::updateOwnerRigidbody()
+///
+/// \brief  Updates the owner rigidbody.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///  
+/// \details If an Entity moves its Transform it needs a way of moving the
+///          rigidbody as well, so that's what this is for.  There aren't too
+///          many uses for this since motion is handled by the Rigidbody, but
+///          for spawning purposes this is needed.
+////////////////////////////////////////////////////////////////////////////////
 void Transform::updateOwnerRigidbody()
 {
 	Entity* e = 0;

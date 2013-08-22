@@ -1,3 +1,8 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file   Z:\Documents\PBJsimple\include\pbj\scene\camera_component.h
+///
+/// \brief  Declares the camera component class.
+////////////////////////////////////////////////////////////////////////////////
 #ifndef CAMERA_COMPONENT_H_
 #define CAMERA_COMPONENT_H_
 
@@ -15,7 +20,7 @@ public:
 	CameraComponent(Entity*);
 	~CameraComponent();
         
-void setCoefficients(F32 position_k0, F32 position_k1, F32 velocity_k0, F32 velocity_k1);
+void setCoefficients(F32 a, F32 b, F32 c, F32 d);
 
 	void setProjection(const mat4& projection);
 	void setTargetPosition(const vec2& position);
