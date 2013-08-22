@@ -125,7 +125,7 @@ void Scene::draw()
     sw::ResourceId id;
     id.sandwich = Id(PBJ_ID_PBJBASE);
     id.resource = Id("std_font");
-	std::setprecision(2);
+	
     I32 i=0;
     I32 j=20;
     I32 pad = 5;
@@ -136,13 +136,13 @@ void Scene::draw()
         it->second->draw();
         
         PlayerComponent* p = it->second->getPlayerComponent();
-        std::string health = std::to_string((p->getHealth() / (F32)p->getMaxHealth()) * 100);
+        //std::string health = std::to_string(;
         std::string kills = std::to_string(p->getKills());
         std::string deaths = std::to_string(p->getDeaths());
 
 		//this is going to change when we change how players are id'd
 		std::ostringstream osh;
-		osh << p->getId().to_useful_string() << " Health: " <<  health;
+		osh << p->getId().to_useful_string() << std::setprecision(3) << " Health: " <<  ((p->getHealth() / (F32)p->getMaxHealth()) * 100);
 
 		frame_label_[i]->setText(osh.str());
 
