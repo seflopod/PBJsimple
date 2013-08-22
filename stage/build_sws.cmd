@@ -191,7 +191,7 @@ sw __pbjbase__ material magenta16x16  1    0.2  0.6
 sw __pbjbase__ material spawnpoint 1    0.25 0    0.66
 sw __pbjbase__ material player     0.8  0.2  0
 sw __pbjbase__ material bots       0.5  0.9  0
-sw __pbjbase__ material bullets    0    0.8  1
+sw __pbjbase__ material bullet     0    0.8  1
 sw __pbjbase__ material terrain    1    1    0.2
 
 sw __pbjbase__ material terrain_big 1 1 1

@@ -395,7 +395,7 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
     }
     catch (const db::Db::error& err)
     {
-        s.reset();
+        s.reset(new Scene());
         PBJ_LOG(VWarning) << "Database error while loading scene!" << PBJ_LOG_NL
                           << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
                           << "     Map ID: " << map_id << PBJ_LOG_NL
@@ -404,7 +404,7 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
    }
    catch (const std::exception& err)
    {
-       s.reset();
+       s.reset(new Scene());
        PBJ_LOG(VWarning) << "Exception while loading scene!" << PBJ_LOG_NL
                           << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
                           << "     Map ID: " << map_id << PBJ_LOG_NL
