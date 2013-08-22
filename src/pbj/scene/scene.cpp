@@ -54,12 +54,12 @@ namespace scene {
 /// \date 2013-08-08
 ////////////////////////////////////////////////////////////////////////////////
 Scene::Scene()
-	: _camera(nullptr)
 {
 	_nextEntityId = 1;
    _localPlayerId = U32(-1);
 	std::random_device rd;
 	_rnd = std::ranlux24_base(rd());
+    _curCamera = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,15 +72,6 @@ Scene::Scene()
 ////////////////////////////////////////////////////////////////////////////////
 Scene::~Scene()
 {
-	_camera.reset();
-}
-
-void Scene::setupCamera(mat4 ortho)
-{
-	mat4 proj = mat4();
-	proj*=ortho;
-	_camera.reset(new Camera());
-	_camera->setProjection(proj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +88,8 @@ void Scene::setupCamera(mat4 ortho)
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
-	_curCamera->use();
+    if (_curCamera)
+	    _curCamera->use();
 
 #ifdef PBJ_EDITOR
 	for(EntityMap::iterator it=_spawnPoints.begin();
@@ -124,15 +116,6 @@ void Scene::draw()
 		it++)
 		if(it->second->isDrawable())
 			it->second->draw();
-
-	//I assume the ui drawing goes like this.
-
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	//glOrtho(-ratio*grid_height/2, ratio*grid_height/2, -grid_height/2, grid_height/2, 0.1f, -0.1f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-	ui.draw();
 }
 
 void Scene::update(F32 dt)
@@ -369,11 +352,6 @@ Entity* Scene::getRandomSpawnPoint()
 		return nullptr;
 
 	return it->second.get();
-}
-
-Camera* Scene::getCamera() const
-{
-	return _camera.get();
 }
 
 void Scene::setCurrentCamera(U32 id)

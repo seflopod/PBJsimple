@@ -34,7 +34,6 @@ Editor::Editor()
       menu_toggled_(false),
       menu_visible_counter_(0),
       zoom_(1.0),
-      active_type_(scene::Entity::SpawnPoint),
       active_scale_(1, 2),
       active_material_("spawnpoint")
 {
@@ -113,19 +112,19 @@ Editor::Editor()
             if (action == GLFW_PRESS && ui_.getElementUnderMouse() == nullptr)
             {
                 down_mode = current_mode_.get();
-                vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                vec2 pos = getCamera().getWorldPosition(mouse_position_, window_.getContextSize());
                 current_mode_->onMouseDown(button, pos);
             }
             else if (action == GLFW_RELEASE && down_mode == current_mode_.get())
             {
                 if (ui_.getElementUnderMouse() == nullptr)
                 {
-                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    vec2 pos = getCamera().getWorldPosition(mouse_position_, window_.getContextSize());
                     current_mode_->onMouseUp(button, pos);
                 }
                 else
                 {
-                    vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+                    vec2 pos = getCamera().getWorldPosition(mouse_position_, window_.getContextSize());
                     current_mode_->onMouseCancel(button, pos);
                 }
             }
@@ -137,7 +136,7 @@ Editor::Editor()
         if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
         {
             mouse_position_ = ivec2(I32(x), I32(y));
-            vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+            vec2 pos = getCamera().getWorldPosition(mouse_position_, window_.getContextSize());
             current_mode_->onMouseMove(pos);
         }
     });
@@ -146,7 +145,7 @@ Editor::Editor()
     {
         if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
         {
-            vec2 pos = scene_->camera.getWorldPosition(mouse_position_, window_.getContextSize());
+            vec2 pos = getCamera().getWorldPosition(mouse_position_, window_.getContextSize());
             current_mode_->onMouseWheel(I32(delta_y));
         }
     });
@@ -231,7 +230,6 @@ void Editor::initUI()
         panel->setPosition(vec2(110, 25));
         panel->setDimensions(vec2(490, 300));
         panel->setVisible(false);
-        //panel->setStyle(std_btn_panel_style);
 
         newLabel_(Id("menu.material_panel.label2x2"),   "2x2",   vec2(5,   5), vec2(50, 9), label_color, scene::UILabel::AlignCenter, panel);
         newLabel_(Id("menu.material_panel.label4x2"),   "4x2",   vec2(55,  5), vec2(50, 9), label_color, scene::UILabel::AlignCenter, panel);
@@ -403,7 +401,6 @@ void Editor::initUI()
     }
 #pragma endregion
 
-
     newLabel_(Id("menu.map_name_lbl"), "", vec2(5, 240), vec2(300, 10), label_color, scene::UILabel::AlignLeft, menu_);
     newLabel_(Id("menu.map_id_lbl"), "", vec2(5, 230), vec2(300, 10), label_color, scene::UILabel::AlignLeft, menu_);
    
@@ -425,6 +422,7 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
     if (sandwich)
     {
         scene_ = scene::loadScene(*sandwich, map_id_.resource);
+        camera_.reset(new scene::CameraComponent(nullptr));
         onContextResized_(window_.getContextSize().x, window_.getContextSize().y);
     }
     else
@@ -463,7 +461,8 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
             if (last_sim_time == 0)
                 last_sim_time = frame_start;
 
-            scene_->camera.update(frame_start - last_sim_time);
+            getCamera().update(F32(frame_start - last_sim_time));
+            getCamera().use();
             last_sim_time = frame_start;
             scene_->draw();
         }
@@ -585,9 +584,9 @@ void Editor::setMode(const Id& id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-scene::Camera& Editor::getCamera() const
+scene::CameraComponent& Editor::getCamera() const
 {
-    return scene_->camera;
+    return *camera_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -711,7 +710,7 @@ void Editor::onContextResized_(I32 width, I32 height)
         F32 ratio = width / F32(height);
         F32 hheight = float(zoom_ * 25.0f);
         F32 hwidth = ratio * hheight;
-        scene_->camera.setProjection(glm::ortho(-hwidth, hwidth, -hheight, hheight));
+        getCamera().setProjection(glm::ortho(-hwidth, hwidth, -hheight, hheight));
     }
 
     menu_->setPosition(menu_offset);

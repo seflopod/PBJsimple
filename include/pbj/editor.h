@@ -37,7 +37,7 @@ public:
     EditorMode* getCurrentMode();
     void setMode(const Id& id);
 
-    scene::Camera& getCamera() const;
+    scene::CameraComponent& getCamera() const;
     F64 getZoom() const;
     void setZoom(F64 zoom);
 
@@ -84,9 +84,9 @@ private:
     scene::UILabel* frame_time_label_;
 
     std::unique_ptr<scene::Scene> scene_;
+    std::unique_ptr<scene::CameraComponent> camera_;
     F64 zoom_;
 
-    scene::Entity::EntityType active_type_;
     vec2 active_scale_;
     std::string active_material_;
 

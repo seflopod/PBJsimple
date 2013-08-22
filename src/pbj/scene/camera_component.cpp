@@ -9,27 +9,27 @@ namespace pbj {
 namespace scene {
 
 ///////////////////////////////////////////////////////////////////////////////
-CameraComponent::CameraComponent(void* owner)
-    : _pos_k1(20.0f),
+CameraComponent::CameraComponent(Entity* owner)
+    : _owner(owner),
+      _pos_k1(20.0f),
       _pos_k2(0.5f),
       _vel_k1(5.0f),
       _vel_k2(0.33f)
-
 {
-	assert((Entity*)owner);
-	_owner = owner;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 CameraComponent::~CameraComponent()
-{}
-
-void CameraComponent::setCoefficients(F32 _positionk1, F32 _positionk2, F32 _velocityk1, F32 _velocityk2)
 {
-    _pos_k1 = _positionk1;
-    _pos_k2 = _positionk2;
-    _vel_k1 = _velocityk1;
-    _vel_k2 = _velocityk2;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+void CameraComponent::setCoefficients(F32 position_k1, F32 position_k2, F32 velocity_k1, F32 velocity_k2)
+{
+    _pos_k1 = position_k1;
+    _pos_k2 = position_k2;
+    _vel_k1 = velocity_k1;
+    _vel_k2 = velocity_k2;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,11 +50,13 @@ void CameraComponent::setTargetVelocity(const vec2& velocity)
     _target_velocity = velocity;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 const vec2& CameraComponent::getTargetPosition() const
 {
     return _target_position;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 const vec2& CameraComponent::getTargetVelocity() const
 {
     return _target_velocity;
@@ -75,24 +77,33 @@ const mat4& CameraComponent::getView() const
 ///////////////////////////////////////////////////////////////////////////////
 void CameraComponent::update(F32 dt)
 {
-	Entity* e = (Entity*)_owner;
-	vec2 pos = e->getTransform().getPosition();
-    vec2 pos_delta = _target_position - pos;
+    if (_owner)
+    {
+        _position = _owner->getTransform().getPosition();
+    }
+
+    vec2 pos_delta = _target_position - _position;
     vec2 vel_delta = _target_velocity - _velocity;
     vec2 acceleration = pos_delta * _pos_k1;
     acceleration += pos_delta * glm::length(pos_delta) * _pos_k2;
     acceleration += vel_delta * _vel_k1;
     acceleration += vel_delta * glm::length(vel_delta) * _vel_k2;
 	
-	//originally velocity was updated after position, I want to try it like this
-	_velocity += acceleration * dt;
-	pos += _velocity * dt + acceleration * dt * dt * 0.5f;
-	e->getTransform().setPosition(pos);
+	// //originally velocity was updated after position, I want to try it like this
+	//_velocity += acceleration * dt;
+    // // ben's note: velocity should be updated after position because the (1/2)at^2 term takes into account the change in velocity over the time period.
+	_position += _velocity * dt + acceleration * dt * dt * 0.5f;
+    _velocity += acceleration * dt;
+	if (_owner)
+    {
+        _owner->getTransform().setPosition(_position);
+    }
     
-	_view = glm::translate(mat4(), vec3(-pos, 0));
+	_view = glm::translate(mat4(), vec3(-_position, 0));
     _vp_inv = glm::inverse(_projection * _view);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 void CameraComponent::use() const
 {
     glMatrixMode(GL_PROJECTION);
@@ -101,6 +112,7 @@ void CameraComponent::use() const
     glLoadMatrixf(glm::value_ptr(_view));
 }
 
+///////////////////////////////////////////////////////////////////////////////
 vec2 CameraComponent::getWorldPosition(const ivec2& screen_coords, const ivec2& context_size) const
 {
     vec2 pos(screen_coords);
@@ -113,7 +125,23 @@ vec2 CameraComponent::getWorldPosition(const ivec2& screen_coords, const ivec2& 
     return vec2(_vp_inv * vec4(pos, 0, 1));
 }
 
-void* CameraComponent::getOwner() const { return _owner; }
+///////////////////////////////////////////////////////////////////////////////
+vec2 CameraComponent::getScreenPosition(const vec2& world_coords, const ivec2& context_size) const
+{
+    vec2 pos(_projection * _view * vec4(world_coords, 0, 1));
+    pos.x *= 0.5f;
+    pos.y *= -0.5f;
+    pos += vec2(0.5f, 0.5f);
+    pos *= context_size;
+
+    return pos;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+Entity* CameraComponent::getOwner() const
+{
+    return _owner;
+}
 
 } // namespace scene
 } // namespace pbj

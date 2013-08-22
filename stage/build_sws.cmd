@@ -194,6 +194,8 @@ sw __pbjbase__ material bots       0.5  0.9  0
 sw __pbjbase__ material bullets    0    0.8  1
 sw __pbjbase__ material terrain    1    1    0.2
 
+sw __pbjbase__ material terrain_big 1 1 1
+
 sw __pbjbase__ material player1_outline 1.0000 0.0700 0.3800 1.0000 player_outline.texture modulate
 sw __pbjbase__ material player2_outline 0.5300 1.0000 0.0700 1.0000 player_outline.texture modulate
 sw __pbjbase__ material player3_outline 0.8600 1.0000 0.0700 1.0000 player_outline.texture modulate

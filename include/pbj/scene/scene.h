@@ -14,7 +14,6 @@
 #include "pbj/_math.h"
 #include "pbj/scene/ui_root.h"
 #include "pbj/scene/entity.h"
-#include "pbj/scene/camera.h"
 #include "pbj/sw/sandwich.h"
 
 using std::vector;
@@ -48,10 +47,6 @@ public:
     Scene();
 	~Scene();
 
-    UIRoot ui;
-    
-	void setupCamera(mat4);
-
 	void draw();
 	void update(F32);
 
@@ -76,8 +71,6 @@ public:
     
 	void setCurrentCamera(U32);
 	CameraComponent* getCurrentCamera() const;
-
-	Camera* getCamera() const;
 private:
 
 	////////////////////////////////////////////////////////////////////////////
@@ -98,8 +91,6 @@ private:
 	EntityMap _cameras;
 
 	CameraComponent* _curCamera;
-
-	std::unique_ptr<Camera> _camera;
 
 	std::ranlux24_base _rnd;  // ranlux? not mersenne twister?
 

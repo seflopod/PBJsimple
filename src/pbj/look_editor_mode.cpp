@@ -55,10 +55,7 @@ void LookEditorMode::onDragUpdate(I32 button, const vec2& start, const vec2& end
 void LookEditorMode::onClick(I32 button, const vec2& start, const vec2& end)
 {
     if (button == GLFW_MOUSE_BUTTON_RIGHT)
-    {
-        //PBJ_LOG(VInfo) << "Move Click" << PBJ_LOG_END;
         editor_.getCamera().setTargetPosition(end);
-    }
 }
 
 void LookEditorMode::onMouseWheel(I32 delta)

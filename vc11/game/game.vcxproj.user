@@ -25,5 +25,6 @@
     <LocalDebuggerCommand>$(SolutionDir)..\stage\$(TargetFileName)</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)..\stage</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>levels test1</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>
