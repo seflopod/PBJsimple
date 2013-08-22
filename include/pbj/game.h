@@ -124,7 +124,7 @@ namespace pbj
 	/// \details	The Game class manages and runs the game.  It inherits from
     ///             b2ContactListener so that it can capture collision events.
 	////////////////////////////////////////////////////////////////////////////
-	class Game : public b2ContactListener
+	class Game
 	{
 	public:
 		static const int grid_height = 33;
@@ -154,39 +154,30 @@ namespace pbj
 
         void getSceneIds(const Id& sw_id);
 
-        std::vector<sw::ResourceId> _scene_ids;
-
-		static unique_ptr<Game> _instance;
-
-		std::mt19937 _prng;
-
-        std::unique_ptr<scene::Scene> _scene;
-
-
-		void onContextResized(I32, I32);
+        void onContextResized(I32, I32);
 		void onKeyboard(I32, I32, I32, I32);
 		void onMouseLeftDown(I32);
 		void checkMovement(I32, I32);
-		virtual void BeginContact(b2Contact*);
-        virtual void EndContact(b2Contact*);
-        virtual void PreSolve(b2Contact*, const b2Manifold*);
-        virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
 
-		Entity* makeBullet();
+        Entity* makeBullet();
 		Entity* makePlayer(be::Id, F32, F32, bool);
-		
-		F32 _dt;
-		bool _running;
-		bool _paused;
+
+
+        static unique_ptr<Game> _instance;
+
 		Engine& _engine;
 		Window& _window;
-		b2World* _world;
-		PhysicsSettings _physSettings;
-		queue<Entity*> _toRespawn;
+
+		std::mt19937 _prng;
+
+        std::vector<sw::ResourceId> _scene_ids;
+        std::unique_ptr<scene::Scene> _scene;
+
+        F32 _dt;
+		bool _running;
+		bool _paused;
+		
 		GameControls _controls;
-		U32 _bulletRing[100];
-		I32 _curRingIdx;
-		I32 _bulletNum;
 	};
 
 	

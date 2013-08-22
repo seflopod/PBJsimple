@@ -46,7 +46,7 @@ namespace scene {
 /// 		 global variable, which could probably change but until we have the
 /// 		 user interface stuff down I'm leaving it as is.
 ////////////////////////////////////////////////////////////////////////////////
-class Scene
+class Scene : public b2ContactListener
 {
     friend class Editor;
 public:
@@ -85,6 +85,11 @@ public:
 
 private:
 
+    virtual void BeginContact(b2Contact*);
+    virtual void EndContact(b2Contact*);
+    virtual void PreSolve(b2Contact*, const b2Manifold*);
+    virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
+
 	////////////////////////////////////////////////////////////////////////////
 	/// \typedef unordered_map<U32,Entity> EntityMap
 	///
@@ -98,6 +103,14 @@ private:
 	unique_ptr<b2World> _physWorld;
 
 	queue<Entity*> _toDisable;
+    queue<Entity*> _toRespawn;
+
+    PhysicsSettings _physSettings;
+		
+
+    U32 _bulletRing[100];
+    I32 _curRingIdx;
+    I32 _bulletNum;
 
 	//as we get more Entity types this may have to expand/change entirely
 	EntityMap _spawnPoints;

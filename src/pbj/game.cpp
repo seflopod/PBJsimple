@@ -57,7 +57,6 @@ Game* Game::instance()
 ////////////////////////////////////////////////////////////////////////////////
 Game::Game()
     : _prng(std::mt19937::result_type(time(nullptr))),
-     _dt(0.0f),
      _running(false),
 	 _paused(false),
      _engine(getEngine()),
@@ -73,10 +72,10 @@ Game::Game()
         });
 
     //Register for input event handling
-    InputController::registerKeyAllListener(
-        [&](I32 keycode, I32 scancode, I32 action,I32 modifiers) {
+    InputController::registerKeyAllListener(std::bind(onKeyboard, this));
+        /*[&](I32 keycode, I32 scancode, I32 action,I32 modifiers) {
             onKeyboard(keycode, scancode, action, modifiers);
-        });
+        });*/
 
     InputController::registerMouseLeftDownListener(std::bind(onMouseLeftDown, this));
         /*[&](I32 mods) {
@@ -85,10 +84,6 @@ Game::Game()
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-
-    //setup physics, using variables instead of straight numbers so I can
-    //remember what does what.
-    _physSettings = PhysicsSettings();
 
     std::vector<Id> sws = sw::getSandwichIds();
     for (Id id : sws)
@@ -155,13 +150,10 @@ void Game::loadScene(const sw::ResourceId& scene_id)
         return;
 
     _scene = scene::loadScene(*ptr, scene_id.resource);
-}
 
-/*void Game::initTestScene()
-{
     //add the local player to the scene
-    vec2 spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
-    U32 id = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
+    vec2 spawnLoc = _scene->getRandomSpawnPoint()->getTransform().getPosition();
+    U32 player_id = _scene->addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
     _scene.setLocalPlayer(id);
     _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
 
@@ -213,7 +205,7 @@ void Game::loadScene(const sw::ResourceId& scene_id)
     _scene.initUI();
 
 	_scene.getWorld()->SetContactListener(this);
-}*/
+}
 
 #pragma region run_game
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,7 +235,7 @@ I32 Game::run()
             continue;
 
         //since physics is in Scene, run that loop first
-        _scene.physUpdate(_physSettings.dt, _physSettings.velocityIterations,
+        _scene->physUpdate(_physSettings.dt, _physSettings.velocityIterations,
         _physSettings.positionIterations);
 
         if(nonPhysTimer >= _dt)
@@ -293,7 +285,7 @@ void Game::stop()
 ////////////////////////////////////////////////////////////////////////////////
 void Game::update()
 {
-    _scene.update(_dt);
+    _scene->update(_dt);
     
     //check for any respawns that need to be done
     if(!_toRespawn.empty())
@@ -305,7 +297,7 @@ void Game::update()
         while(!_toRespawn.empty() &&
                 _toRespawn.front()->getPlayerComponent()->getTimeOfDeath()+2<=t)
         {   // five second delay to respawn
-            vec2 spwn = _scene.getRandomSpawnPoint()->getTransform().getPosition();
+            vec2 spwn = _scene->getRandomSpawnPoint()->getTransform().getPosition();
             _toRespawn.front()->enable();
             _toRespawn.front()->getTransform().setPosition(spwn.x, spwn.y);
             _toRespawn.front()->getTransform().updateOwnerRigidbody();
@@ -334,16 +326,17 @@ void Game::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    _scene.draw();
+    if (_scene)
+        _scene->draw();
 
     //error pump
     GLenum glError;
     while((glError = glGetError()) != GL_NO_ERROR)
     {
         PBJ_LOG(VWarning) << "OpenGL error while rendering" << PBJ_LOG_NL
-                            << "Error code: " << glError << PBJ_LOG_NL
-                            << "Error:        " << getGlErrorString(glError)
-                            << PBJ_LOG_END;
+                          << "Error code: " << glError << PBJ_LOG_NL
+                          << "Error:        " << getGlErrorString(glError)
+                          << PBJ_LOG_END;
     }
 
     glfwSwapBuffers(_window.getGlfwHandle());
@@ -669,7 +662,7 @@ void Game::help()
 ////////////////////////////////////////////////////////////////////////////////
 void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter)
 {
-    Entity* bullet = _scene.getBullet(_bulletRing[_curRingIdx++]);
+    Entity* bullet = _scene->getBullet(_bulletRing[_curRingIdx++]);
     bullet->getTransform().setPosition(position);
     bullet->getTransform().updateOwnerRigidbody();
     bullet->getRigidbody()->setVelocity(velocity);
@@ -693,7 +686,7 @@ void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter
 ////////////////////////////////////////////////////////////////////////////////
 void Game::disableBullet(Entity* e)
 {
-    _scene.addToDisable(e->getSceneId());
+    _scene->addToDisable(e->getSceneId());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -708,7 +701,7 @@ void Game::disableBullet(Entity* e)
 ////////////////////////////////////////////////////////////////////////////////
 void Game::respawnPlayer(Entity* e)
 {
-    _scene.addToDisable(e->getSceneId());
+    _scene->addToDisable(e->getSceneId());
     _toRespawn.push(e);
 }
 
@@ -722,7 +715,7 @@ void Game::respawnPlayer(Entity* e)
 ///
 /// \return	A reference to the current scene.
 ////////////////////////////////////////////////////////////////////////////////
-scene::Scene& Game::currentScene() { return _scene; }
+scene::Scene* Game::currentScene() { return _scene.get(); }
 
 #pragma region entity_makes
 ////////////////////////////////////////////////////////////////////////////////
@@ -744,7 +737,7 @@ Entity* Game::makeBullet()
     e->addBulletComponent();
     e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullet"))));
     e->setShape(new ShapeTriangle());
-    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene.getWorld());
+    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene->getWorld());
     e->getRigidbody()->setBullet(true);
     e->getRigidbody()->setActive(false);
     return e;
@@ -769,7 +762,7 @@ Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
     p->getTransform().setScale(vec2(1.0f, 2.0f));
     
     p->setShape(new ShapeSquare());
-    p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene.getWorld());
+    p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene->getWorld());
     p->getRigidbody()->setFixedRotation(true);
     
     p->addPlayerComponent(id);
