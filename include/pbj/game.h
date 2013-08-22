@@ -171,7 +171,7 @@ namespace pbj
 		Entity* makePlayer(be::Id, F32, F32, bool);
 		Entity* makeTerrain(F32, F32, F32, F32);
 		Entity* makeSpawnPoint(F32, F32);
-
+		
 		F32 _dt;
 		bool _running;
 		bool _paused;

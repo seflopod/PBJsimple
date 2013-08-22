@@ -78,6 +78,19 @@ Scene::~Scene()
     _camera.reset();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::setupCamera(mat4 ortho)
+///
+/// \brief  Sets up the camera.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  ortho   The ortho.
+/// 
+/// \details This may not be necessary now that the CameraComponent class is
+///          working.
+////////////////////////////////////////////////////////////////////////////////
 void Scene::setupCamera(mat4 ortho)
 {
     mat4 proj = mat4();
@@ -91,12 +104,11 @@ void Scene::setupCamera(mat4 ortho)
 ///
 /// \brief Draws the scene
 ///
-/// \author Peter Bartosch
+/// \author Peter Bartosch / Josh Douglas (UI)
 /// \date 2013-08-08
 /// 
 /// \details This will go through each EntityMap for every drawable EntityType
-///          and draw its members.  In a more general setting this would not be
-///          handled here, I don't think.
+///          and draw its members.  This will also draw the UI.
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
@@ -135,14 +147,15 @@ void Scene::draw()
         it->second->draw();
         
         PlayerComponent* p = it->second->getPlayerComponent();
-        std::string health = std::to_string((p->getHealth() / (F32)p->getMaxHealth()) * 100);
+        std::string health = std::to_string((p->getHealth() /
+                                            (F32)p->getMaxHealth()) * 100);
         std::string kills = std::to_string(p->getKills());
         std::string deaths = std::to_string(p->getDeaths());
 
         //this is going to change when we change how players are id'd
-        frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " Health: " + health + 
-                                                                              " Kills: " + kills + 
-                                                                              " Deaths: " +  deaths);
+        frame_label_[i]->setText(std::string(p->getId().to_useful_string()) +
+                                    " Health: " + health + " Kills: " + kills +
+                                    " Deaths: " +  deaths);
 
         p = nullptr;
         ++i;
@@ -152,7 +165,7 @@ void Scene::draw()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn bool Game::physUpdate()
+/// \fn void Scene::physUpdate()
 ///
 /// \brief Does the update for the physics portion of the game
 ///
@@ -160,16 +173,16 @@ void Scene::draw()
 /// \date 2013-08-08
 /// 
 /// \details This needs to be separate loop because it is likely that the
-///             physics (and thus collision) step is shorter than the normal update
-///             and draw step.  This will take care of anything being done that
-///             relates to physics.
+///          physics (and thus collision) step is shorter than the normal update
+///          and draw step.  This will take care of anything being done that
+///          relates to physics.
 ////////////////////////////////////////////////////////////////////////////////
 void Scene::physUpdate(F32 dt, I32 velIter, I32 posIter)
 {
-	_physWorld->Step(dt, velIter, posIter);
+    _physWorld->Step(dt, velIter, posIter);
 
-	//after all other physics updates, clear forces
-     _physWorld->ClearForces();
+    //after all other physics updates, clear forces
+    _physWorld->ClearForces();
 
     //after we're done with the physics step, we need to disable anything queued
     //for it
@@ -180,9 +193,21 @@ void Scene::physUpdate(F32 dt, I32 velIter, I32 posIter)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::update(F32 dt)
+///
+/// \brief  Updates the scene.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  dt  The delta time.
+/// 
+/// \details Like the draw method this updates each EntityMap in the scene
+////////////////////////////////////////////////////////////////////////////////
 void Scene::update(F32 dt)
 {
-     for(EntityMap::iterator it=_spawnPoints.begin();
+    for(EntityMap::iterator it=_spawnPoints.begin();
         it!=_spawnPoints.end();
         it++)
         if(it->second->isEnabled())
@@ -192,11 +217,11 @@ void Scene::update(F32 dt)
         it!=_terrain.end();
         it++)
         if(it->second->isEnabled())
-            it->second->update(dt);
+            
 
     for(EntityMap::iterator it=_players.begin();
-        it!=_players.end();
-        it++)
+    it!=_players.end();
+    it++)
         if(it->second->isEnabled())
         {
             it->second->update(dt);
@@ -210,23 +235,26 @@ void Scene::update(F32 dt)
             it->second->getAudioSource()->updateVelocity();
             ivec2 size = getEngine().getWindow()->getContextSize();
             F32 ratio = size.x/(F32)size.y;
-            if(pos.y < -Game::grid_height*2 || pos.x < -Game::grid_height*ratio*2 ||
+            if(pos.y < -Game::grid_height*2 ||
+                pos.x < -Game::grid_height*ratio*2 ||
                 pos.x > Game::grid_height*ratio*2)
             {
                 it->second->getPlayerComponent()->setTimeOfDeath(glfwGetTime());
                 it->second->getPlayerComponent()->setDeaths(
-                    it->second->getPlayerComponent()->getDeaths()+1);
+                it->second->getPlayerComponent()->getDeaths()+1);
                 Game::instance()->respawnPlayer(it->second.get());
             }
         }
 
+    //Move current camera to local player's position
     Entity* player = getLocalPlayer();
-     if (player && _curCamera)
-     {
+    if (player && _curCamera)
+    {
         _curCamera->setTargetPosition(player->getTransform().getPosition());
-          _curCamera->setTargetVelocity(player->getRigidbody()->getVelocity());
-     }
+        _curCamera->setTargetVelocity(player->getRigidbody()->getVelocity());
+    }
 
+    //Do all camera updates
     for(EntityMap::iterator it=_cameras.begin();
         it!=_cameras.end();
         ++it)
@@ -240,16 +268,28 @@ void Scene::update(F32 dt)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Scene::setMapName(const std::string& name)
-{
-     _name = name;
-}
+/// \fn void Scene::setMapName(const std::string& name)
+///
+/// \brief  Sets map name.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  name    The name.
+////////////////////////////////////////////////////////////////////////////////
+void Scene::setMapName(const std::string& name) { _name = name; }
 
 ////////////////////////////////////////////////////////////////////////////////
-const std::string& Scene::getMapName() const
-{
-     return _name;
-}
+/// \fn const std::string& Scene::getMapName() const
+///
+/// \brief  Gets map name.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \return The map name.
+////////////////////////////////////////////////////////////////////////////////
+const std::string& Scene::getMapName() const { return _name; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn U32 Scene::addEntity(unique_ptr<Entity>&& e)
@@ -266,7 +306,7 @@ U32 Scene::addEntity(unique_ptr<Entity>&& e)
     U32 id = _nextEntityId;
     ++_nextEntityId;
 
-    //this seems a little overdone.  Think this could be better.
+    //Place the Entity in the appropriate map depending on its type
     switch(e->getType())
     {
     case Entity::EntityType::Terrain:
@@ -331,23 +371,41 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::setLocalPlayer(U32 newId)
+///
+/// \brief  Sets local player.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  newId   Identifier for the new local player.
+////////////////////////////////////////////////////////////////////////////////
 void Scene::setLocalPlayer(U32 newId)
 {
-     if(_players.count(newId) == 0)
-     {
-          PBJ_LOG(pbj::VError) << "Could not find referenced id in player map"
-                                     << PBJ_LOG_END;
-          return;
-     }
+    if(_players.count(newId) == 0)
+    {
+        PBJ_LOG(pbj::VError) << "Could not find referenced id in player map"
+                                << PBJ_LOG_END;
+        return;
+    }
      
-     if(_localPlayerId != U32(-1))
-     {
-          PBJ_LOG(pbj::VWarning) << "Overwriting already stored local player id"
-                                          << PBJ_LOG_END;
-     }
-     _localPlayerId = newId;
+    if(_localPlayerId != U32(-1))
+    {
+        PBJ_LOG(pbj::VWarning) << "Overwriting already stored local player id"
+                                << PBJ_LOG_END;
+    }
+    _localPlayerId = newId;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::clearLocalPlayer()
+///
+/// \brief  Clears the local player.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Scene::clearLocalPlayer()
 {
      //not perfect, but I think it is unlikely that we will have this many
@@ -355,6 +413,16 @@ void Scene::clearLocalPlayer()
      _localPlayerId = U32(-1);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getLocalPlayer()
+///
+/// \brief  Gets local player.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return A pointer to the local player Entity.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getLocalPlayer()
 {
      if (_localPlayerId == U32(-1))
@@ -363,6 +431,18 @@ Entity* Scene::getLocalPlayer()
      return _players[_localPlayerId].get();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getBullet(U32 id)
+///
+/// \brief  Gets a bullet.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  id  The scene id of the bullet to get.
+///
+/// \return null if it fails, else the bullet.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getBullet(U32 id)
 {
     EntityMap::iterator it = _bullets.find(id);
@@ -372,6 +452,18 @@ Entity* Scene::getBullet(U32 id)
     return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getPlayer(U32 id)
+///
+/// \brief  Gets a player.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  id  The scene id of the player to get.
+///
+/// \return null if it fails, else the player.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getPlayer(U32 id)
 {
     EntityMap::iterator it = _players.find(id);
@@ -381,6 +473,18 @@ Entity* Scene::getPlayer(U32 id)
     return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getTerrain(U32 id)
+///
+/// \brief  Gets a terrain.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  id  The scene id of the terrain to get.
+///
+/// \return null if it fails, else the terrain.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getTerrain(U32 id)
 {
     EntityMap::iterator it = _terrain.find(id);
@@ -390,6 +494,18 @@ Entity* Scene::getTerrain(U32 id)
     return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getSpawnPoint(U32 id)
+///
+/// \brief  Gets spawn point.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  id  The scene id of the spawn point to get.
+///
+/// \return null if it fails, else the spawn point.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getSpawnPoint(U32 id)
 {
     EntityMap::iterator it = _spawnPoints.find(id);
@@ -399,6 +515,17 @@ Entity* Scene::getSpawnPoint(U32 id)
     return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getRandomSpawnPoint()
+///
+/// \brief  Gets a random spawn point.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return A pointer to the Entity of a random element in the EntityMap for
+///         spawn points.
+////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getRandomSpawnPoint()
 {
     std::uniform_int_distribution<I32> dist(0, _spawnPoints.size()-1);
@@ -418,12 +545,26 @@ Entity* Scene::getRandomSpawnPoint()
     return it->second.get();
 }
 
-Camera* Scene::getCamera() const
-{
-    return _camera.get();
-}
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Camera* Scene::getCamera() const
+///
+/// \brief  Gets the camera.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return null if it fails, else the camera.
+////////////////////////////////////////////////////////////////////////////////
+Camera* Scene::getCamera() const { return _camera.get(); }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::initUI()
+///
+/// \brief  Initialises the user interface.
+///
+/// \author Josh Douglas
+/// \date   2013-08-22
+////////////////////////////////////////////////////////////////////////////////
 void Scene::initUI()
 {
     sw::ResourceId id;
@@ -453,26 +594,37 @@ void Scene::initUI()
         frame_label_[i]->setDimensions(vec2(200, 10));
         frame_label_[i]->setPosition(vec2(0+pad, 0 + j));
 
-        //Add data
-       // PlayerComponent* p = it->second->getPlayerComponent();
-        //std::string health = std::to_string((p->getHealth() / (F32)p->getMaxHealth()) * 100);
-        //std::cerr << p->getHealth() << std::endl;
-        //this is going to change when we change how players are id'd
-        //frame_label_[i]->setText(std::string(p->getId().to_useful_string()) + " " + health);
-
-       // p = nullptr;
         ++i;
         j+=30;
     }
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::setCurrentCamera(U32 id)
+///
+/// \brief  Sets current camera.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  id  The scene id of the camera to make current.
+////////////////////////////////////////////////////////////////////////////////
 void Scene::setCurrentCamera(U32 id)
 {
     if(_cameras.find(id) != _cameras.end())
         _curCamera = _cameras[id]->getCamera();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn CameraComponent* Scene::getCurrentCamera() const
+///
+/// \brief  Gets current camera.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return A pointer to the CameraComponent that is used as the current camera.
+////////////////////////////////////////////////////////////////////////////////
 CameraComponent* Scene::getCurrentCamera() const { return _curCamera; }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -485,13 +637,23 @@ CameraComponent* Scene::getCurrentCamera() const { return _curCamera; }
 ///
 /// \return A pointer to the b2World for Box2D simulations.
 ////////////////////////////////////////////////////////////////////////////////
+b2World* Scene::getWorld() const { return _physWorld.get(); }
 
-b2World* Scene::getWorld() const
-{
-	return _physWorld.get();
-}
-
-
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::addToDisable(U32 id)
+///
+/// \brief  Adds an element to the queue for Entity disabling.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  id  The scene id of the Entity to add.
+///  
+/// \details For some reason I didn't want to pass a pointer, so now we have to
+///          look through every EntityMap to find what we're disabling.  Rather
+///          than change over to using a pointer, I set up the searching in the
+///          order that is most likely for disabling.
+////////////////////////////////////////////////////////////////////////////////
 void Scene::addToDisable(U32 id)
 {
 	EntityMap::iterator res;
@@ -538,6 +700,21 @@ void Scene::addToDisable(U32 id)
 	}
 	
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich,
+///     const Id& map_id)
+///
+/// \brief  Loads a scene.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param [in,out] sandwich    The sandwich.
+/// \param  map_id              Identifier for the map.
+///
+/// \return The scene.
+////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
 {
      std::unique_ptr<Scene> s;
@@ -588,6 +765,17 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
      return s;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void saveScene(const Id& sandwich_id, const Id& map_id)
+///
+/// \brief  Saves a scene.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  sandwich_id Identifier for the sandwich.
+/// \param  map_id      Identifier for the map.
+////////////////////////////////////////////////////////////////////////////////
 void saveScene(const Id& sandwich_id, const Id& map_id)
 {
      PBJ_LOG(VWarning) << "Not yet fully implemented!" << PBJ_LOG_END;

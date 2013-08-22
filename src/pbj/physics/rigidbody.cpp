@@ -7,6 +7,7 @@
 #include "pbj/physics/rigidbody.h"
 #endif
 
+#include <assert.h>
 #include "pbj/scene/entity.h"
 
 using namespace pbj;
@@ -32,15 +33,20 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
 					 F32 restitution, F32 friction, void* owner) :
 					_owner(owner)
 {
+    assert((Entity*)owner);
+
+    //Create the fixture (collider)
 	b2FixtureDef fd;
 	fd.shape = &shape;
 	fd.density = density;
 	fd.restitution = restitution;
 	fd.friction = friction;
 
+    //Define the data for the rigidbody
 	b2BodyDef bd;
 	bd.type = (b2BodyType)bodyType;
 	bd.position.Set(position.x, position.y);
+    bd.angle = ((Entity*)owner)->getTransform().getRotation() * DEGTORAD;
 	bd.angle = 0.0f;
 	bd.linearDamping = 0.1f;
 	bd.allowSleep = true;
@@ -48,15 +54,9 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
 	bd.bullet = false;
 	bd.active = true;
 
-	/*if(bodyType == Static)
-	{
-		fd.density = 0.0f;
-		fd.restitution = 0.4f;
-	}*/
-
+    //Add the body to the world
 	_body = physWorld->CreateBody(&bd);
 	_body->CreateFixture(&fd);
-	//_body->CreateFixture(&shape, 1.0f);
 
 	if(_owner)
 		_body->SetUserData(_owner);
@@ -76,6 +76,7 @@ Rigidbody::~Rigidbody()
 		destroy();
 }
 
+#pragma region accessors
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn b2Fixture* Rigidbody::getFixtureList()
 ///
@@ -151,6 +152,7 @@ const b2ContactEdge* Rigidbody::getContactList() const
 	return _body->GetContactList();
 }
 
+#pragma endregion
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Rigidbody::applyForce(const vec2& force)
 ///
@@ -217,7 +219,7 @@ vec2 Rigidbody::getVelocity() const
 /// \author Peter Bartosch
 /// \date 2013-08-08
 ///
-/// \param v The const vec2&amp; to process.
+/// \param v The const vec2 to process.
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setVelocity(const vec2& v)
 {
