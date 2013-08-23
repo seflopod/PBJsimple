@@ -58,7 +58,7 @@ Game* Game::instance()
 Game::Game()
     : _prng(std::mt19937::result_type(time(nullptr))),
      _running(false),
-	 _paused(false),
+     _paused(false),
      _engine(getEngine()),
      _window(*getEngine().getWindow())
 {
@@ -180,7 +180,7 @@ void Game::loadScene(const sw::ResourceId& scene_id)
     _scene.getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
     _scene.getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
     _scene.getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
-    
+
     //add the camera
     Entity* e = new Entity();
     e->setType(Entity::EntityType::Camera);
@@ -204,7 +204,7 @@ void Game::loadScene(const sw::ResourceId& scene_id)
     //add the UI to the scene.
     _scene.initUI();
 
-	_scene.getWorld()->SetContactListener(this);
+    _scene.getWorld()->SetContactListener(this);
 }
 
 #pragma region run_game
@@ -223,14 +223,14 @@ I32 Game::run()
     F64 lastFrameTime = 0.0;
     F64 fps = 0.0;
     F32 nonPhysTimer = 0.0f;
-     
+
     //start main loop
     while(_running)
     {
         F64 frameStart = glfwGetTime();
-          
+
         glfwPollEvents();
-          
+
         if(_paused)
             continue;
 
@@ -286,7 +286,7 @@ void Game::stop()
 void Game::update()
 {
     _scene->update(_dt);
-    
+
     //check for any respawns that need to be done
     if(!_toRespawn.empty())
     {
@@ -361,151 +361,6 @@ void Game::onContextResized(I32 width, I32 height)
     glViewport(0, 0, width, height);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::BeginContact(b2Contact* contact)
-///
-/// \brief    Handles the beginning of contact between two rigidbodies.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \param [in,out]    contact    The contact data.
-////////////////////////////////////////////////////////////////////////////////
-void Game::BeginContact(b2Contact* contact)
-{
-    //handle collisions for the entire game here
-    
-    //Anything colliding should be an Entity, so cast and check
-    Entity* a = (Entity*)(contact->GetFixtureA()->GetBody()->GetUserData());
-    Entity* b = (Entity*)(contact->GetFixtureB()->GetBody()->GetUserData());
-    if(!a || !b)
-    {   //if either was not an Entity we have some issues and should do any more
-        //processing
-        PBJ_LOG(pbj::VError) << "Collision between untracked rigidbodies. "
-                                << PBJ_LOG_END;
-        return;
-    }
-
-    //To cut down on the number of if-checks, make sure the player Entity is
-    //in a (assuming one of the objects is a player).
-    if(b->getType() == Entity::EntityType::Player &&
-        a->getType() != Entity::EntityType::Player)
-        std::swap(a, b);
-
-    //if one of the objects is a player, we have some stuff to do.  Let's do it.
-    if(a->getType() == Entity::EntityType::Player)
-    {
-        //make life easier by getting a pointer to the PlayerComponent on the
-        //Entity.
-        scene::PlayerComponent* p = a->getPlayerComponent();
-
-        switch(b->getType())
-        {
-        case Entity::EntityType::Terrain:
-        {   //A player hitting terrain usually means that it can jump again
-            p->enableJump();
-            break;
-        }
-        case Entity::EntityType::Bullet:
-        {   //First we need to do damage calculations and then we need to check
-            //for death.
-            scene::PlayerComponent* q = ((Entity*)(b->getBulletComponent()->getShooter()))->getPlayerComponent();
-
-            //being a little too fancy with damage.  Base damage taken on
-            //velocity of bullet.
-            I32 dmg = 100 + (I32)std::floor(
-                        glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
-
-            //scoring stuff.  Do damage to the hit party, make sure the shooter
-            //knows that its bullet did the damage.
-            p->takeDamage(dmg);
-            q->setBulletsHit(q->getBulletsHit()+1);
-
-            if(p->isDead())
-            {   //If the player is dead we need to check how that death happened
-                //then make sure it knows it died and ready the respawn
-                p->setDeaths(p->getDeaths()+1);
-                p->setTimeOfDeath(glfwGetTime());
-
-                if(p->getId() == q->getId())
-                {   //self-kill
-                    std::cerr<<p->getId().to_useful_string()<<" suicided ("
-                                << p->getDeaths() << ")" << std::endl << std::endl;
-                }
-                else
-                {
-                    //make sure the shooter gets credit for the kill
-                    q->setKills(q->getKills()+1);
-                    std::cerr << p->getId().to_useful_string() << " died ("
-                                << p->getDeaths() << ")" << std::endl << q->getId().to_useful_string()
-                                << " got the kill (" << q->getKills() << ")"
-                                << std::endl << std::endl;
-                }
-                _toRespawn.push(a); //queue for respawning players
-				_scene.addToDisable(a->getSceneId()); //queue to remove an Entity from game.
-            }
-
-            //since the other object was a bullet, disable it so that disappears
-            //after hitting someone
-			_scene.addToDisable(b->getSceneId());
-            break;
-        }
-        default:
-            break;
-        }
-        
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::EndContact(b2Contact* contact)
-///
-/// \brief    Preforms actions necessary after contact has ended.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \param [in,out]    contact    If non-null, the contact.
-////////////////////////////////////////////////////////////////////////////////
-void Game::EndContact(b2Contact* contact)
-{
-    //std::cerr<<"EndContact"<<std::endl;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
-///
-/// \brief    Handles the pre solve event for the physics world.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \param [in,out]    contact    If non-null, the contact.
-/// \param    manifold            The manifold.
-////////////////////////////////////////////////////////////////////////////////
-void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
-{
-    //handle presolve
-    //std::cerr<<"PreSolve"<<std::endl;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::PostSolve(b2Contact* contact,
-///     const b2ContactImpulse* impulse)
-///
-/// \brief    Handles the post solve event for the physics world.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \param [in,out]    contact    If non-null, the contact.
-/// \param    impulse                The impulse.
-////////////////////////////////////////////////////////////////////////////////
-void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
-{
-    //handle post solve
-    //std::cerr<<"PostSolve"<<std::endl;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void Game::onKeyboard(I32 keycode, I32 scancode, I32 action,
@@ -529,7 +384,7 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
     if(action == GLFW_RELEASE)
     {
         _instance->_running = !(keycode == GLFW_KEY_ESCAPE);
-        
+
         if(keycode == GLFW_KEY_H)
         {   //This should show the help menu.  It pauses the game while doing so.
             _paused = true;
@@ -549,7 +404,7 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 /// \fn    void Game::onMouseLeftDown(I32 mods)
 ///
 /// \brief    Executes the mouse left down action, which in this case is
-/// 		  shooting a bullet.
+///           shooting a bullet.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-13
@@ -649,140 +504,21 @@ void Game::help()
     std::cerr << "Press space to continue" << std::endl;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::spawnBullet(const vec2& position, const vec2& velocity)
-///
-/// \brief    Spawn bullet.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \param    position    The position of the bullet.
-/// \param    velocity    The velocity for the bullet to have.
-////////////////////////////////////////////////////////////////////////////////
-void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter)
-{
-    Entity* bullet = _scene->getBullet(_bulletRing[_curRingIdx++]);
-    bullet->getTransform().setPosition(position);
-    bullet->getTransform().updateOwnerRigidbody();
-    bullet->getRigidbody()->setVelocity(velocity);
-    bullet->getRigidbody()->setAngularVelocity(6.28318f);
-    bullet->getBulletComponent()->setShooter(shooter);
-    bullet->enable();
-    if(_curRingIdx >= 100)
-        _curRingIdx -= 100;
-}
+
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn	void Game::disableBullet(Entity* e)
+/// \fn scene::Scene* Game::getScene()
 ///
-/// \brief	Disables a bullet.
+/// \brief  Gets the current scene.
 ///
-/// \author	Peter Bartosch
-/// \date	2013-08-22
+/// \author Peter Bartosch
+/// \date   2013-08-22
 ///
-/// \param [in]	e	Sends a the id of the passed Entity to the Scene so that it
-/// 			    can be disabled at the end of the physics loop.
+/// \return A pointer to the current scene.
 ////////////////////////////////////////////////////////////////////////////////
-void Game::disableBullet(Entity* e)
-{
-    _scene->addToDisable(e->getSceneId());
-}
+scene::Scene* Game::getScene() { return _scene.get(); }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::respawnPlayer(Entity* e)
-///
-/// \brief    Respawn player.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-14
-///
-/// \param [in,out]    e    If non-null, the Entity* to process.
-////////////////////////////////////////////////////////////////////////////////
-void Game::respawnPlayer(Entity* e)
-{
-    _scene->addToDisable(e->getSceneId());
-    _toRespawn.push(e);
-}
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn	scene::Scene& Game::currentScene()
-///
-/// \brief	Gets the current scene.
-///
-/// \author	Peter Bartosch
-/// \date	2013-08-22
-///
-/// \return	A reference to the current scene.
-////////////////////////////////////////////////////////////////////////////////
-scene::Scene* Game::currentScene() { return _scene.get(); }
 
-#pragma region entity_makes
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    Entity* Game::makeBullet()
-///
-/// \brief    Makes a bullet.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \return    A pointer to an Entity that has all the characteristics of a
-/// 		   bullet.
-////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makeBullet()
-{
-    Entity* e = new Entity();
-    e->setType(Entity::EntityType::Bullet);
-    e->getTransform().setScale(0.5f, 0.5f);
-    e->addBulletComponent();
-    e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullet"))));
-    e->setShape(new ShapeTriangle());
-    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene->getWorld());
-    e->getRigidbody()->setBullet(true);
-    e->getRigidbody()->setActive(false);
-    return e;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    Entity* Game::makePlayer()
-///
-/// \brief    Makes the player.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \return    A pointer to an Entity that has all the characteristics of a
-/// 		   player.
-////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makePlayer(be::Id id, F32 x, F32 y, bool addAI)
-{
-    Entity* p = new Entity();
-    p->setType(Entity::Player);
-    p->getTransform().setPosition(vec2(x, y));
-    p->getTransform().setScale(vec2(1.0f, 2.0f));
-    
-    p->setShape(new ShapeSquare());
-    p->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene->getWorld());
-    p->getRigidbody()->setFixedRotation(true);
-    
-    p->addPlayerComponent(id);
-    p->getPlayerComponent()->setMaxAmmo(1000);
-    p->getPlayerComponent()->setAmmoRemaining(1000);
-    
-    p->addAudioSource();
-    p->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
-    p->getAudioSource()->addAudioBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
-    p->getAudioSource()->addAudioBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
-    p->getAudioSource()->updatePosition();
-    p->getAudioSource()->updateVelocity();
-
-    if(addAI)
-        p->addAIComponent();
-
-    p->enableDraw();
-    return p;
-}
-
-#pragma endregion
 
 } // namespace pbj

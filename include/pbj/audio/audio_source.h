@@ -3,8 +3,8 @@
 ///
 /// \brief  Declares the audio source class.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef AUDIO_SOURCE_H_
-#define AUDIO_SOURCE_H_
+#ifndef PBJ_AUDIO_AUDIO_SOURCE_H_
+#define PBJ_AUDIO_AUDIO_SOURCE_H_
 
 #include <assert.h>
 #include <map>
@@ -19,73 +19,77 @@
 using std::unordered_map;
 using std::string;
 
-namespace pbj
-{
-namespace audio
-{
-    ////////////////////////////////////////////////////////////////////////////
-    /// \class  AudioSource
-    ///
-    /// \brief  Audio source.
-    ///
-    /// \author Peter Bartosch
-    /// \date   2013-08-22
-    /// 
-    /// \details    AudioSource provide functions for wrapping around OpenAL's
-    ///             alSource* functions.  I didn't provide all of the same
-    ///             functionality (such as cone-directed sounds) because we did
-    ///             not appear to need them.
-    ////////////////////////////////////////////////////////////////////////////
-	class AudioSource
-	{
-	public:
-		typedef unordered_map<string, AudioBuffer*> AudioBuffers;
-		
-		AudioSource(void*);
-		~AudioSource();
-		
-		void setPitch(F32);
-		F32 getPitch() const;
-		
-		void setGain(F32);
-		F32 getGain() const;
-		
-		void setMaxDistance(F32);
-		F32 getMaxDistance() const;
-		
-		void setRolloff(F32);
-		F32 getRolloff() const;
-		
-		void setReferenceDistance(F32);
-		F32 getReferenceDistance() const;
-		
-		void setMinMaxGain(vec2);
-		vec2 getMinMaxGain() const;
-		
-		//ignoring cone-related properties
-		//but I feel like direction should be set to z=1 if we have issues
-		
-		void updatePosition();
-		void updateVelocity();
-		
-		void addAudioBuffer(string, AudioBuffer*);
-		AudioBuffer* getAudioBuffer(string) const;
-		AudioBuffers* getAudioBuffers() const;
-		void play(string);
-		void playAt(string, F32);
-		void stop();
-		void pause();
-		void seek(F32);
-		
-		string getPlaying() const;
+namespace pbj {
+namespace audio {
 
-		void* getOwner() const;
-	private:
-		void* _owner;
-		ALuint _srcId;
-		std::unique_ptr<AudioBuffers> _buffers;
-		string _curPlaying;
-	};
+////////////////////////////////////////////////////////////////////////////
+/// \class  AudioSource
+///
+/// \brief  Audio source.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \details    AudioSource provide functions for wrapping around OpenAL's
+///             alSource* functions.  I didn't provide all of the same
+///             functionality (such as cone-directed sounds) because we did
+///             not appear to need them.
+////////////////////////////////////////////////////////////////////////////
+class Source
+{
+public:
+    typedef unordered_map<string, AudioBuffer*> AudioBuffers;
+
+    Source(void*);
+    ~Source();
+
+    void setPitch(F32);
+    F32 getPitch() const;
+
+    void setGain(F32);
+    F32 getGain() const;
+
+    void setMaxDistance(F32);
+    F32 getMaxDistance() const;
+
+    void setRolloff(F32);
+    F32 getRolloff() const;
+
+    void setReferenceDistance(F32);
+    F32 getReferenceDistance() const;
+
+    void setMinMaxGain(vec2);
+    vec2 getMinMaxGain() const;
+
+    //ignoring cone-related properties
+    //but I feel like direction should be set to z=1 if we have issues
+
+    void updatePosition();
+    void updateVelocity();
+
+    void addAudioBuffer(string, AudioBuffer*);
+    AudioBuffer* getAudioBuffer(string) const;
+    AudioBuffers* getAudioBuffers() const;
+    void play(string);
+    void playAt(string, F32);
+    void stop();
+    void pause();
+    void seek(F32);
+
+    string getPlaying() const;
+
+    Entity* getOwner() const;
+private:
+    Entity* _owner;
+    ALuint _srcId;
+    std::unique_ptr<AudioBuffers> _buffers;
+    string _curPlaying;
+
+    Source(const Source&)
+    void operator=(const Source&);
+};
+
 } //namespace audio
 } //namesapce pbj
+
 #endif

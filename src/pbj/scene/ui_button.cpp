@@ -9,8 +9,6 @@
 #include "pbj/engine.h"
 #include "pbj/_math.h"
 
-
-
 namespace pbj {
 namespace scene {
 
@@ -72,7 +70,7 @@ void UIButton::draw()
 
         glLoadMatrixf(glm::value_ptr(btn_transform_));
         gfx::Texture::disable();
-        
+
         glBegin(GL_QUADS);
             glColor4fv(glm::value_ptr(active_style_->panel.background_color_top));
             glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
@@ -142,32 +140,32 @@ bool UIButton::isFocusable() const
 void UIButton::onMouseIn(const ivec2& position)
 {
     hovered_ = true;
-}	
-	
+}
+
 void UIButton::onMouseOut(const ivec2& position)
 {
     hovered_ = false;
 }
-	
+
 void UIButton::onMouseDown(I32 button)
 {
     UIElement::onMouseDown(button);
     if (button == GLFW_MOUSE_BUTTON_1)
         active_ = true;
 }
-	
+
 void UIButton::onMouseUp(I32 button)
 {
     if (button == GLFW_MOUSE_BUTTON_1)
         active_ = false;
 }
-	
+
 void UIButton::onMouseClick(I32 button)
 {
     if (!disabled_ && button == GLFW_MOUSE_BUTTON_1 && callback_)
         callback_();
 }
-	
+
 void UIButton::onKeyUp(I32 keycode, I32 modifiers)
 {
     if (kbd_active_ && ((modifiers & (GLFW_MOD_ALT | GLFW_MOD_CONTROL | GLFW_MOD_SHIFT | GLFW_MOD_SUPER)) == 0))
@@ -179,7 +177,7 @@ void UIButton::onKeyUp(I32 keycode, I32 modifiers)
         }
     }
 }
-	
+
 void UIButton::onKeyPressed(I32 keycode, I32 modifiers)
 {
     UIElement::onKeyPressed(keycode, modifiers);
@@ -191,7 +189,7 @@ void UIButton::onKeyPressed(I32 keycode, I32 modifiers)
         }
     }
 }
-	
+
 void UIButton::onBoundsChange_()
 {
     active_style_ = nullptr;
@@ -232,7 +230,7 @@ UIButton::State UIButton::getCurrentState_() const
             return SHovered;
         }
 
-        return SNormal; 
+        return SNormal;
     }
 }
 
@@ -266,7 +264,7 @@ void UIButton::refreshConfig_()
         border_bounds_[1] = vec2(1, 1) - inv_scale * vec2(style.panel.margin_right + style.panel.border_width_right, style.panel.margin_bottom + style.panel.border_width_bottom);
 
         border_bounds_[2] = inv_scale * vec2(style.panel.margin_left - style.panel.border_width_left, style.panel.margin_top - style.panel.border_width_top);
-        border_bounds_[3] = vec2(1, 1) - inv_scale * vec2(style.panel.margin_right - style.panel.border_width_right, style.panel.margin_bottom - style.panel.border_width_bottom);        
+        border_bounds_[3] = vec2(1, 1) - inv_scale * vec2(style.panel.margin_right - style.panel.border_width_right, style.panel.margin_bottom - style.panel.border_width_bottom);
     }
 }
 

@@ -45,7 +45,7 @@ private:
     static const size_t base_chars_size_ = 128;
     TextureFontCharacter default_char_;
     TextureFontCharacter base_chars_[base_chars_size_];
-	std::vector<TextureFontCharacter> ext_chars_;
+    std::vector<TextureFontCharacter> ext_chars_;
 };
 
 

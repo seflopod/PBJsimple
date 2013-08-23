@@ -556,7 +556,7 @@ void PlayerComponent::resetReloadTimer() { _reloadTimer = 0.0f; }
 /// \date   2013-08-13
 ///
 /// \param  dt    The amount of time to move the timer.
-/// 
+///
 /// \details    If the timer exceeds the amount specified in PlayerStats then
 ///             the player is given the ability to shoot.
 ////////////////////////////////////////////////////////////////////////////////
@@ -582,7 +582,7 @@ void PlayerComponent::stepFireTimer(F32 dt)
 ///
 /// \param  mouseX  The mouse x coordinate.
 /// \param  mouseY  The mouse y coordinate.
-/// 
+///
 /// \details    This will check to see if the player is out of ammo and set
 ///             the reload accordingly.  Also plays the sound for firing
 ///             (assuming it exists).
@@ -727,7 +727,7 @@ void PlayerComponent::takeDamage(I32 dmg)
             e->getAudioSource()->play("death");
         }
     }
-        
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

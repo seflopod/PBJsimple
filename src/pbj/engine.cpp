@@ -28,15 +28,7 @@ void glfwError(int error, const char* description)
 
 } // namespace be::(anon)
 
-///////////////////////////////////////////////////////////////////////////////
-/// \brief  Engine constructor.
-///
-/// \details Only one Engine may be constructed.  It should be created as a
-///         local variable in main().
-Engine::Engine()
-{
-    init();
-}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Engine::Engine(int* argc, char** argv)
@@ -52,9 +44,59 @@ Engine::Engine()
 ////////////////////////////////////////////////////////////////////////////////
 Engine::Engine(int* argc, char** argv)
 {
-	//init audio
-	alutInit(argc, argv);
-	init();
+    if (process_engine_)
+        throw std::runtime_error("Engine already initialized!");
+
+    process_engine_ = this;
+
+    //init audio
+    alutInit(argc, argv);
+
+    glfwSetErrorCallback(glfwError);
+    if (!glfwInit())
+        PBJ_LOG(VError) << "GLFW could not be initialized!" << PBJ_LOG_END;
+
+    sw::readDirectory("./");
+
+    std::shared_ptr<sw::Sandwich> config_sandwich;
+    config_sandwich = sw::open(Id("__pbjconfig__"));
+
+    Id window_settings_id;
+    std::string window_title;
+
+#ifdef PBJ_EDITOR
+    window_settings_id = Id("__editor__");
+    window_title = "PBJ Editor";
+#else
+    window_settings_id = Id("__game__");
+    window_title = "PBJ";
+#endif
+
+    WindowSettings window_settings;
+
+    if (config_sandwich)
+        window_settings = loadWindowSettings(*config_sandwich, window_settings_id);
+
+    Window* wnd = new Window(window_settings);
+    window_.reset(wnd);
+
+    wnd->setTitle(window_title);
+
+    wnd->registerContextResizeListener(
+        [](I32 width, I32 height)
+        {
+            glViewport(0, 0, width, height);
+        }
+    );
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+
+    PBJ_LOG(VInfo) << glGetString(GL_VERSION) << PBJ_LOG_END;
+
+    InputController::init(wnd->getGlfwHandle());
+
+    wnd->show();
 }
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Destructor.
@@ -73,61 +115,6 @@ Engine::~Engine()
 Window* Engine::getWindow() const
 {
     return window_.get();
-}
-
-void Engine::init()
-{
-	if (process_engine_)
-        throw std::runtime_error("Engine already initialized!");
-
-    process_engine_ = this;
-
-    glfwSetErrorCallback(glfwError);
-
-    if (!glfwInit())
-        PBJ_LOG(VError) << "GLFW could not be initialized!" << PBJ_LOG_END;
-
-    sw::readDirectory("./");
-
-    std::shared_ptr<sw::Sandwich> config_sandwich;
-    config_sandwich = sw::open(Id("__pbjconfig__"));
-
-    Id window_settings_id;
-    std::string window_title;
-
-#ifdef PBJ_EDITOR
-    window_settings_id = Id("__editor__");
-    window_title = "PBJ Editor";
-#else
-    window_settings_id = Id("__game__");
-    window_title = "PBJ";
-#endif    
-
-    WindowSettings window_settings;
-
-    if (config_sandwich)
-        window_settings = loadWindowSettings(*config_sandwich, window_settings_id);
-
-    Window* wnd = new Window(window_settings);
-    window_.reset(wnd);
-
-    wnd->setTitle(window_title);
-    
-    wnd->registerContextResizeListener(
-        [](I32 width, I32 height)
-        {
-            glViewport(0, 0, width, height);
-        }
-    );
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-
-    PBJ_LOG(VInfo) << glGetString(GL_VERSION) << PBJ_LOG_END;
-
-    InputController::init(wnd->getGlfwHandle());
-
-    wnd->show();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

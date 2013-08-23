@@ -226,13 +226,13 @@ void Texture::disable()
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  loads a texture object from a sandwich.
-/// 
+///
 /// \param  sandwich The database from which to load the texture.
 /// \param  texture_id Identifies the texture to load from the database.
 std::unique_ptr<Texture> loadTexture(sw::Sandwich& sandwich, const Id& texture_id)
 {
     std::unique_ptr<Texture> result;
-   
+
     try
     {
         db::StmtCache& cache = sandwich.getStmtCache();

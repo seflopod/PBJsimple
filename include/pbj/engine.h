@@ -23,19 +23,15 @@ namespace pbj {
 class Engine
 {
 public:
-   Engine();
-   Engine(int*, char**);
-   ~Engine();
+    Engine(int*, char**);
+    ~Engine();
 
-   Window* getWindow() const;
-   sw::ResourceManager& getResourceManager();
+    Window* getWindow() const;
+    sw::ResourceManager& getResourceManager();
 
 private:
-	void init();
-
     std::unique_ptr<Window> window_;
     sw::ResourceManager resource_mgr_;
-    
 
     Engine(const Engine&);
     void operator=(const Engine&);

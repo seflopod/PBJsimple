@@ -4,8 +4,8 @@
 ///
 /// \brief    Declares the entity class.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef ENTITY_H_
-#define ENTITY_H_
+#ifndef PBJ_SCENE_ENTITY_H_
+#define PBJ_SCENE_ENTITY_H_
 
 #include <Box2D/Box2D.h>
 
@@ -45,112 +45,112 @@ namespace scene {
 class Scene;
 
 ////////////////////////////////////////////////////////////////////////////
-/// \class	Entity
+/// \class  Entity
 ///
-/// \brief	Entity keeps track of all data relating to an object within a
-/// 		scene.
+/// \brief  Entity keeps track of all data relating to an object within a
+///         scene.
 ///
-/// \author	Peter Bartosch
-/// \date	2013-08-05
+/// \author Peter Bartosch
+/// \date   2013-08-05
 ////////////////////////////////////////////////////////////////////////////
 class Entity
 {
 public:
-	////////////////////////////////////////////////////////////////////////
-	/// \enum EntityType
-	///
-	/// \brief Values that represent EntityType.
-	////////////////////////////////////////////////////////////////////////
-	enum EntityType
-	{
-		Terrain = 0x01,
-		Player = 0x02,
-		SpawnPoint = 0x04,
-		Bullet = 0x08,
-		Camera = 0xF0
-	};
+    ////////////////////////////////////////////////////////////////////////
+    /// \enum EntityType
+    ///
+    /// \brief Values that represent EntityType.
+    ////////////////////////////////////////////////////////////////////////
+    enum EntityType
+    {
+        Terrain = 0x01,
+        Player = 0x02,
+        SpawnPoint = 0x04,
+        Bullet = 0x08,
+        Camera = 0xF0
+    };
 
-	Entity();
-	~Entity();
-		
-	void update(F32);
-	void draw();
-		
-	//accessors, these will expand as the class gains more component
-	//possiblities
-	Transform& getTransform();
-	void setTransform(const Transform&);
-		
-	Shape* getShape() const;
-	void setShape(Shape*);
+    Entity();
+    ~Entity();
 
-	const Material* getMaterial();
-	void setMaterial(const Material*);
+    void update(F32);
+    void draw();
 
-	GLuint getTextureId() const;
-	void setTextureId(const GLuint);
-		
-	void addRigidbody(Rigidbody::BodyType, b2World*);
-	Rigidbody* getRigidbody() const;
+    //accessors, these will expand as the class gains more component
+    //possiblities
+    Transform& getTransform();
+    void setTransform(const Transform&);
 
-	void addPlayerComponent(Id);
-	PlayerComponent* getPlayerComponent() const;
+    Shape* getShape() const;
+    void setShape(Shape*);
 
-	void addAIComponent();
-	AIComponent* getAIComponent() const;
-	U32 getSceneId() const;
-	void setSceneId(U32);
+    const Material* getMaterial();
+    void setMaterial(const Material*);
 
-	void addBulletComponent();
-	BulletComponent* getBulletComponent() const;
+    GLuint getTextureId() const;
+    void setTextureId(const GLuint);
 
-	void addAudioListener();
-	AudioListener* getAudioListener() const;
+    void addRigidbody(Rigidbody::BodyType, b2World*);
+    Rigidbody* getRigidbody() const;
 
-	void addAudioSource();
-	AudioSource* getAudioSource() const;
+    void addPlayerComponent(Id);
+    PlayerComponent* getPlayerComponent() const;
 
-	void addCamera();
-	CameraComponent* getCamera() const;
+    void addAIComponent();
+    AIComponent* getAIComponent() const;
+    U32 getSceneId() const;
+    void setSceneId(U32);
 
-	EntityType getType() const;
-	void setType(EntityType);
+    void addBulletComponent();
+    BulletComponent* getBulletComponent() const;
+
+    void addAudioListener();
+    AudioListener* getAudioListener() const;
+
+    void addAudioSource();
+    AudioSource* getAudioSource() const;
+
+    void addCamera();
+    CameraComponent* getCamera() const;
+
+    EntityType getType() const;
+    void setType(EntityType);
 
 
-	bool isDrawable() const;
-	void enableDraw();
-	void disableDraw();
+    bool isDrawable() const;
+    void enableDraw();
+    void disableDraw();
 
-	bool isEnabled() const;
-	void enable();
-	void disable();
+    bool isEnabled() const;
+    void enable();
+    void disable();
 
     void saveEntity(const Id& sandwich_id, const Id& map_id);
 
 private:
     bool _drawable;
-	bool _enabled;
-	//bool _toDisable;
-	//bool _toEnable;
+    bool _enabled;
+    //bool _toDisable;
+    //bool _toEnable;
 
-	U32 _transformCallbackId;
-	U32 _sceneId;
-	EntityType _type;
+    U32 _transformCallbackId;
+    U32 _sceneId;
+    EntityType _type;
 
-	//components
-	Transform _transform;
-	unique_ptr<Shape> _shape;
-	const Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
-	unique_ptr<Rigidbody> _rigidbody;
-	unique_ptr<PlayerComponent> _player;
-	unique_ptr<AIComponent> _ai;
-	unique_ptr<BulletComponent> _bullet;
-	unique_ptr<AudioSource> _src;
-	unique_ptr<AudioListener> _listener;
-	unique_ptr<CameraComponent> _camera;
+    //components
+    Transform _transform;
+    unique_ptr<Shape> _shape;
+    const Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
+    unique_ptr<Rigidbody> _rigidbody;
+    unique_ptr<PlayerComponent> _player;
+    unique_ptr<AIComponent> _ai;
+    unique_ptr<BulletComponent> _bullet;
+    unique_ptr<AudioSource> _src;
+    unique_ptr<AudioListener> _listener;
+    unique_ptr<CameraComponent> _camera;
 
-	Entity(const Entity&);
-	void operator=(const Entity&);
+    Entity(const Entity&);
+    void operator=(const Entity&);
 };
 
 void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene);

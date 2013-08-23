@@ -26,20 +26,20 @@ namespace sw {
 class Sandwich : public std::enable_shared_from_this<Sandwich>
 {
 public:
-   Sandwich(const std::string& path, bool read_only);
+    Sandwich(const std::string& path, bool read_only);
 
-   const Id& getId() const;
+    const Id& getId() const;
 
-   db::Db& getDb();
-   db::StmtCache& getStmtCache();
+    db::Db& getDb();
+    db::StmtCache& getStmtCache();
 
 private:
-   Id id_;
-   db::Db db_;
-   db::StmtCache stmt_cache_;
+    Id id_;
+    db::Db db_;
+    db::StmtCache stmt_cache_;
 
-   Sandwich(const Sandwich&);
-   void operator=(const Sandwich&);
+    Sandwich(const Sandwich&);
+    void operator=(const Sandwich&);
 };
 
 } // namespace be::bed

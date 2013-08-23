@@ -16,58 +16,58 @@
 /// \brief  SQL statement to load a set of window settings from a sandwich.
 /// \param  1 The id of the winow settings stack to load.
 #define PBJ_WINDOW_SETTINGS_SQL_LOAD \
-      "SELECT window_mode, " \
-      "system_positioned, save_pos_on_close, position_x, position_y, " \
-      "size_x, size_y, monitor_index, refresh_rate, v_sync, " \
-      "msaa_level, red_bits, green_bits, blue_bits, alpha_bits, " \
-      "depth_bits, stencil_bits, " \
-      "srgb_capable, use_custom_gamma, custom_gamma " \
-      "FROM sw_window_settings WHERE id = ? " \
-      "ORDER BY history_index DESC LIMIT 1"
+    "SELECT window_mode, " \
+    "system_positioned, save_pos_on_close, position_x, position_y, " \
+    "size_x, size_y, monitor_index, refresh_rate, v_sync, " \
+    "msaa_level, red_bits, green_bits, blue_bits, alpha_bits, " \
+    "depth_bits, stencil_bits, " \
+    "srgb_capable, use_custom_gamma, custom_gamma " \
+    "FROM sw_window_settings WHERE id = ? " \
+    "ORDER BY history_index DESC LIMIT 1"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to check if the sw_window_settings table exists
 ///         in a sandwich.
 #define PBJ_WINDOW_SETTINGS_SQL_TABLE_EXISTS \
-      "SELECT count(*) FROM sqlite_master " \
-      "WHERE type='table' AND name='sw_window_settings'"
+    "SELECT count(*) FROM sqlite_master " \
+    "WHERE type='table' AND name='sw_window_settings'"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to get the active (highest) history_index for the
 ///         requested window settings.
 /// \param  1 The id of the window settings stack to look at.
 #define PBJ_WINDOW_SETTINGS_SQL_LATEST_INDEX \
-      "SELECT max(history_index) " \
-      "FROM sw_window_settings WHERE id = ?"
+    "SELECT max(history_index) " \
+    "FROM sw_window_settings WHERE id = ?"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to create the sw_window_settings table.
 #define PBJ_WINDOW_SETTINGS_SQL_CREATE_TABLE \
-      "CREATE TABLE IF NOT EXISTS sw_window_settings (" \
-      "id INTEGER NOT NULL, " \
-      "history_index INTEGER NOT NULL, " \
-      "window_mode INTEGER NOT NULL, " \
-      "system_positioned INTEGER NOT NULL, " \
-      "maximized INTEGER NOT NULL, " \
-      "save_pos_on_close INTEGER NOT NULL, " \
-      "position_x INTEGER NOT NULL, " \
-      "position_y INTEGER NOT NULL, " \
-      "size_x INTEGER NOT NULL, " \
-      "size_y INTEGER NOT NULL, " \
-      "monitor_index INTEGER NOT NULL, " \
-      "refresh_rate INTEGER NOT NULL, " \
-      "v_sync INTEGER NOT NULL, " \
-      "msaa_level INTEGER NOT NULL, " \
-      "red_bits INTEGER NOT NULL, " \
-      "green_bits INTEGER NOT NULL, " \
-      "blue_bits INTEGER NOT NULL, " \
-      "alpha_bits INTEGER NOT NULL, " \
-      "depth_bits INTEGER NOT NULL, " \
-      "stencil_bits INTEGER NOT NULL, " \
-      "srgb_capable INTEGER NOT NULL, " \
-      "use_custom_gamma INTEGER NOT NULL, " \
-      "custom_gamma REAL NOT NULL " \
-      "PRIMARY KEY (id, history_index) )"
+    "CREATE TABLE IF NOT EXISTS sw_window_settings (" \
+    "id INTEGER NOT NULL, " \
+    "history_index INTEGER NOT NULL, " \
+    "window_mode INTEGER NOT NULL, " \
+    "system_positioned INTEGER NOT NULL, " \
+    "maximized INTEGER NOT NULL, " \
+    "save_pos_on_close INTEGER NOT NULL, " \
+    "position_x INTEGER NOT NULL, " \
+    "position_y INTEGER NOT NULL, " \
+    "size_x INTEGER NOT NULL, " \
+    "size_y INTEGER NOT NULL, " \
+    "monitor_index INTEGER NOT NULL, " \
+    "refresh_rate INTEGER NOT NULL, " \
+    "v_sync INTEGER NOT NULL, " \
+    "msaa_level INTEGER NOT NULL, " \
+    "red_bits INTEGER NOT NULL, " \
+    "green_bits INTEGER NOT NULL, " \
+    "blue_bits INTEGER NOT NULL, " \
+    "alpha_bits INTEGER NOT NULL, " \
+    "depth_bits INTEGER NOT NULL, " \
+    "stencil_bits INTEGER NOT NULL, " \
+    "srgb_capable INTEGER NOT NULL, " \
+    "use_custom_gamma INTEGER NOT NULL, " \
+    "custom_gamma REAL NOT NULL " \
+    "PRIMARY KEY (id, history_index) )"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to save a set of window settings using a specific id
@@ -99,20 +99,20 @@
 /// \param  21 The value of be::wnd::WindowSettings::use_custom_gamma.
 /// \param  22 The value of be::wnd::WindowSettings::custom_gamma.
 #define PBJ_WINDOW_SETTINGS_SQL_SAVE \
-      "INSERT INTO sw_window_settings (" \
-      "id, history_index, window_mode, " \
-      "system_positioned, save_pos_on_close, position_x, position_y, " \
-      "size_x, size_y, monitor_index, refresh_rate, v_sync, " \
-      "msaa_level, red_bits, green_bits, blue_bits, alpha_bits, " \
-      "depth_bits, stencil_bits, " \
-      "srgb_capable, use_custom_gamma, custom_gamma" \
-      ") VALUES (" \
-      "?,?,?," \
-      "?,?,?,?," \
-      "?,?,?,?,?," \
-      "?,?,?,?,?," \
-      "?,?," \
-      "?,?,?)"
+    "INSERT INTO sw_window_settings (" \
+    "id, history_index, window_mode, " \
+    "system_positioned, save_pos_on_close, position_x, position_y, " \
+    "size_x, size_y, monitor_index, refresh_rate, v_sync, " \
+    "msaa_level, red_bits, green_bits, blue_bits, alpha_bits, " \
+    "depth_bits, stencil_bits, " \
+    "srgb_capable, use_custom_gamma, custom_gamma" \
+    ") VALUES (" \
+    "?,?,?," \
+    "?,?,?,?," \
+    "?,?,?,?,?," \
+    "?,?,?,?,?," \
+    "?,?," \
+    "?,?,?)"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to update the position and size settings from a
@@ -125,20 +125,20 @@
 /// \param  5 The id of the window settings stack to update.
 /// \param  6 The history_index to update.
 #define PBJ_WINDOW_SETTINGS_SQL_SAVE_POS \
-      "UPDATE sw_window_settings " \
-      "SET position_x = ?, position_y = ?, " \
-      "size_x = ?, size_y = ? " \
-      "WHERE id = ? AND history_index = ?"
+    "UPDATE sw_window_settings " \
+    "SET position_x = ?, position_y = ?, " \
+    "size_x = ?, size_y = ? " \
+    "WHERE id = ? AND history_index = ?"
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief  SQL statement to remove any history entries with the id provided 
+/// \brief  SQL statement to remove any history entries with the id provided
 ///         and an history_index less than the provided minimum.
 ///
 /// \param  1 The id of the window settings stack to truncate.
 /// \param  2 The minimum history_index that will remain untouched.
 #define PBJ_WINDOW_SETTINGS_SQL_TRUNCATE \
-      "DELETE FROM sw_window_settings " \
-      "WHERE id = ? AND history_index < ?"
+    "DELETE FROM sw_window_settings " \
+    "WHERE id = ? AND history_index < ?"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to remove a specific history_index from a window
@@ -150,8 +150,8 @@
 /// \param  1 The id of the window_settings stack to modify.
 /// \param  2 This history_index to delete.
 #define PBJ_WINDOW_SETTINGS_SQL_REVERT \
-      "DELETE FROM sw_window_settings " \
-      "WHERE id = ? AND history_index = ?"
+    "DELETE FROM sw_window_settings " \
+    "WHERE id = ? AND history_index = ?"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to compress history_index values by subtracting a
@@ -165,9 +165,9 @@
 ///         this statement.
 /// \param  2 The id of the window_settings stack to modify.
 #define PBJ_WINDOW_SETTINGS_SQL_COMPRESS \
-      "UPDATE sw_window_settings " \
-      "SET history_index = history_index - ? " \
-      "WHERE id = ?"
+    "UPDATE sw_window_settings " \
+    "SET history_index = history_index - ? " \
+    "WHERE id = ?"
 
 #ifdef BE_ID_NAMES_ENABLED
 #define PBJ_WINDOW_SETTINGS_SQLID_LOAD         PBJ_WINDOW_SETTINGS_SQL_LOAD
@@ -305,7 +305,7 @@ WindowSettings loadWindowSettings(sw::Sandwich& sandwich, const Id& id)
 /// \brief  Saves a set of WindowSettings to a sandwich.
 ///
 /// \details The sandwich and Id that are saved to are determined by the id field
-///         of the WindowSettings object passed in.  If the WindowSettings 
+///         of the WindowSettings object passed in.  If the WindowSettings
 ///         already exist in the sandwich, a new history index will be created.
 ///
 ///         If there is a problem saving the WindowSettings, a warning will
@@ -328,7 +328,7 @@ bool saveWindowSettings(const WindowSettings& window_settings)
         db::Transaction transaction(db, db::Transaction::Immediate);
 
         int history_index = 0;
-   
+
         if (db.getInt(PBJ_WINDOW_SETTINGS_SQL_TABLE_EXISTS, 0) == 0)
         {
             db.exec(PBJ_WINDOW_SETTINGS_SQL_CREATE_TABLE);
@@ -364,7 +364,7 @@ bool saveWindowSettings(const WindowSettings& window_settings)
         save.bind(20, window_settings.srgb_capable);
         save.bind(21, window_settings.use_custom_gamma);
         save.bind(22, window_settings.custom_gamma);
-      
+
         save.step();
         transaction.commit();
         return true;
@@ -415,7 +415,7 @@ bool updateSavedPosition(const WindowSettings& window_settings)
             throw std::runtime_error("Could not open sandwich for writing!");
 
         db::Db& db = sandwich->getDb();
-  
+
         if (db.getInt(PBJ_WINDOW_SETTINGS_SQL_TABLE_EXISTS, 0) == 0)
             throw std::runtime_error("WindowSettings table does not exist!");
 
@@ -461,7 +461,7 @@ bool updateSavedPosition(const WindowSettings& window_settings)
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Deletes the most recent history index of the specified
 ///         WindowSettings object.
-/// 
+///
 /// \param  id The ResourceId defining the WindowSettings stack to revert.
 /// \return The next most recent history index for the WindowSettings object.
 ///         If there is a problem deleting the most recent window settings or
@@ -478,7 +478,7 @@ WindowSettings revertWindowSettings(const sw::ResourceId& id)
             throw std::runtime_error("Could not open sandwich for writing!");
 
         db::Db& db = sandwich->getDb();
-  
+
         if (db.getInt(PBJ_WINDOW_SETTINGS_SQL_TABLE_EXISTS, 0) == 0)
             throw std::runtime_error("WindowSettings table does not exist!");
 
@@ -537,7 +537,7 @@ void truncateWindowSettingsHistory(const sw::ResourceId& id, int max_history_ent
             throw std::runtime_error("Could not open sandwich for writing!");
 
         db::Db& db = sandwich->getDb();
-  
+
         if (db.getInt(PBJ_WINDOW_SETTINGS_SQL_TABLE_EXISTS, 0) == 0)
             throw std::runtime_error("WindowSettings table does not exist!");
 

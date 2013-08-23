@@ -4,8 +4,8 @@
 ///
 /// \brief  pbj::audio::AudioBuffer class header.
 
-#ifndef PBJ_AUDIO_AUDIO_BUFFER_H_
-#define PBJ_AUDIO_AUDIO_BUFFER_H_
+#ifndef PBJ_AUDIO_BUFFER_H_
+#define PBJ_AUDIO_BUFFER_H_
 
 #include "pbj/_al.h"
 #include "pbj/_pbj.h"
@@ -23,22 +23,25 @@ namespace audio {
 ///
 /// \author Josh Douglas
 /// \date   2013-08-22
-/// 
+///
 /// \details Wraps OpenAL audio buffers.
 ////////////////////////////////////////////////////////////////////////////////
-class AudioBuffer
+class Buffer
 {
 public:
-	AudioBuffer(const ALubyte* data, size_t size);
-	~AudioBuffer();
-	
-	ALuint getBufferID();
+    Buffer(const ALubyte* data, size_t size);
+    ~Buffer();
+
+    ALuint getBufferID();
 
 private:
-	ALuint buffer_id_;
+    ALuint buffer_id_;
+
+    Buffer(const Buffer&);
+    void operator=(const Buffer&);
 };
 
-std::unique_ptr<AudioBuffer> loadSound(sw::Sandwich& sandwich, const Id& id);
+std::unique_ptr<Buffer> loadSound(sw::Sandwich& sandwich, const Id& id);
 
 } // namespace pbj::audio
 } // namespace pbj

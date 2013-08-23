@@ -103,7 +103,7 @@ void UIPanel::draw()
     {
         glLoadMatrixf(glm::value_ptr(panel_transform_));
         gfx::Texture::disable();
-        
+
         glBegin(GL_QUADS);
             glColor4fv(glm::value_ptr(style_->background_color_top));
             glVertex2f(border_bounds_[1].x, border_bounds_[0].y);
@@ -141,14 +141,14 @@ void UIPanel::draw()
             glVertex2f(border_bounds_[3].x, border_bounds_[2].y);
         glEnd();
     }
-    
+
     for (std::unique_ptr<UIElement>& ptr : elements_)
         ptr->draw();
 }
 
 void UIPanel::onBoundsChange_()
 {
-    view_matrix_ = glm::scale(glm::translate(*view_, vec3(getPosition(), 0)), vec3(scale_, 1)); 
+    view_matrix_ = glm::scale(glm::translate(*view_, vec3(getPosition(), 0)), vec3(scale_, 1));
     inv_view_matrix_ = glm::inverse(view_matrix_);
     panel_transform_valid_ = false;
 
@@ -183,11 +183,11 @@ void UIPanel::calculateTransform_()
         if (style_id_ != sw::ResourceId())
             style_ = &getEngine().getResourceManager().getUIPanelStyle(style_id_);
     }
-    
+
     vec3 scale(getDimensions(), 1);
     vec3 translate(getPosition(), 0);
     panel_transform_ = glm::scale(glm::translate(*view_, translate), scale);
-    
+
     if (style_)
     {
         vec2 inv_scale(1.0f / scale.x, 1.0f / scale.y);

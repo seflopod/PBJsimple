@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file	pbj/gfx/material.cpp
+/// \file   pbj/gfx/material.cpp
 ///
-/// \brief	Implements the Material class.
+/// \brief  Implements the Material class.
 #include "pbj\gfx\material.h"
 
 #include <iostream>
@@ -23,10 +23,10 @@ namespace pbj {
 namespace gfx {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief	Default Material constructor
+/// \brief  Default Material constructor
 ///
-/// \author	Josh Douglas
-/// \date	2013-08-13
+/// \author Josh Douglas
+/// \date   2013-08-13
 Material::Material(const sw::ResourceId& id, const color4& color, const Texture* texture, GLenum texture_mode)
     : id_(id),
       color_(color),
@@ -36,10 +36,10 @@ Material::Material(const sw::ResourceId& id, const color4& color, const Texture*
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief	Default Material destructor
+/// \brief  Default Material destructor
 ///
-/// \author	Josh Douglas
-/// \date	2013-08-13
+/// \author Josh Douglas
+/// \date   2013-08-13
 Material::~Material()
 {
 }
@@ -51,13 +51,13 @@ const color4& Material::getColor() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief	Get function to return a pointer to this material's texture
+/// \brief  Get function to return a pointer to this material's texture
 ///
-/// \author	Josh Douglas
-/// \date	2013-08-13
+/// \author Josh Douglas
+/// \date   2013-08-13
 const Texture* Material::getTexture() const
 {
-	return tex_;
+    return tex_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ const sw::ResourceId& Material::getId() const
 std::unique_ptr<Material> loadMaterial(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
 {
     std::unique_ptr<Material> result;
-   
+
     try
     {
         db::StmtCache& cache = sandwich.getStmtCache();

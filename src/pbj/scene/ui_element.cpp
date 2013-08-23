@@ -68,7 +68,7 @@ void UIElement::setVisible(bool visible)
         }
     }
 }
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Determines whether the element is visible.
 ///
@@ -134,7 +134,7 @@ void UIElement::setPosition(const vec2& position)
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Retrieves the position of this element.
-/// 
+///
 /// \return The position of this element.
 const vec2& UIElement::getPosition() const
 {
@@ -259,10 +259,10 @@ UIElement* UIElement::getPreviousFocusableElement()
 void UIElement::onMouseIn(const ivec2& screen_position)
 {
 }
-	
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Called when the mouse moves while over the element.
-/// 
+///
 /// \details Technically, called whenever getElementAt() returns this element,
 ///         regardless of the result of prior calls to getElementAt().
 ///
@@ -274,11 +274,11 @@ void UIElement::onMouseIn(const ivec2& screen_position)
 void UIElement::onMouseMove(const ivec2& screen_position)
 {
 }
-	
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Called when the mouse moves away from this element.
 ///
-/// \details Technically, called whenever getElementAt() returns something 
+/// \details Technically, called whenever getElementAt() returns something
 ///         other than this element, but the previous getElementAt() call
 ///         returned this.
 ///
@@ -286,7 +286,7 @@ void UIElement::onMouseMove(const ivec2& screen_position)
 void UIElement::onMouseOut(const ivec2& screen_position)
 {
 }
-	
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Called when a mouse button is pressed while the mouse is over
 ///         this element.
@@ -298,7 +298,7 @@ void UIElement::onMouseDown(I32 button)
     if (isFocusable())
         setFocused();
 }
-	
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Called when a mouse button is released while the mouse is over
 ///         this element.
@@ -312,7 +312,7 @@ void UIElement::onMouseDown(I32 button)
 void UIElement::onMouseUp(I32 button)
 {
 }
-	
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Called when a mouse button is pressed and released while the mouse
 ///         is over this element.
@@ -360,7 +360,7 @@ void UIElement::onKeyDown(I32 keycode, I32 modifiers)
 void UIElement::onKeyUp(I32 keycode, I32 modifiers)
 {
 }
-	
+
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Called when a key is pressed while this element is focused.
 ///

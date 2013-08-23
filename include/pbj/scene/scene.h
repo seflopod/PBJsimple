@@ -11,6 +11,7 @@
 #include <random>
 #include <queue>
 #include <Box2D/Box2D.h>
+#include <Box2D/Dynamics/b2WorldCallbacks.h>
 
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
@@ -21,16 +22,12 @@
 #include "pbj/sw/sandwich.h"
 #include "be\id.h"
 
-using std::queue;
-using std::vector;
-using std::unordered_map;
-using std::unique_ptr;
-
 namespace pbj {
 
 class Editor;
 
 namespace scene {
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Scene
 ///
@@ -38,105 +35,110 @@ namespace scene {
 ///
 /// \author Peter Bartosch
 /// \date 2013-08-08
-/// 
+///
 /// \details This class contains muliple unordered maps call EntityMap that will
-/// 		 map an id number to a given Entity.  The maps are separated by
-/// 		 EntityType.  When new types are added, the new maps will have to be
-/// 		 added and handled.  Currently the UIRoot for the Scene is left as a
-/// 		 global variable, which could probably change but until we have the
-/// 		 user interface stuff down I'm leaving it as is.
+///          map an id number to a given Entity.  The maps are separated by
+///          EntityType.  When new types are added, the new maps will have to be
+///          added and handled.  Currently the UIRoot for the Scene is left as a
+///          global variable, which could probably change but until we have the
+///          user interface stuff down I'm leaving it as is.
 ////////////////////////////////////////////////////////////////////////////////
 class Scene : public b2ContactListener
 {
     friend class Editor;
 public:
     Scene();
-	~Scene();
+    void makeHud();
 
-	    void draw();
-	    void update(F32);
-	    void physUpdate(F32, I32, I32);
-	    void initUI();
+    void draw();
+    void update(F32 delta_t);
+    void physUpdate(F32 delta_t);
 
-        void setMapName(const std::string& name);
-        const std::string& getMapName() const;
+    void setName(const std::string& name);
+    const std::string& getName() const;
 
-	    U32 addEntity(unique_ptr<Entity>&&);
-	    void removeEntity(U32, Entity::EntityType);
-    
-	    Entity* getBullet(U32);
-	    Entity* getPlayer(U32);
-	    Entity* getTerrain(U32);
-	    Entity* getSpawnPoint(U32);
-	    Entity* getCamera(U32);
-	    Entity* getRandomSpawnPoint();
+    void addToDisable(U32);
 
-	    void setLocalPlayer(U32);
-	    void clearLocalPlayer();
-	    Entity* getLocalPlayer();
+    U32 addEntity(unique_ptr<Entity>&& entity);
+    void removeEntity(U32 id, Entity::EntityType type);
 
-   void saveScene(const Id& sandwich_id, const Id& map_id);
-    
-	void setCurrentCamera(U32);
-	CameraComponent* getCurrentCamera() const;
+    void initBulletRing();
+    U32 makeBullet();
+    U32 makePlayer(const std::string& name, const vec2& position, bool local_player);
+    U32 makeTerrain();
+    U32 makeSpawnPoint();
+    U32 makeCamera();
 
-	b2World* getWorld() const;
-	void addToDisable(U32);
+    Entity* getBullet(U32 id);
+    Entity* getPlayer(U32 id);
+    Entity* getLocalPlayer();
+    Entity* getTerrain(U32 id);
+    Entity* getSpawnPoint(U32 id);
+    Entity* getRandomSpawnPoint();
+    Entity* getCamera(U32 id);
+    void setCurrentCamera(U32 id);
+    Entity* getCurrentCamera() const;
+
+    void spawnBullet(const vec2&, const vec2&, void*);
+    void disableBullet(U32 id);
+    void respawnPlayer(U32 id);
+
+    void saveScene(const Id& sandwich_id, const Id& map_id);
 
 private:
+    virtual void BeginContact(b2Contact* contact);
+    virtual void EndContact(b2Contact* contact);
+    virtual void PreSolve(b2Contact* contact, const b2Manifold* manifold);
+    virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
 
-    virtual void BeginContact(b2Contact*);
-    virtual void EndContact(b2Contact*);
-    virtual void PreSolve(b2Contact*, const b2Manifold*);
-    virtual void PostSolve(b2Contact*, const b2ContactImpulse*);
+    const I32 _physVelocityIterations = 8;
+    const I32 _physPositionIterations = 3;
 
-	////////////////////////////////////////////////////////////////////////////
-	/// \typedef unordered_map<U32,Entity> EntityMap
-	///
-	/// \brief An alias for an unordered map used for id->Entity
-	////////////////////////////////////////////////////////////////////////////
-	typedef unordered_map<U32,unique_ptr<Entity>> EntityMap;
+    ////////////////////////////////////////////////////////////////////////////
+    /// \typedef unordered_map<U32,Entity> EntityMap
+    ///
+    /// \brief An alias for an unordered map used for id->Entity
+    typedef unordered_map<U32,unique_ptr<Entity> > EntityMap;
 
-	U32 _nextEntityId;
-   U32 _localPlayerId;
-	U32 _nextBulletId;
-	unique_ptr<b2World> _physWorld;
+    Engine& _engine;
+    Window& _window;
 
-	queue<Entity*> _toDisable;
-    queue<Entity*> _toRespawn;
+    std::mt19937 _prng;
+
+    std::string _name;
 
     PhysicsSettings _physSettings;
-		
+    b2World _physWorld;
+
+    //as we get more Entity types this may have to expand/change entirely
+    EntityMap _spawnPoints;
+    EntityMap _terrain;
+    EntityMap _players;
+    EntityMap _bullets;
+    EntityMap _cameras;
+    EntityMap _others;
+
+    U32 _nextEntityId;
+
+    U32 _curCameraId;
+    U32 _localPlayerId;
+    U32 _nextBulletId;
+
+    std::vector<Entity*> _toDisable;
+    std::vector<Entity*> _toRespawn;
 
     U32 _bulletRing[100];
     I32 _curRingIdx;
     I32 _bulletNum;
 
-	    //as we get more Entity types this may have to expand/change entirely
-	    EntityMap _spawnPoints;
-	    EntityMap _terrain;
-	    EntityMap _players;
-	    EntityMap _bullets;
-	    EntityMap _cameras;
-	    EntityMap _others;
+    UIRoot _ui;
+    std::unordered_map<Id, UIElement*> _ui_elements;
+    UILabel* _player_health_lbl[5];
+    UILabel* _player_kd_lbl[5];
 
-	    CameraComponent* _curCamera;
-
-	std::ranlux24_base _rnd;  // ranlux? not mersenne twister?
-
-        std::string _name;
-
-        Scene(const Scene&);
-        void operator=(const Scene&);
-
-
-	// Hopeful UI stuffs
-	UIRoot ui_;
-	UIPanel* eInfo_;
-	std::unordered_map<Id, UIElement*> ui_elements;
-	UILabel* frame_label_[5];
-	UILabel* frame_kd_[5];
-	Engine& engine_;
+    // Disable copy/assignment
+    Scene(const Scene&);
+    void operator=(const Scene&);
 };
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);

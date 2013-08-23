@@ -30,8 +30,8 @@ class Engine;
 /// \todo   Add support for creating maximized windows (non-fullscreen)
 class Window
 {
-   friend class Engine;
-   friend struct std::default_delete<Window>;
+    friend class Engine;
+    friend struct std::default_delete<Window>;
 
 public:
     typedef std::function<void(I32, I32)> MoveListener;
@@ -99,41 +99,41 @@ public:
 
 private:
     // called from Engine:
-   Window(const WindowSettings& window_settings);
-   ~Window();
+    Window(const WindowSettings& window_settings);
+    ~Window();
 
-   void fireMoved_(I32 x, I32 y);
-   void fireResized_(I32 width, I32 height);
-   void fireContextResized_(I32 width, I32 height);
-   void fireCloseRequested_();
-   void fireRepaintRequested_();
-   void fireFocusChanged_(bool focused);
-   void fireStateChanged_(bool iconified);
+    void fireMoved_(I32 x, I32 y);
+    void fireResized_(I32 width, I32 height);
+    void fireContextResized_(I32 width, I32 height);
+    void fireCloseRequested_();
+    void fireRepaintRequested_();
+    void fireFocusChanged_(bool focused);
+    void fireStateChanged_(bool iconified);
 
-   static void glfwMoved_(GLFWwindow* window, int x, int y);
-   static void glfwResized_(GLFWwindow* window, int width, int height);
-   static void glfwContextResized_(GLFWwindow* window, int width, int height);
-   static void glfwCloseRequested_(GLFWwindow* window);
-   static void glfwRepaintRequested_(GLFWwindow* window);
-   static void glfwFocusChanged_(GLFWwindow* window, int state);
-   static void glfwIconStateChanged_(GLFWwindow* window, int state);
+    static void glfwMoved_(GLFWwindow* window, int x, int y);
+    static void glfwResized_(GLFWwindow* window, int width, int height);
+    static void glfwContextResized_(GLFWwindow* window, int width, int height);
+    static void glfwCloseRequested_(GLFWwindow* window);
+    static void glfwRepaintRequested_(GLFWwindow* window);
+    static void glfwFocusChanged_(GLFWwindow* window, int state);
+    static void glfwIconStateChanged_(GLFWwindow* window, int state);
 
-   std::vector<std::pair<U32, MoveListener> > move_listeners_;
-   std::vector<std::pair<U32, ResizeListener> > resize_listeners_;
-   std::vector<std::pair<U32, ContextResizeListener> > context_resize_listeners_;
-   std::vector<std::pair<U32, CloseRequestListener> > close_request_listeners_;
-   std::vector<std::pair<U32, RepaintRequestListener> > repaint_request_listeners_;
-   std::vector<std::pair<U32, FocusChangeListener> > focus_change_listeners_;
-   std::vector<std::pair<U32, StateChangeListener> > state_change_listeners_;
+    std::vector<std::pair<U32, MoveListener> > move_listeners_;
+    std::vector<std::pair<U32, ResizeListener> > resize_listeners_;
+    std::vector<std::pair<U32, ContextResizeListener> > context_resize_listeners_;
+    std::vector<std::pair<U32, CloseRequestListener> > close_request_listeners_;
+    std::vector<std::pair<U32, RepaintRequestListener> > repaint_request_listeners_;
+    std::vector<std::pair<U32, FocusChangeListener> > focus_change_listeners_;
+    std::vector<std::pair<U32, StateChangeListener> > state_change_listeners_;
 
-   U32 next_listener_id_;
+    U32 next_listener_id_;
 
-   WindowSettings window_settings_;
-   std::string title_;
-   GLFWwindow* glfw_window_;
-   
-   Window(const Window&);
-   void operator=(const Window&);
+    WindowSettings window_settings_;
+    std::string title_;
+    GLFWwindow* glfw_window_;
+
+    Window(const Window&);
+    void operator=(const Window&);
 };
 
 } // namespace pbj

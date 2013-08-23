@@ -55,7 +55,7 @@ UIRoot::UIRoot()
         }
     );
 
-    
+
     Window* window = getEngine().getWindow();
 
     context_resize_listener_id_ = window->registerContextResizeListener(

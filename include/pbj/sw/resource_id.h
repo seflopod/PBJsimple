@@ -25,20 +25,20 @@ namespace sw {
 class ResourceId
 {
 public:
-   ResourceId();
-   ResourceId(const Id& bed, const Id& asset);
+    ResourceId();
+    ResourceId(const Id& bed, const Id& asset);
 
-   std::string to_string() const;
+    std::string to_string() const;
 
-   bool operator==(const ResourceId& other) const;
-   bool operator!=(const ResourceId& other) const;
-   bool operator<(const ResourceId& other) const;
-   bool operator>(const ResourceId& other) const;
-   bool operator<=(const ResourceId& other) const;
-   bool operator>=(const ResourceId& other) const;
+    bool operator==(const ResourceId& other) const;
+    bool operator!=(const ResourceId& other) const;
+    bool operator<(const ResourceId& other) const;
+    bool operator>(const ResourceId& other) const;
+    bool operator<=(const ResourceId& other) const;
+    bool operator>=(const ResourceId& other) const;
 
-   Id sandwich;     ///< Identifies the Sandwich this asset can be found in
-   Id resource;     ///< Differentiates this resource from others of its type in its Sandwich.
+    Id sandwich;     ///< Identifies the Sandwich this asset can be found in
+    Id resource;     ///< Differentiates this resource from others of its type in its Sandwich.
 };
 
 std::ostream& operator<<(std::ostream& os, const ResourceId& asset_id);

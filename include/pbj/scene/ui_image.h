@@ -18,16 +18,16 @@ namespace scene {
 class UIImage : public UIElement
 {
 public:
-	UIImage();
-	virtual ~UIImage();
-	void setTexture(const gfx::Texture* texture);
+    UIImage();
+    virtual ~UIImage();
+    void setTexture(const gfx::Texture* texture);
     const gfx::Texture* getTexture() const;
 
 private:
-	gfx::Texture* texture_;
+    gfx::Texture* texture_;
 };
 
 } // namespace pbj::scene
-} // namespace pbj 
+} // namespace pbj
 
 #endif

@@ -60,7 +60,7 @@ TextureFont::TextureFont(const Texture& texture, F32 cap_height, const std::vect
             default_char_ = *i;
         else if (codepoint < base_chars_size_)
             base_chars_[codepoint] = *i;
-        else 
+        else
         {
             TextureFontCharacter query;
             query.codepoint = codepoint;
@@ -195,7 +195,7 @@ F32 TextureFont::calculateTextWidth(const std::string& text) const
 std::unique_ptr<TextureFont> loadTextureFont(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
 {
     std::unique_ptr<TextureFont> result;
-   
+
     try
     {
         db::StmtCache& cache = sandwich.getStmtCache();
@@ -227,7 +227,7 @@ std::unique_ptr<TextureFont> loadTextureFont(sw::Sandwich& sandwich, const Id& i
             }
 
             const Texture& texture = rm.getTexture(sw::ResourceId(sandwich.getId(), texture_id));
-            
+
 
             result.reset(new TextureFont(texture, cap_height, chars));
         }

@@ -33,13 +33,13 @@ namespace scene {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  loads a UIPanelStyle structure from a sandwich.
-/// 
+///
 /// \param  sandwich The database from which to load the resource.
 /// \param  id Identifies the panel style object to load from the database.
 UIPanelStyle loadUIPanelStyle(sw::Sandwich& sandwich, const Id& id)
 {
     UIPanelStyle result;
-   
+
     try
     {
         db::StmtCache& cache = sandwich.getStmtCache();
@@ -71,21 +71,21 @@ UIPanelStyle loadUIPanelStyle(sw::Sandwich& sandwich, const Id& id)
                           << "Resource ID: " << id << PBJ_LOG_NL
                           << "  Exception: " << err.what() << PBJ_LOG_NL
                           << "        SQL: " << err.sql() << PBJ_LOG_END;
-   }
-   catch (const std::exception& err)
-   {
-      PBJ_LOG(VWarning) << "Exception while loading panel style!" << PBJ_LOG_NL
+    }
+    catch (const std::exception& err)
+    {
+        PBJ_LOG(VWarning) << "Exception while loading panel style!" << PBJ_LOG_NL
                           << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
                           << "Resource ID: " << id << PBJ_LOG_NL
                           << "  Exception: " << err.what() << PBJ_LOG_END;
-   }
+    }
 
-   return result;
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  loads a UIButtonStyle structure from a sandwich.
-/// 
+///
 /// \param  sandwich The database from which to load the resource.
 /// \param  id Identifies the button style object to load from the database.
 UIButtonStyle loadUIButtonStyle(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
@@ -116,17 +116,17 @@ UIButtonStyle loadUIButtonStyle(sw::Sandwich& sandwich, const Id& id, sw::Resour
                           << "Resource ID: " << id << PBJ_LOG_NL
                           << "  Exception: " << err.what() << PBJ_LOG_NL
                           << "        SQL: " << err.sql() << PBJ_LOG_END;
-   }
-   catch (const std::exception& err)
-   {
-      PBJ_LOG(VWarning) << "Exception while loading button style!" << PBJ_LOG_NL
+    }
+    catch (const std::exception& err)
+    {
+        PBJ_LOG(VWarning) << "Exception while loading button style!" << PBJ_LOG_NL
                           << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
                           << "Resource ID: " << id << PBJ_LOG_NL
                           << "  Exception: " << err.what() << PBJ_LOG_END;
-   }
+    }
 
-   return result;
+    return result;
 }
-    
+
 } // namespace pbj::scene
 } // namespace pbj

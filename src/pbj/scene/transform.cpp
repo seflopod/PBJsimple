@@ -27,11 +27,11 @@ namespace scene {
 ///          identity quaternion, and for scale 1.0.
 ////////////////////////////////////////////////////////////////////////////////
 Transform::Transform(Entity* owner)
-	: _owner(owner)
+    : _owner(owner)
 {
-	_position = vec2(0.0f, 0.0f);
-	_rotation = 0.0;
-	_scale = vec2(1.0f);
+    _position = vec2(0.0f, 0.0f);
+    _rotation = 0.0;
+    _scale = vec2(1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,15 +57,15 @@ Transform::~Transform()
 ////////////////////////////////////////////////////////////////////////////////
 void Transform::rotate(F32 angle)
 {
-	while (_rotation >= 360)
-	{
-		_rotation -= 360 + angle;
-	}
+    while (_rotation >= 360)
+    {
+        _rotation -= 360 + angle;
+    }
 
-	while (_rotation < 0)
-	{
-		_rotation += 360 + angle;
-	}
+    while (_rotation < 0)
+    {
+        _rotation += 360 + angle;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,7 +204,7 @@ void Transform::setScale(const vec2& scale) { _scale = scale; }
 ////////////////////////////////////////////////////////////////////////////////
 Entity* Transform::getOwner()
 {
-	return _owner;
+    return _owner;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,7 +214,7 @@ Entity* Transform::getOwner()
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-///  
+///
 /// \details If an Entity moves its Transform it needs a way of moving the
 ///          rigidbody as well, so that's what this is for.  There aren't too
 ///          many uses for this since motion is handled by the Rigidbody, but
@@ -222,10 +222,10 @@ Entity* Transform::getOwner()
 ////////////////////////////////////////////////////////////////////////////////
 void Transform::updateOwnerRigidbody()
 {
-	Entity* e = 0;
+    Entity* e = 0;
     e = (Entity*)_owner;
-	if(e && e->getRigidbody())
-	    e->getRigidbody()->setTransform(toB2(_position), toB2(_scale), _rotation);
+    if(e && e->getRigidbody())
+        e->getRigidbody()->setTransform(toB2(_position), toB2(_scale), _rotation);
     e = 0;
 }
 

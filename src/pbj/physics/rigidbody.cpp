@@ -3,63 +3,60 @@
 ///
 /// \brief  Implements the rigidbody class.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef RIGIDBODY_H_
 #include "pbj/physics/rigidbody.h"
-#endif
 
-#include <assert.h>
 #include "pbj/scene/entity.h"
+#include <cassert>
 
-using namespace pbj;
-using namespace pbj::physics;
-using pbj::scene::Entity;
+namespace pbj {
+namespace physics {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Rigidbody::Rigidbody(Rigidbody::BodyType bodyType,
-/// 	const b2Shape* shape, b2World* physWorld, void* owner)
+///     const b2Shape* shape, b2World* physWorld, void* owner)
 ///
 /// \brief Initializes a new instance of the Rigidbody class.
 ///
 /// \author Peter Bartosch
 /// \date 2013-08-08
 ///
-/// \param bodyType			  Type of the body.
-/// \param shape			  The shape.
+/// \param bodyType           Type of the body.
+/// \param shape              The shape.
 /// \param [in,out] physWorld If non-null, the physical world.
-/// \param [in,out] owner	  If non-null, the owner.
+/// \param [in,out] owner     If non-null, the owner.
 ////////////////////////////////////////////////////////////////////////////////
 Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
-					 const b2Shape& shape, b2World* physWorld, F32 density,
-					 F32 restitution, F32 friction, void* owner) :
-					_owner(owner)
+                     const b2Shape& shape, b2World* physWorld, F32 density,
+                     F32 restitution, F32 friction, void* owner) :
+                    _owner(owner)
 {
     assert((Entity*)owner);
 
     //Create the fixture (collider)
-	b2FixtureDef fd;
-	fd.shape = &shape;
-	fd.density = density;
-	fd.restitution = restitution;
-	fd.friction = friction;
+    b2FixtureDef fd;
+    fd.shape = &shape;
+    fd.density = density;
+    fd.restitution = restitution;
+    fd.friction = friction;
 
     //Define the data for the rigidbody
-	b2BodyDef bd;
-	bd.type = (b2BodyType)bodyType;
-	bd.position.Set(position.x, position.y);
+    b2BodyDef bd;
+    bd.type = (b2BodyType)bodyType;
+    bd.position.Set(position.x, position.y);
     bd.angle = ((Entity*)owner)->getTransform().getRotation() * DEGTORAD;
-	bd.angle = 0.0f;
-	bd.linearDamping = 0.1f;
-	bd.allowSleep = true;
-	bd.awake = true;
-	bd.bullet = false;
-	bd.active = true;
+    bd.angle = 0.0f;
+    bd.linearDamping = 0.1f;
+    bd.allowSleep = true;
+    bd.awake = true;
+    bd.bullet = false;
+    bd.active = true;
 
     //Add the body to the world
-	_body = physWorld->CreateBody(&bd);
-	_body->CreateFixture(&fd);
+    _body = physWorld->CreateBody(&bd);
+    _body->CreateFixture(&fd);
 
-	if(_owner)
-		_body->SetUserData(_owner);
+    if(_owner)
+        _body->SetUserData(_owner);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +69,8 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
 ////////////////////////////////////////////////////////////////////////////////
 Rigidbody::~Rigidbody()
 {
-	if(_body != 0 || _owner !=0)
-		destroy();
+    if(_body != 0 || _owner !=0)
+        destroy();
 }
 
 #pragma region accessors
@@ -89,7 +86,7 @@ Rigidbody::~Rigidbody()
 ////////////////////////////////////////////////////////////////////////////////
 b2Fixture* Rigidbody::getFixtureList()
 {
-	return _body->GetFixtureList();
+    return _body->GetFixtureList();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +101,7 @@ b2Fixture* Rigidbody::getFixtureList()
 ////////////////////////////////////////////////////////////////////////////////
 const b2Fixture* Rigidbody::getFixtureList() const
 {
-	return _body->GetFixtureList();
+    return _body->GetFixtureList();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +116,7 @@ const b2Fixture* Rigidbody::getFixtureList() const
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::destroyFixture(b2Fixture* fixture)
 {
-	_body->DestroyFixture(fixture);
+    _body->DestroyFixture(fixture);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +131,7 @@ void Rigidbody::destroyFixture(b2Fixture* fixture)
 ////////////////////////////////////////////////////////////////////////////////
 b2ContactEdge* Rigidbody::getContactList()
 {
-	return _body->GetContactList();
+    return _body->GetContactList();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -149,7 +146,7 @@ b2ContactEdge* Rigidbody::getContactList()
 ////////////////////////////////////////////////////////////////////////////////
 const b2ContactEdge* Rigidbody::getContactList() const
 {
-	return _body->GetContactList();
+    return _body->GetContactList();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +161,7 @@ const b2ContactEdge* Rigidbody::getContactList() const
 ////////////////////////////////////////////////////////////////////////////////
 Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 {
-	return (CollisionGroup)_body->GetFixtureList()->GetFilterData().groupIndex;
+    return (CollisionGroup)_body->GetFixtureList()->GetFilterData().groupIndex;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -179,21 +176,21 @@ Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setCollisionGroup(CollisionGroup cg)
 {
-	b2Filter f;
+    b2Filter f;
     f.groupIndex = (I32)cg;
     _body->GetFixtureList()->SetFilterData(f);
 }
 
 void Rigidbody::setFixedRotation(bool isFixed)
 {
-	_body->SetFixedRotation(isFixed);
+    _body->SetFixedRotation(isFixed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
 ///
 /// \brief Sets the transform on the b2Body that this object wraps.
-/// 
+///
 /// \author Peter Bartosch
 /// \date   2013-08-10
 /// \details Because the scale paraemeter does nothing right now, this funciton
@@ -203,7 +200,7 @@ void Rigidbody::setFixedRotation(bool isFixed)
 ///          for me to ignore it.
 void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
 {
-	_body->SetTransform(pos, rot);
+    _body->SetTransform(pos, rot);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +215,7 @@ void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
 ////////////////////////////////////////////////////////////////////////////////
 F32 Rigidbody::getAngularVelocity() const
 {
-	return _body->GetAngularVelocity();
+    return _body->GetAngularVelocity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +230,7 @@ F32 Rigidbody::getAngularVelocity() const
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setAngularVelocity(F32 angVel)
 {
-	_body->SetAngularVelocity((float32)angVel);
+    _body->SetAngularVelocity((float32)angVel);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,8 +245,8 @@ void Rigidbody::setAngularVelocity(F32 angVel)
 ////////////////////////////////////////////////////////////////////////////////
 vec2 Rigidbody::getVelocity() const
 {
-	b2Vec2 v = _body->GetLinearVelocity();
-	return vec2(v.x, v.y);
+    b2Vec2 v = _body->GetLinearVelocity();
+    return vec2(v.x, v.y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -264,7 +261,7 @@ vec2 Rigidbody::getVelocity() const
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setVelocity(const vec2& v)
 {
-	_body->SetLinearVelocity(b2Vec2(v.x, v.y));
+    _body->SetLinearVelocity(b2Vec2(v.x, v.y));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -279,7 +276,7 @@ void Rigidbody::setVelocity(const vec2& v)
 ////////////////////////////////////////////////////////////////////////////////
 F32 Rigidbody::getMass()
 {
-	return _body->GetMass();
+    return _body->GetMass();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,9 +291,9 @@ F32 Rigidbody::getMass()
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setMass(F32 m)
 {
-	b2MassData md;
-	md.mass = m;
-	_body->SetMassData(&md);
+    b2MassData md;
+    md.mass = m;
+    _body->SetMassData(&md);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +308,7 @@ void Rigidbody::setMass(F32 m)
 ////////////////////////////////////////////////////////////////////////////////
 Rigidbody::BodyType Rigidbody::getType() const
 {
-	return (Rigidbody::BodyType)(_body->GetType());
+    return (Rigidbody::BodyType)(_body->GetType());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -326,7 +323,7 @@ Rigidbody::BodyType Rigidbody::getType() const
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setBullet(bool bullet)
 {
-	_body->SetBullet(bullet);
+    _body->SetBullet(bullet);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +338,7 @@ void Rigidbody::setBullet(bool bullet)
 ////////////////////////////////////////////////////////////////////////////////
 bool Rigidbody::isBullet()
 {
-	return _body->IsBullet();
+    return _body->IsBullet();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -356,7 +353,7 @@ bool Rigidbody::isBullet()
 ////////////////////////////////////////////////////////////////////////////////
 bool Rigidbody::isAwake()
 {
-	return _body->IsAwake();
+    return _body->IsAwake();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -371,7 +368,7 @@ bool Rigidbody::isAwake()
 ////////////////////////////////////////////////////////////////////////////////
 bool Rigidbody::isActive()
 {
-	return _body->IsActive();
+    return _body->IsActive();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -386,7 +383,7 @@ bool Rigidbody::isActive()
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setActive(bool active)
 {
-	_body->SetActive(active);
+    _body->SetActive(active);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -401,7 +398,7 @@ void Rigidbody::setActive(bool active)
 ////////////////////////////////////////////////////////////////////////////////
 void* Rigidbody::getOwner()
 {
-	return _owner;
+    return _owner;
 }
 #pragma endregion
 ////////////////////////////////////////////////////////////////////////////////
@@ -416,12 +413,12 @@ void* Rigidbody::getOwner()
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::applyForce(const vec2& force)
 {
-	_body->ApplyForceToCenter(b2Vec2(force.x, force.y));
+    _body->ApplyForceToCenter(b2Vec2(force.x, force.y));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Rigidbody::applyForce(const vec2& force,
-/// 	Rigidbody::ForceMode mode)
+///     Rigidbody::ForceMode mode)
 ///
 /// \brief Applies the force.
 ///
@@ -433,17 +430,17 @@ void Rigidbody::applyForce(const vec2& force)
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::applyForce(const vec2& force, Rigidbody::ForceMode mode)
 {
-	switch(mode)
-	{
-	case Rigidbody::ForceMode::Constant:
-		_body->ApplyForceToCenter(b2Vec2(force.x, force.y));
-		break;
-	case Rigidbody::ForceMode::Impulse:
-		_body->ApplyLinearImpulse(b2Vec2(force.x,force.y), _body->GetPosition());
-		break;
-	default:
-		break;
-	}
+    switch(mode)
+    {
+    case Rigidbody::ForceMode::Constant:
+        _body->ApplyForceToCenter(b2Vec2(force.x, force.y));
+        break;
+    case Rigidbody::ForceMode::Impulse:
+        _body->ApplyLinearImpulse(b2Vec2(force.x,force.y), _body->GetPosition());
+        break;
+    default:
+        break;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -456,18 +453,18 @@ void Rigidbody::applyForce(const vec2& force, Rigidbody::ForceMode mode)
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::updateOwnerTransform()
 {
-	b2Vec2 bPos = _body->GetPosition();
-	F32 bRot = _body->GetAngle() * RADTODEG;
-	while(bRot >= 360.0f)
-		bRot -= 360.0f;
-	while(bRot <= -360.0f)
-		bRot += 360.0f;
-	if((Entity*)(_body->GetUserData()))
-	{
+    b2Vec2 bPos = _body->GetPosition();
+    F32 bRot = _body->GetAngle() * RADTODEG;
+    while(bRot >= 360.0f)
+        bRot -= 360.0f;
+    while(bRot <= -360.0f)
+        bRot += 360.0f;
+    if((Entity*)(_body->GetUserData()))
+    {
         scene::Transform& xf = ((Entity*)(_body->GetUserData()))->getTransform();
-		xf.setPosition(vec2(bPos.x,bPos.y));
-		xf.setRotation(bRot);
-	}
+        xf.setPosition(vec2(bPos.x,bPos.y));
+        xf.setRotation(bRot);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -483,8 +480,11 @@ void Rigidbody::updateOwnerTransform()
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::destroy()
 {
-	//hope this works.  otherwise need a temp b2World*
-	_body->GetWorld()->DestroyBody(_body);
-	_body = 0;
-	_owner = 0;
+    //hope this works.  otherwise need a temp b2World*
+    _body->GetWorld()->DestroyBody(_body);
+    _body = 0;
+    _owner = 0;
 }
+
+} // namespace pbj::scene
+} // namespace pbj

@@ -3,12 +3,11 @@
 ///
 /// \brief  Implements the bullet component class.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef BULLET_COMPONENT_H_
-#include "pbj/scene/bullet_component.h"
-#endif
 
-#include <assert.h>
+#include "pbj/scene/bullet_component.h"
+
 #include "pbj/scene/entity.h"
+#include <cassert>
 
 namespace pbj
 {

@@ -6,8 +6,8 @@
 /// \details This class is mostly a wrapper for glm calls.  It stores the
 ///         position, rotation, and scale of an object.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PBJ_TRANSFORM_H_
-#define PBJ_TRANSFORM_H_
+#ifndef PBJ_SCENE_TRANSFORM_H_
+#define PBJ_SCENE_TRANSFORM_H_
 
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"

@@ -3,18 +3,15 @@
 ///
 /// \brief  Implements the audio source class.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef AUDIO_SOURCE_H_
 #include "pbj/audio/audio_source.h"
-#endif
 
 #include "pbj/scene/entity.h"
 
 using pbj::scene::Entity;
 
-namespace pbj
-{
-namespace audio
-{
+namespace pbj {
+namespace audio {
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn AudioSource::AudioSource(void* owner)
 ///
@@ -27,10 +24,10 @@ namespace audio
 ////////////////////////////////////////////////////////////////////////////////
 AudioSource::AudioSource(void* owner)
 {
-	assert((Entity*)owner);
-	_owner = owner;
-	alGenSources(1, &_srcId);
-	_buffers.reset(new AudioBuffers());
+    assert((Entity*)owner);
+    _owner = owner;
+    alGenSources(1, &_srcId);
+    _buffers.reset(new AudioBuffers());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +53,7 @@ AudioSource::~AudioSource()
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::setPitch(F32 val)
 {
-	alSourcef(_srcId, AL_PITCH, val);
+    alSourcef(_srcId, AL_PITCH, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,9 +68,9 @@ void AudioSource::setPitch(F32 val)
 ////////////////////////////////////////////////////////////////////////////////
 F32 AudioSource::getPitch() const
 {
-	ALfloat ret;
-	alGetSourcef(_srcId, AL_PITCH, &ret);
-	return (F32)ret;
+    ALfloat ret;
+    alGetSourcef(_srcId, AL_PITCH, &ret);
+    return (F32)ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +85,7 @@ F32 AudioSource::getPitch() const
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::setGain(F32 val)
 {
-	alSourcef(_srcId, AL_GAIN, val);
+    alSourcef(_srcId, AL_GAIN, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,9 +100,9 @@ void AudioSource::setGain(F32 val)
 ////////////////////////////////////////////////////////////////////////////////
 F32 AudioSource::getGain() const
 {
-	ALfloat ret;
-	alGetSourcef(_srcId, AL_GAIN, &ret);
-	return (F32)ret;
+    ALfloat ret;
+    alGetSourcef(_srcId, AL_GAIN, &ret);
+    return (F32)ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +117,7 @@ F32 AudioSource::getGain() const
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::setMaxDistance(F32 val)
 {
-	alSourcef(_srcId, AL_MAX_DISTANCE, val);
+    alSourcef(_srcId, AL_MAX_DISTANCE, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,9 +132,9 @@ void AudioSource::setMaxDistance(F32 val)
 ////////////////////////////////////////////////////////////////////////////////
 F32 AudioSource::getMaxDistance() const
 {
-	ALfloat ret;
-	alGetSourcef(_srcId, AL_MAX_DISTANCE, &ret);
-	return (F32)ret;
+    ALfloat ret;
+    alGetSourcef(_srcId, AL_MAX_DISTANCE, &ret);
+    return (F32)ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +149,7 @@ F32 AudioSource::getMaxDistance() const
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::setRolloff(F32 val)
 {
-	alSourcef(_srcId, AL_ROLLOFF_FACTOR, val);
+    alSourcef(_srcId, AL_ROLLOFF_FACTOR, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -167,9 +164,9 @@ void AudioSource::setRolloff(F32 val)
 ////////////////////////////////////////////////////////////////////////////////
 F32 AudioSource::getRolloff() const
 {
-	ALfloat ret;
-	alGetSourcef(_srcId, AL_ROLLOFF_FACTOR, &ret);
-	return (F32)ret;
+    ALfloat ret;
+    alGetSourcef(_srcId, AL_ROLLOFF_FACTOR, &ret);
+    return (F32)ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +181,7 @@ F32 AudioSource::getRolloff() const
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::setReferenceDistance(F32 val)
 {
-	alSourcef(_srcId, AL_REFERENCE_DISTANCE, val);
+    alSourcef(_srcId, AL_REFERENCE_DISTANCE, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -199,9 +196,9 @@ void AudioSource::setReferenceDistance(F32 val)
 ////////////////////////////////////////////////////////////////////////////////
 F32 AudioSource::getReferenceDistance() const
 {
-	ALfloat ret;
-	alGetSourcef(_srcId, AL_REFERENCE_DISTANCE, &ret);
-	return (F32)ret;
+    ALfloat ret;
+    alGetSourcef(_srcId, AL_REFERENCE_DISTANCE, &ret);
+    return (F32)ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,10 +213,10 @@ F32 AudioSource::getReferenceDistance() const
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::setMinMaxGain(vec2 val)
 {
-	ALfloat min = val.x;
-	ALfloat max = val.y;
-	alSourcef(_srcId, AL_MIN_GAIN, min);
-	alSourcef(_srcId, AL_MAX_GAIN, max);
+    ALfloat min = val.x;
+    ALfloat max = val.y;
+    alSourcef(_srcId, AL_MIN_GAIN, min);
+    alSourcef(_srcId, AL_MAX_GAIN, max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -234,10 +231,10 @@ void AudioSource::setMinMaxGain(vec2 val)
 ////////////////////////////////////////////////////////////////////////////////
 vec2 AudioSource::getMinMaxGain() const
 {
-	ALfloat min, max;
-	alGetSourcef(_srcId, AL_MIN_GAIN, &min);
-	alGetSourcef(_srcId, AL_MAX_GAIN, &max);
-	return vec2((F32)min, (F32)max);
+    ALfloat min, max;
+    alGetSourcef(_srcId, AL_MIN_GAIN, &min);
+    alGetSourcef(_srcId, AL_MAX_GAIN, &max);
+    return vec2((F32)min, (F32)max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -250,9 +247,9 @@ vec2 AudioSource::getMinMaxGain() const
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::updatePosition()
 {
-	//since we're in 2d, we'll assume that z=0
-	vec2 xy = ((Entity*)_owner)->getTransform().getPosition();
-	alSource3f(_srcId, AL_POSITION, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
+    //since we're in 2d, we'll assume that z=0
+    vec2 xy = ((Entity*)_owner)->getTransform().getPosition();
+    alSource3f(_srcId, AL_POSITION, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,20 +265,20 @@ void AudioSource::updateVelocity()
     //since we're in 2d, we'll assume that z=0
     Entity* e = (Entity*)_owner;
     vec2 xy;
-	if(e->getType() == Entity::EntityType::Camera)
-	{
-		xy = e->getCamera()->getTargetVelocity();
-	}
-	else if(e->getRigidbody())
-	{
-		xy = e->getRigidbody()->getVelocity();
-	}
-	else
-	{
-		xy = vec2(0.0f, 0.0f);
-	}
+    if(e->getType() == Entity::EntityType::Camera)
+    {
+        xy = e->getCamera()->getTargetVelocity();
+    }
+    else if(e->getRigidbody())
+    {
+        xy = e->getRigidbody()->getVelocity();
+    }
+    else
+    {
+        xy = vec2(0.0f, 0.0f);
+    }
 
-	alSource3f(_srcId, AL_VELOCITY, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
+    alSource3f(_srcId, AL_VELOCITY, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -297,7 +294,7 @@ void AudioSource::updateVelocity()
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::addAudioBuffer(string name, AudioBuffer* buffer)
 {
-	_buffers->insert(std::pair<string,AudioBuffer*>(name,buffer));
+    _buffers->insert(std::pair<string,AudioBuffer*>(name,buffer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -314,10 +311,10 @@ void AudioSource::addAudioBuffer(string name, AudioBuffer* buffer)
 ////////////////////////////////////////////////////////////////////////////////
 AudioBuffer* AudioSource::getAudioBuffer(string name) const
 {
-	AudioBuffers::iterator it = _buffers->find(name);
-	if(it != _buffers->end())
-		return (AudioBuffer* const)(it->second);
-	return nullptr;
+    AudioBuffers::iterator it = _buffers->find(name);
+    if(it != _buffers->end())
+        return (AudioBuffer* const)(it->second);
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -332,7 +329,7 @@ AudioBuffer* AudioSource::getAudioBuffer(string name) const
 ////////////////////////////////////////////////////////////////////////////////
 AudioSource::AudioBuffers* AudioSource::getAudioBuffers() const
 {
-	return _buffers.get();
+    return _buffers.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -347,8 +344,8 @@ AudioSource::AudioBuffers* AudioSource::getAudioBuffers() const
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::play(string name)
 {
-	alSourcei(_srcId, AL_BUFFER, _buffers->at(name)->getBufferID());
-	alSourcePlay(_srcId);
+    alSourcei(_srcId, AL_BUFFER, _buffers->at(name)->getBufferID());
+    alSourcePlay(_srcId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -364,9 +361,9 @@ void AudioSource::play(string name)
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::playAt(string name, F32 pos)
 {
-	alSourcei(_srcId, AL_BUFFER, _buffers->at(name)->getBufferID());
-	alSourcef(_srcId, AL_SEC_OFFSET, pos);
-	alSourcePlay(_srcId);
+    alSourcei(_srcId, AL_BUFFER, _buffers->at(name)->getBufferID());
+    alSourcef(_srcId, AL_SEC_OFFSET, pos);
+    alSourcePlay(_srcId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,7 +376,7 @@ void AudioSource::playAt(string name, F32 pos)
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::stop()
 {
-	alSourceStop(_srcId);
+    alSourceStop(_srcId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -392,7 +389,7 @@ void AudioSource::stop()
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::pause()
 {
-	alSourcePause(_srcId);
+    alSourcePause(_srcId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -407,7 +404,7 @@ void AudioSource::pause()
 ////////////////////////////////////////////////////////////////////////////////
 void AudioSource::seek(F32 pos)
 {
-	alSourcef(_srcId, AL_SEC_OFFSET, pos);
+    alSourcef(_srcId, AL_SEC_OFFSET, pos);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

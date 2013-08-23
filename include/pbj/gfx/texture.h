@@ -55,7 +55,7 @@ private:
     static bool texture_enabled_;
     static GLuint active_texture_;
     static GLenum active_blend_mode_;
-    
+
     Texture(const Texture&);
     void operator=(const Texture&);
 };

@@ -1,6 +1,4 @@
-#ifndef AI_COMPONENT_H_
 #include "pbj/scene/ai_component.h"
-#endif
 
 #include "pbj/scene/entity.h"
 #include "pbj/game.h"
@@ -55,7 +53,7 @@ AIComponent::~AIComponent()
 /// \date   2013-08-22
 ///
 /// \param  dt  The dt.
-/// 
+///
 /// \details This is where the bad magic happens for the AI.  Rather than keep
 ///          track of the position of each other PlayerComponent, the AI sweeps
 ///          (6 deg/frame) a ray to find possible targets.  If a target is
@@ -73,7 +71,7 @@ AIComponent::~AIComponent()
 void AIComponent::update(F32 dt)
 {
     F32 castDistance = 100.0f;
-    
+
     Transform& xf = _owner->getTransform();
     PlayerComponent* player = _owner->getPlayerComponent();
 
@@ -85,7 +83,7 @@ void AIComponent::update(F32 dt)
 
     //make the starting point on a circle off of the body, this way it isn't
     //counted in the raycast.
-    
+
     Game::instance()->currentScene().getWorld()->RayCast(this,
                                     b2Vec2(r1*cos(angle),r1*sin(angle)), //start
                                     b2Vec2(r2*cos(angle),r2*sin(angle))); //end
@@ -137,7 +135,7 @@ void AIComponent::update(F32 dt)
 /// \param  fraction        The fraction.
 ///
 /// \return The passed fraction because we only want the closest fixture.
-/// 
+///
 /// \details    This is meant to deal with whatever is detected on a raycast.
 ///             For our purposes this means we flag that a player has been
 ///             seen if the reported fixture is attachted to a PlayerComponent.

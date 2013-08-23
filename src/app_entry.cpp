@@ -39,7 +39,7 @@ int main(int argc, char* argv[]);
 /// \brief  Win32 API entry point; redirects to main().
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
 {
-   return main(__argc, __argv);
+    return main(__argc, __argv);
 }
 
 #endif // defined(_WIN32) && !defined(DEBUG)
@@ -57,36 +57,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
 int main(int argc, char* argv[])
 {
 #ifdef BE_CRT_BUILD
-   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
 #ifdef DEBUG
-   int verbosity = pbj::VAll;
+    int verbosity = pbj::VAll;
 #else
-   int verbosity = pbj::VErrorsAndWarnings;
+    int verbosity = pbj::VErrorsAndWarnings;
 #endif
-   std::ofstream cerr_log_file;
-   std::string cerr_log("pbjgame.log");
-   
-   // Set the appropriate verbosity level
-   be::setVerbosity(verbosity);
+    std::ofstream cerr_log_file;
+    std::string cerr_log("pbjgame.log");
 
-   // Redirect PBJ_LOG_STREAM to a log file if not in DEBUG mode
+    // Set the appropriate verbosity level
+    be::setVerbosity(verbosity);
+
+    // Redirect PBJ_LOG_STREAM to a log file if not in DEBUG mode
 #ifndef DEBUG
-   if (cerr_log.length() > 0)
-   {
-      PBJ_LOG(pbj::VNotice) << "Redirecting log to " << cerr_log << PBJ_LOG_END;
-      cerr_log_file.open(cerr_log, std::ofstream::trunc);
-      PBJ_LOG_STREAM.rdbuf(cerr_log_file.rdbuf());
-   }
+    if (cerr_log.length() > 0)
+    {
+        PBJ_LOG(pbj::VNotice) << "Redirecting log to " << cerr_log << PBJ_LOG_END;
+        cerr_log_file.open(cerr_log, std::ofstream::trunc);
+        PBJ_LOG_STREAM.rdbuf(cerr_log_file.rdbuf());
+    }
 #endif
 
     std::cout << "PBJgame " << PBJ_VERSION_MAJOR << '.' << PBJ_VERSION_MINOR << " (" << __DATE__ " " __TIME__ << ')' << std::endl
               << PBJ_COPYRIGHT << std::endl;
 
 
-   // Initialize game engine
-	pbj::Engine e(&argc, argv);
+    // Initialize game engine
+    pbj::Engine e(&argc, argv);
 
 #ifdef PBJ_EDITOR
 
@@ -104,12 +104,12 @@ int main(int argc, char* argv[])
     editor.run(argv[1], argv[2]);
 
 #else
-	//Start and run game
-	pbj::Game game;
+    //Start and run game
+    pbj::Game game;
     game.loadScene(game.getRandomSceneId());
-	pbj::I32 exitCode = game.run();
+    pbj::I32 exitCode = game.run();
 
-	return exitCode;
+    return exitCode;
 #endif
 };
 

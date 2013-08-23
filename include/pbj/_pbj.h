@@ -20,7 +20,7 @@
 /// \brief  Defined when the engine is running in editor mode.
 /// \details In this mode, various additional features are enabled which make
 ///         editing game resources easier.
-/// 
+///
 ///         PBJ_EDITOR implies #BE_BEDITOR.
 #define PBJ_EDITOR
 
@@ -80,10 +80,10 @@ namespace detail { }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \brief	Namespace for drawing.
+/// \brief  Namespace for drawing.
 namespace gfx
 {
-	typedef std::function<void()> ComponentCallback;
+    typedef std::function<void()> ComponentCallback;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,16 +96,16 @@ namespace db = be::bed;
 ///
 /// \sa     be::Verbosity
 enum Verbosity
-{   
-   VError = 1,                      ///< Used when logging a serious (generally fatal) error.
-   VWarning = 2,                    ///< Used when logging a potential problem.
-   VNotice = 4,                     ///< Used when logging an unexpected situation that likely won't cause any problems.
-   VInfo = 8,                       ///< Used when logging a message which is a result of normal operation, but still might be interesting.
+{
+    VError = 1,                      ///< Used when logging a serious (generally fatal) error.
+    VWarning = 2,                    ///< Used when logging a potential problem.
+    VNotice = 4,                     ///< Used when logging an unexpected situation that likely won't cause any problems.
+    VInfo = 8,                       ///< Used when logging a message which is a result of normal operation, but still might be interesting.
 
-   VErrors = 1,                     ///< Used with setVerbosity() to specify that only \ref VError messages should be output.
-   VErrorsAndWarnings = 3,          ///< Used with setVerbosity() to specify that \ref VError and \ref VWarning messages should be output.
-   VErrorsWarningsAndNotices = 7,   ///< Used with setVerbosity() to specify that \ref VError, \ref VWarning, and \ref VNotice messages should be output, but not \ref VInfo messages.
-   VAll = 0x0FFFFFFF                ///< Used with setVerbosity() to specify that all messages should be output.
+    VErrors = 1,                     ///< Used with setVerbosity() to specify that only \ref VError messages should be output.
+    VErrorsAndWarnings = 3,          ///< Used with setVerbosity() to specify that \ref VError and \ref VWarning messages should be output.
+    VErrorsWarningsAndNotices = 7,   ///< Used with setVerbosity() to specify that \ref VError, \ref VWarning, and \ref VNotice messages should be output, but not \ref VInfo messages.
+    VAll = 0x0FFFFFFF                ///< Used with setVerbosity() to specify that all messages should be output.
 };
 
 

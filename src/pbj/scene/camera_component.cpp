@@ -3,12 +3,11 @@
 ///
 /// \brief  Implements the camera component class.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef CAMERA_COMPONENT_H_
 #include "pbj/scene/camera_component.h"
-#endif
 
-#include <assert.h>
+
 #include "pbj/scene/entity.h"
+#include <cassert>
 
 namespace pbj {
 namespace scene {
@@ -49,7 +48,7 @@ CameraComponent::~CameraComponent()
 ///     F32 b, F32 c, F32 d)
 ///
 /// \brief  Sets the coefficients that determine the camera's acceleration.
-/// 
+///
 /// \details The acceleration is defined by the eqation:
 ///
 ///          camera_acceleration  = a * position_delta +
@@ -190,7 +189,7 @@ const mat4& CameraComponent::getView() const
 /// \date   2013-08-22
 ///
 /// \param  dt  The delta time.
-/// 
+///
 /// \details    This will set move the position and increase the velocity for
 ///             the CameraComponent. The velocity is tracked locally since we
 ///             assume that the Entity with a camera will not have a Rigidbody.
@@ -210,18 +209,18 @@ void CameraComponent::update(F32 dt)
     acceleration += pos_delta * glm::length(pos_delta) * _pos_k2;
     acceleration += vel_delta * _vel_k1;
     acceleration += vel_delta * glm::length(vel_delta) * _vel_k2;
-	
-	// //originally velocity was updated after position, I want to try it like this
-	//_velocity += acceleration * dt;
+
+    // //originally velocity was updated after position, I want to try it like this
+    //_velocity += acceleration * dt;
     // // ben's note: velocity should be updated after position because the (1/2)at^2 term takes into account the change in velocity over the time period.
-	_position += _velocity * dt + acceleration * dt * dt * 0.5f;
+    _position += _velocity * dt + acceleration * dt * dt * 0.5f;
     _velocity += acceleration * dt;
-	if (_owner)
+    if (_owner)
     {
         _owner->getTransform().setPosition(_position);
     }
-    
-	_view = glm::translate(mat4(), vec3(-_position, 0));
+
+    _view = glm::translate(mat4(), vec3(-_position, 0));
     _vp_inv = glm::inverse(_projection * _view);
 }
 

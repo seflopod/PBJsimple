@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file	C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-/// 		PBJgame\include\pbj\gfx\material.h
+/// \file   C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
+///         PBJgame\include\pbj\gfx\material.h
 ///
-/// \brief	Declares the Material class.
+/// \brief  Declares the Material class.
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef PBJ_GFX_MATERIAL_H_
@@ -19,10 +19,10 @@ namespace gfx {
 class Material
 {
 public:
-	Material(const sw::ResourceId& id, const color4& color, const Texture* texture, GLenum texture_mode);
-	~Material();
+    Material(const sw::ResourceId& id, const color4& color, const Texture* texture, GLenum texture_mode);
+    ~Material();
 
-	const color4& getColor() const;
+    const color4& getColor() const;
     const Texture* getTexture() const;
     GLenum getTextureMode() const;
 
@@ -32,7 +32,7 @@ public:
 
 private:
     sw::ResourceId id_;
-	color4 color_;
+    color4 color_;
     const Texture* tex_;
     GLenum tex_mode_;
 
