@@ -40,8 +40,6 @@ namespace audio {
 class Source
 {
 public:
-    typedef 
-
     Source(scene::Entity* owner);
     ~Source();
 
@@ -84,7 +82,7 @@ private:
     scene::Entity* _owner;
     ALuint _srcId;
     std::unordered_map<std::string, Buffer*> _buffers;
-    const std::string& _curPlaying;
+    std::string _curPlaying;
 
     Source(const Source&);
     void operator=(const Source&);

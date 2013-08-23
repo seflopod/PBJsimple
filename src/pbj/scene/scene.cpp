@@ -92,7 +92,7 @@ Scene::Scene()
     _spawnPointMaterial = &_resources.getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("spawnpoint")));
 
     _physWorld.SetAllowSleeping(true);
-    _physWorld.SetContactListener(this)
+    _physWorld.SetContactListener(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

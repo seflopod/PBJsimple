@@ -54,7 +54,6 @@ Game* Game::instance()
 ////////////////////////////////////////////////////////////////////////////////
 Game::Game()
     : _prng(std::mt19937::result_type(time(nullptr))),
-     _running(false),
      _paused(false),
      _engine(getEngine()),
      _window(*getEngine().getWindow())
@@ -69,15 +68,15 @@ Game::Game()
         });
 
     //Register for input event handling
-    InputController::registerKeyAllListener(std::bind(&Game::onKeyboard, this));
-        /*[&](I32 keycode, I32 scancode, I32 action,I32 modifiers) {
+    InputController::registerKeyAllListener(
+        [&](I32 keycode, I32 scancode, I32 action,I32 modifiers) {
             onKeyboard(keycode, scancode, action, modifiers);
-        });*/
+        });
 
-    InputController::registerMouseLeftDownListener(std::bind(&Game::onMouseLeftDown, this));
-        /*[&](I32 mods) {
+    InputController::registerMouseLeftDownListener(
+        [&](I32 mods) {
             onMouseLeftDown(mods);
-        });*/
+        });
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -99,7 +98,6 @@ Game::Game()
 ////////////////////////////////////////////////////////////////////////////////
 Game::~Game()
 {
-    stop();
 }
 #pragma endregion
 
@@ -119,7 +117,7 @@ void Game::getSceneIds(const Id& sw_id)
     }
 }
 
-sw::ResourceId Game::getRandomSceneId() const
+sw::ResourceId Game::getRandomSceneId()
 {
     std::uniform_int_distribution<int> dist(0, _scene_ids.size() - 1);
     return _scene_ids[dist(_prng)];
@@ -184,77 +182,55 @@ void Game::loadScene(const sw::ResourceId& scene_id)
 ////////////////////////////////////////////////////////////////////////////////
 I32 Game::run()
 {
-    F64 lastFrameTime = 0.0;
-    F64 fps = 0.0;
-    F32 nonPhysTimer = 0.0f;
+    F64 last_frame = -1.0;
+    F64 last_frame_time = -1.0;
+    F64 fps = -1.0;
 
-    //start main loop
-    while(_running)
+    while (true)
     {
-        F64 frameStart = glfwGetTime();
-
         glfwPollEvents();
 
-        if(_paused)
-            continue;
+        if (_window.isClosePending())
+            break;
 
-        //since physics is in Scene, run that loop first
-        _scene->physUpdate(_physSettings.dt, _physSettings.velocityIterations,
-        _physSettings.positionIterations);
+        F64 frame_start = glfwGetTime();
+        F64 delta_t = frame_start - last_frame;
+        fps = 1.0 / delta_t;
 
-        if(nonPhysTimer >= _dt)
-        {   //physics should execute more than drawing and other loops, so
-            //only do those after a certain amount of time.
-            update();
+        if (_scene)
+        {
+            if (last_frame >= 0 && !_paused)
+            {
+                if (delta_t > PBJ_GAME_MIN_PHYSICS_TIMESTEP)
+                {
+                    U32 steps = U32(std::ceil(delta_t / PBJ_GAME_MIN_PHYSICS_TIMESTEP));
+                    F64 interval = delta_t / steps;
+
+                    while (--steps >= 0)
+                    {
+                        _scene->physUpdate(F32(interval));
+                    }
+                }
+                else
+                {
+                    _scene->physUpdate(F32(delta_t));
+                }
+
+                _scene->update(F32(delta_t));
+            }
+
             draw();
-            nonPhysTimer-=_dt;
         }
 
-        F64 frameTime = lastFrameTime = glfwGetTime() - frameStart;
-
-        if(lastFrameTime < _physSettings.dt)
-        {   //make sure all frames last at least as long as the dt for phsyics
-            std::this_thread::sleep_for(std::chrono::microseconds(I32(
-            1000000 * (_physSettings.dt - lastFrameTime))));
-            frameTime = glfwGetTime() - frameStart;
+        F64 frame_time = last_frame_time = glfwGetTime() - frame_start;
+        if (last_frame_time < (1.0 / PBJ_GAME_MAX_FPS))
+        {
+            std::this_thread::sleep_for(std::chrono::microseconds(
+                int(1000000 * ((1.0 / PBJ_GAME_MAX_FPS) - last_frame_time))));
         }
-        nonPhysTimer += _physSettings.dt;
-
-        fps = 1.0/frameTime;
     }
+
     return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn     void Game::stop()
-///
-/// \brief     Stops this object.
-///
-/// \author     Peter Bartosch
-/// \date     2013-08-05
-////////////////////////////////////////////////////////////////////////////////
-void Game::stop()
-{
-    _running = false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn     bool Game::update()
-///
-/// \brief     Updates for the game.
-///
-/// \author     Peter Bartosch
-/// \date     2013-08-05
-///
-////////////////////////////////////////////////////////////////////////////////
-void Game::update()
-{
-    _scene->update(_dt);
-
-
-
-    if(_window.isClosePending() && _running)
-        _running = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,14 +248,12 @@ void Game::draw()
     if (_scene)
         _scene->draw();
 
-    //error pump
-    GLenum glError;
-    while((glError = glGetError()) != GL_NO_ERROR)
+    GLenum gl_error;
+    while ((gl_error = glGetError()) != GL_NO_ERROR)
     {
-        PBJ_LOG(VWarning) << "OpenGL error while rendering" << PBJ_LOG_NL
-                          << "Error code: " << glError << PBJ_LOG_NL
-                          << "Error:        " << getGlErrorString(glError)
-                          << PBJ_LOG_END;
+        PBJ_LOG(VWarning) << "OpenGL error while rendering frame!" << PBJ_LOG_NL
+                                << "Error Code: " << gl_error << PBJ_LOG_NL
+                                << "     Error: " << getGlErrorString(gl_error) << PBJ_LOG_END;
     }
 
     glfwSwapBuffers(_window.getGlfwHandle());
@@ -326,7 +300,8 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 
     if(action == GLFW_RELEASE)
     {
-        _instance->_running = !(keycode == GLFW_KEY_ESCAPE);
+        if (keycode == GLFW_KEY_ESCAPE)
+            _window.requestClose();
 
         if(keycode == GLFW_KEY_H)
         {   //This should show the help menu.  It pauses the game while doing so.
@@ -338,7 +313,7 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
             if(_paused) //unpause if paused
                 _paused = false;
             else
-                _scene.getLocalPlayer()->getPlayerComponent()->endThrust();
+                _scene->getLocalPlayer()->getPlayerComponent()->endThrust();
         }
     }
 }
@@ -362,10 +337,10 @@ void Game::onMouseLeftDown(I32 mods)
     //do conversion for mouse click from screen coordinates to world coordinates
     ivec2 screenCoords = ivec2((I32)std::floor(x), (I32)std::floor(y));
     ivec2 size = getEngine().getWindow()->getContextSize();
-    vec2 worldPos = _scene.getCurrentCamera()->getWorldPosition(screenCoords, size);
+    vec2 worldPos = _scene->getCurrentCamera()->getCamera()->getWorldPosition(screenCoords, size);
 
     //mouse left-click means fire for the main player.
-    _scene.getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
+    _scene->getLocalPlayer()->getPlayerComponent()->fire(worldPos.x, worldPos.y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -385,19 +360,19 @@ void Game::checkMovement(I32 keycode, I32 action)
     //now it will do
     if(keycode == _controls.left[0] || keycode == _controls.left[1])
     {
-        _scene.getLocalPlayer()->getPlayerComponent()->moveLeft();
+        _scene->getLocalPlayer()->getPlayerComponent()->moveLeft();
     }
     else if(keycode == _controls.right[0] || keycode == _controls.right[1])
     {
-        _scene.getLocalPlayer()->getPlayerComponent()->moveRight();
+        _scene->getLocalPlayer()->getPlayerComponent()->moveRight();
     }
     else if(keycode == _controls.up[0] || keycode == _controls.up[1])
     {
-        _scene.getLocalPlayer()->getPlayerComponent()->jump();
+        _scene->getLocalPlayer()->getPlayerComponent()->jump();
     }
     else if(keycode == _controls.down[0] || keycode == _controls.down[1])
     {
-        _scene.getLocalPlayer()->getPlayerComponent()->stop();
+        _scene->getLocalPlayer()->getPlayerComponent()->stop();
     }
     else if(keycode == _controls.keyFire1[0] || keycode == _controls.keyFire1[1])
     {
@@ -409,7 +384,7 @@ void Game::checkMovement(I32 keycode, I32 action)
     }
     else if(keycode == _controls.keyJump[0] || keycode == _controls.keyJump[1])
     {
-        _scene.getLocalPlayer()->getPlayerComponent()->doThrust();
+        _scene->getLocalPlayer()->getPlayerComponent()->doThrust();
     }
     else if(keycode == _controls.keyAction[0] || keycode == _controls.keyAction[1])
     {
@@ -447,8 +422,6 @@ void Game::help()
     std::cerr << "Press space to continue" << std::endl;
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn scene::Scene* Game::getScene()
 ///
@@ -459,9 +432,9 @@ void Game::help()
 ///
 /// \return A pointer to the current scene.
 ////////////////////////////////////////////////////////////////////////////////
-scene::Scene* Game::getScene() { return _scene.get(); }
-
-
-
+scene::Scene* Game::getScene()
+{
+    return _scene.get();
+}
 
 } // namespace pbj

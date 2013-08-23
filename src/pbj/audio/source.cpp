@@ -22,6 +22,7 @@ namespace audio {
 ////////////////////////////////////////////////////////////////////////////////
 Source::Source(scene::Entity* owner)
     : _owner(owner)
+      
 {
     alGenSources(1, &_srcId);
 }
@@ -293,7 +294,7 @@ void Source::updateVelocity()
 /// \param  name            The name.
 /// \param [in] buffer      The buffer to add.
 ////////////////////////////////////////////////////////////////////////////////
-void Source::addBuffer(string name, Buffer* buffer)
+void Source::addBuffer(const std::string& name, Buffer* buffer)
 {
     _buffers.insert(std::make_pair(name,buffer));
 }
@@ -310,7 +311,7 @@ void Source::addBuffer(string name, Buffer* buffer)
 ///
 /// \return null if it fails, else the audio buffer.
 ////////////////////////////////////////////////////////////////////////////////
-Buffer* Source::getBuffer(string name)
+Buffer* Source::getBuffer(const std::string& name)
 {
     auto it = _buffers.find(name);
     if(it != _buffers.end())
@@ -328,7 +329,7 @@ Buffer* Source::getBuffer(string name)
 ///
 /// \param  name    The name.
 ////////////////////////////////////////////////////////////////////////////////
-void Source::play(string name)
+void Source::play(const std::string& name)
 {
     Buffer* buf = getBuffer(name);
     if (buf)
@@ -349,7 +350,7 @@ void Source::play(string name)
 /// \param  name    The name.
 /// \param  pos     The position in seconds.
 ////////////////////////////////////////////////////////////////////////////////
-void Source::playAt(string name, F32 pos)
+void Source::playAt(const std::string& name, F32 pos)
 {
     Buffer* buf = getBuffer(name);
     if (buf)

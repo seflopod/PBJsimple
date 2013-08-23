@@ -23,6 +23,9 @@
 #include <queue>
 #include <map>
 
+#define PBJ_GAME_MAX_FPS 120.0f
+#define PBJ_GAME_MIN_PHYSICS_TIMESTEP 0.05
+
 namespace pbj {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -103,15 +106,13 @@ public:
     void help();
 
     I32 run();
-    void stop();
 
     scene::Scene* getScene();
 
-    sw::ResourceId getRandomSceneId() const;
+    sw::ResourceId getRandomSceneId();
     void loadScene(const sw::ResourceId& scene_id);
 
 private:
-    void update();
     void draw();
 
     void getSceneIds(const Id& sw_id);
@@ -135,7 +136,6 @@ private:
     std::unique_ptr<scene::Scene> _scene;
 
     F32 _dt;
-    bool _running;
     bool _paused;
 
     GameControls _controls;
