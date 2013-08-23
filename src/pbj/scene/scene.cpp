@@ -125,73 +125,140 @@ void Scene::makeHud()
 ///
 /// \brief Draws the scene
 ///
-/// \author Peter Bartosch / Josh Douglas (UI)
+/// \author Peter Bartosch
+/// \author Josh Douglas (UI)
 /// \date 2013-08-08
 ///
 /// \details This will go through each EntityMap for every drawable EntityType
 ///          and draw its members.  This will also draw the UI.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::draw()
 {
-    if (_curCameraId != U32(-1))
-        _cameras[_curCameraId]->getCamera()->use();
+    // Set up scene camera
+    Entity* current_camera = getCurrentCamera();
+    if (current_camera)
+        current_camera->getCamera()->use();
 
+    // Draw spawn points if this is the editor
 #ifdef PBJ_EDITOR
     for (auto i(_spawnPoints.begin()), end(_spawnPoints.end()); i != end; ++i)
         i->second->draw();
 #endif
 
+    // Draw terrain
     for (auto i(_terrain.begin()), end(_terrain.end()); i != end; ++i)
         i->second->draw();
 
-    for(EntityMap::iterator it=_bullets.begin();
-        it!=_bullets.end();
-        it++)
-        if(it->second->isDrawable())
-            it->second->draw();
+    // Draw bullets
+    for (auto i(_bullets.begin()), end(_bullets.end()); i != end; ++i)
+        i->second->draw();
 
-    for(EntityMap::iterator it=_players.begin();
-        it!=_players.end();
-        it++)
-        if(it->second->isDrawable())
-            it->second->draw();
+    // Draw players
+    for (auto i(_players.begin()), end(_players.end()); i != end; ++i)
+        i->second->draw();
+
+    // Draw UI/HUD
+    _ui.draw();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void Scene::update(F32 dt)
+///
+/// \brief  Updates the scene.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \param  dt  The delta time.
+///
+/// \details Like the draw method this updates each EntityMap in the scene
+void Scene::update(F32 dt)
+{
+    // Update spawn points
+    for (auto i(_spawnPoints.begin()), end(_spawnPoints.end()); i != end; ++i)
+        i->second->update(dt);
+
+    // Update terrain
+    for (auto i(_terrain.begin()), end(_terrain.end()); i != end; ++i)
+        i->second->update(dt);
+
+    // Update bullets
+    for (auto i(_bullets.begin()), end(_bullets.end()); i != end; ++i)
+        i->second->update(dt);
+
+    // Update players
+    for (auto i(_players.begin()), end(_players.end()); i != end; ++i)
+        i->second->update(dt);
+    
+    // Update current camera's target position/velocity
+    Entity* local_player = getLocalPlayer();
+    Entity* current_camera = getCurrentCamera();
+    if (local_player && current_camera)
+    {
+        current_camera->getCamera()->setTargetPosition(local_player->getTransform().getPosition());
+        current_camera->getCamera()->setTargetVelocity(local_player->getRigidbody()->getVelocity());
+    }
+
+    // Update cameras
+    for (auto i(_cameras.begin()), end(_cameras.end()); i != end; ++i)
+        i->second->update(dt);
+
+    // Update bullets
+    for (auto i(_bullets.begin()), end(_bullets.end()); i != end; ++i)
+        i->second->update(dt);
+
+    // Check for any respawns that need to be done
+    if(!_toRespawn.empty())
+    {
+        F64 t = glfwGetTime();
+
+        //if the front of the queue isn't ready to respawn, we can assume that
+        //nothing behind it is ready.
+        while (!_toRespawn.empty() &&
+                _toRespawn.front()->getPlayerComponent()->getTimeOfDeath() + 2 <= t) // 2 second delay to respawn
+        {
+            Entity* e = _toRespawn.front();
+            vec2 spwn = getRandomSpawnPoint()->getTransform().getPosition();
+
+            e->enable();
+            e->getTransform().setPosition(spwn.x, spwn.y);
+            e->getTransform().updateOwnerRigidbody();
+            e->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
+            PlayerComponent* pc = e->getPlayerComponent();
+            pc->setHealth(pc->getMaxHealth());
+            pc->setAmmoRemaining(pc->getMaxAmmo());
+            pc->setFuelRemaining(pc->getMaxFuel());
+
+            _toRespawn.pop();
+        }
+    }
 
 
+    // Update HUD
     // Updates the UI to display the correct number of kills
     // deaths and health, Josh
-    sw::ResourceId id;
-    id.sandwich = Id(PBJ_ID_PBJBASE);
-    id.resource = Id("std_font");
-
-    I32 i=0;
-    I32 j=20;
-    I32 pad = 5;
-    for(EntityMap::iterator it=_players.begin();
-        it!=_players.end();
-        ++it)
+    U32 player = 0;
+    for (auto i(_players.begin()), end(_players.end()); i != end; ++i)
     {
-        it->second->draw();
-
-        PlayerComponent* p = it->second->getPlayerComponent();
+        PlayerComponent* p = i->second->getPlayerComponent();
         std::string kills = std::to_string(p->getKills());
         std::string deaths = std::to_string(p->getDeaths());
 
-        //this is going to change when we change how players are id'd
         std::ostringstream osh;
-        osh << p->getId().to_useful_string() << std::setprecision(3) << " Health: " <<  ((p->getHealth() / (F32)p->getMaxHealth()) * 100);
-        frame_label_[i]->setText(osh.str());
+        osh << p->getId().to_useful_string()
+            << std::setprecision(3)
+            << " Health: "
+            << ((p->getHealth() / (F32)p->getMaxHealth()) * 100);
+        _player_health_lbl[player]->setText(osh.str());
 
         std::ostringstream oss;
         oss << p->getId().to_useful_string()
             << " Kills: " << kills
             << " Deaths: " << deaths;
-        frame_kd_[i]->setText(oss.str());
+        _player_kd_lbl[player]->setText(oss.str());
 
-        //p = nullptr;
-        ++i;
-        j+=30;
+        if (++player >= 5)
+            break;
     }
-    ui_.draw();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +273,6 @@ void Scene::draw()
 ///          physics (and thus collision) step is shorter than the normal update
 ///          and draw step.  This will take care of anything being done that
 ///          relates to physics.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::physUpdate(F32 dt)
 {
     _physWorld.Step(dt, _physVelocityIterations, _physPositionIterations);
@@ -222,82 +288,10 @@ void Scene::physUpdate(F32 dt)
     _toDisable.clear();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn void Scene::update(F32 dt)
-///
-/// \brief  Updates the scene.
-///
-/// \author Peter Bartosch
-/// \date   2013-08-22
-///
-/// \param  dt  The delta time.
-///
-/// \details Like the draw method this updates each EntityMap in the scene
-////////////////////////////////////////////////////////////////////////////////
-void Scene::update(F32 dt)
-{
-    for(EntityMap::iterator it=_spawnPoints.begin();
-        it!=_spawnPoints.end();
-        it++)
-        if(it->second->isEnabled())
-            it->second->update(dt);
 
-    for(EntityMap::iterator it=_terrain.begin();
-        it!=_terrain.end();
-        it++)
-        if(it->second->isEnabled())
-
-
-    for(EntityMap::iterator it=_players.begin();
-    it!=_players.end();
-    it++)
-        if(it->second->isEnabled())
-        {
-            it->second->update(dt);
-            vec2 pos = it->second->getTransform().getPosition();
-            if(it->second->getAudioListener())
-            {
-                it->second->getAudioListener()->updatePosition();
-                it->second->getAudioListener()->updateVelocity();
-            }
-            it->second->getAudioSource()->updatePosition();
-            it->second->getAudioSource()->updateVelocity();
-            ivec2 size = getEngine().getWindow()->getContextSize();
-            F32 ratio = size.x/(F32)size.y;
-            if(pos.y < -Game::grid_height*2 ||
-                pos.x < -Game::grid_height*ratio*2 ||
-                pos.x > Game::grid_height*ratio*2)
-            {
-                it->second->getPlayerComponent()->setTimeOfDeath(glfwGetTime());
-                it->second->getPlayerComponent()->setDeaths(
-                it->second->getPlayerComponent()->getDeaths()+1);
-                Game::instance()->respawnPlayer(it->second.get());
-            }
-        }
-
-    //Move current camera to local player's position
-    Entity* player = getLocalPlayer();
-    if (player && _curCamera)
-    {
-        _curCamera->setTargetPosition(player->getTransform().getPosition());
-        _curCamera->setTargetVelocity(player->getRigidbody()->getVelocity());
-    }
-
-    //Do all camera updates
-    for(EntityMap::iterator it=_cameras.begin();
-        it!=_cameras.end();
-        ++it)
-            it->second->update(dt);
-
-    for(EntityMap::iterator it=_bullets.begin();
-        it!=_bullets.end();
-        it++)
-        if(it->second->isEnabled())
-            it->second->update(dt);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void Scene::setMapName(const std::string& name)
+/// \fn void Scene::setName(const std::string& name)
 ///
 /// \brief  Sets map name.
 ///
@@ -305,11 +299,13 @@ void Scene::update(F32 dt)
 /// \date   2013-08-22
 ///
 /// \param  name    The name.
-////////////////////////////////////////////////////////////////////////////////
-void Scene::setMapName(const std::string& name) { _name = name; }
+void Scene::setName(const std::string& name)
+{
+    _name = name;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn const std::string& Scene::getMapName() const
+/// \fn const std::string& Scene::getName() const
 ///
 /// \brief  Gets map name.
 ///
@@ -317,8 +313,10 @@ void Scene::setMapName(const std::string& name) { _name = name; }
 /// \date   2013-08-22
 ///
 /// \return The map name.
-////////////////////////////////////////////////////////////////////////////////
-const std::string& Scene::getMapName() const { return _name; }
+const std::string& Scene::getName() const
+{
+    return _name;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn U32 Scene::addEntity(unique_ptr<Entity>&& e)
@@ -329,39 +327,23 @@ const std::string& Scene::getMapName() const { return _name; }
 /// \date 2013-08-08
 ///
 /// \param [in] e A unique pointer to the Entity to add.
-////////////////////////////////////////////////////////////////////////////////
 U32 Scene::addEntity(unique_ptr<Entity>&& e)
 {
     U32 id = _nextEntityId;
+    e->setSceneId(id);
     ++_nextEntityId;
 
     //Place the Entity in the appropriate map depending on its type
     switch(e->getType())
     {
-    case Entity::EntityType::Terrain:
-        _terrain[id] = std::move(e);
-        _terrain[id]->setSceneId(id);
-        break;
-    case Entity::EntityType::Player:
-        _players[id] = std::move(e);
-        _players[id]->setSceneId(id);
-        break;
-    case Entity::EntityType::SpawnPoint:
-        _spawnPoints[id] = std::move(e);
-        _spawnPoints[id]->setSceneId(id);
-        break;
-    case Entity::EntityType::Bullet:
-        _bullets[id] = std::move(e);
-        _bullets[id]->setSceneId(id);
-        break;
-    case Entity::EntityType::Camera:
-        _cameras[id] = std::move(e);
-        _cameras[id]->setSceneId(id);
-    default:
-        _others[id] = std::move(e);
-        _others[id]->setSceneId(id);
-        break;
+    case Entity::EntityType::Terrain:    _terrain[id] = std::move(e); break;
+    case Entity::EntityType::Player:     _players[id] = std::move(e); break;
+    case Entity::EntityType::SpawnPoint: _spawnPoints[id] = std::move(e); break;
+    case Entity::EntityType::Bullet:     _bullets[id] = std::move(e); break;
+    case Entity::EntityType::Camera:     _cameras[id] = std::move(e); break;
+    default:                             _others[id] = std::move(e); break;
     }
+
     return id;
 }
 
@@ -378,7 +360,6 @@ U32 Scene::addEntity(unique_ptr<Entity>&& e)
 ///
 /// \details The id for the Entity was returned when it was added with
 ///          Scene::addEntity.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::removeEntity(U32 id, Entity::EntityType et)
 {
     switch(et)
@@ -574,67 +555,7 @@ CameraComponent* Scene::getCurrentCamera() const { return _curCamera; }
 ////////////////////////////////////////////////////////////////////////////////
 b2World* Scene::getWorld() const { return _physWorld.get(); }
 
-////////////////////////////////////////////////////////////////////////////////
-/// \fn void Scene::addToDisable(U32 id)
-///
-/// \brief  Adds an element to the queue for Entity disabling.
-///
-/// \author Peter Bartosch
-/// \date   2013-08-22
-///
-/// \param  id  The scene id of the Entity to add.
-///
-/// \details For some reason I didn't want to pass a pointer, so now we have to
-///          look through every EntityMap to find what we're disabling.  Rather
-///          than change over to using a pointer, I set up the searching in the
-///          order that is most likely for disabling.
-////////////////////////////////////////////////////////////////////////////////
-void Scene::addToDisable(U32 id)
-{
-    EntityMap::iterator res;
-    res = _bullets.find(id);
-    if(res != _bullets.end())
-    {
-        _toDisable.push(res->second.get());
-        return;
-    }
 
-    res = _players.find(id);
-    if(res != _players.end())
-    {
-        _toDisable.push(res->second.get());
-        return;
-    }
-
-    res = _others.find(id);
-    if(res != _others.end())
-    {
-        _toDisable.push(res->second.get());
-        return;
-    }
-
-    res = _terrain.find(id);
-    if(res != _terrain.end())
-    {
-        _toDisable.push(res->second.get());
-        return;
-    }
-
-    res = _cameras.find(id);
-    if(res != _cameras.end())
-    {
-        _toDisable.push(res->second.get());
-        return;
-    }
-
-    res = _spawnPoints.find(id);
-    if(res != _bullets.end())
-    {
-        _toDisable.push(res->second.get());
-        return;
-    }
-
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    Entity* Game::makePlayer()

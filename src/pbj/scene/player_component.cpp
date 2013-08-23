@@ -32,7 +32,8 @@ PlayerComponent::PlayerComponent(Id id, PlayerStats stats, void* owner)
         _forceFullRegen(false),
         _canShoot(true),
         _reloading(false),
-        _fireCooldown(false)
+        _fireCooldown(false),
+        _thrustExtraDelay(0)
 {
     assert((Entity*)owner);
     _owner = owner;
@@ -389,7 +390,10 @@ void PlayerComponent::startThrust() { _thrusting = true; }
 /// \author    Peter Bartosch
 /// \date    2013-08-13
 ////////////////////////////////////////////////////////////////////////////////
-void PlayerComponent::endThrust() { _thrusting = false; }
+void PlayerComponent::endThrust() {
+    _thrusting = false;
+    _thrustExtraDelay = _stats.maxFuel * -0.1;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn    void PlayerComponent::doThrust()
@@ -424,7 +428,7 @@ void PlayerComponent::doThrust()
         }
         else
         {
-            _thrusting = false;
+            endThrust();
         }
     }
 }
@@ -442,11 +446,19 @@ void PlayerComponent::regenFuel()
     if(_stats.fuelRemaining < _stats.maxFuel && !_thrusting)
     {
         I32 regenPerTick = 25; //magic!
-        _stats.fuelRemaining += regenPerTick;
-        if(_stats.fuelRemaining >= _stats.maxFuel)
+
+        // after thrusting, you must wait a bit before fuel begins regenerating
+        if (_thrustExtraDelay < 0)
+            _thrustExtraDelay += regenPerTick;
+        
+        if (_thrustExtraDelay >= 0)
         {
-            _stats.fuelRemaining = _stats.maxFuel;
-            _forceFullRegen = false;
+            _stats.fuelRemaining += regenPerTick;
+            if (_stats.fuelRemaining >= _stats.maxFuel)
+            {
+                _stats.fuelRemaining = _stats.maxFuel;
+                _forceFullRegen = false;
+            }
         }
     }
 }

@@ -88,6 +88,9 @@ Entity::~Entity()
 ///          up-to-date.
 void Entity::update(F32 dt)
 {
+    if (!_enabled)
+        return;
+
     if(_rigidbody)
         _rigidbody->updateOwnerTransform();
 
@@ -104,6 +107,25 @@ void Entity::update(F32 dt)
 
         if(_player->fireOnCooldown())
             _player->stepFireTimer(dt);
+
+        if (_transform.getPosition().y < -50)
+        {
+            _player->setTimeOfDeath(glfwGetTime());
+            _player->setDeaths(_player->getDeaths()+1);
+            Game::instance()->respawnPlayer(this);
+        }
+    }
+
+    if (_src)
+    {
+        _src->updatePosition();
+        _src->updateVelocity();
+    }
+
+    if (_listener)
+    {
+        _listener->updatePosition();
+        _listener->updateVelocity();
     }
 
     //If a bullet isn't moving fast enough, make it disappear
@@ -111,16 +133,8 @@ void Entity::update(F32 dt)
         Game::instance()->disableBullet(this);
 
     //Make sure the camera is doing as it needs to do.
-    if(_type == Camera)
-    {
-        if(_camera)
-            _camera->update(dt);
-        if(_listener)
-        {
-            _listener->updatePosition();
-            _listener->updateVelocity();
-        }
-    }
+    if(_camera)
+        _camera->update(dt);
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  draws this object.
@@ -130,26 +144,26 @@ void Entity::update(F32 dt)
 ////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
-    if (isDrawable())
-    {
-        vec2 glmPos = _transform.getPosition();
-        F32 glmRot = _transform.getRotation();
-        vec2 glmSca = _transform.getScale();
+    if (!_drawable)
+        return;
 
-        if (_material)
-            _material->use();
-        else
-            Texture::disable();
+    vec2 glmPos = _transform.getPosition();
+    F32 glmRot = _transform.getRotation();
+    vec2 glmSca = _transform.getScale();
 
-        glPushMatrix();
+    if (_material)
+        _material->use();
+    else
+        Texture::disable();
 
-        glTranslatef(glmPos.x, glmPos.y, 0.0f);
-        glRotatef(glmRot, 0, 0, 1);
-        glScalef(glmSca.x, glmSca.y, 1.0f);
-        _shape->draw((_material->getTexture() != nullptr));
+    glPushMatrix();
 
-        glPopMatrix();
-    }
+    glTranslatef(glmPos.x, glmPos.y, 0.0f);
+    glRotatef(glmRot, 0, 0, 1);
+    glScalef(glmSca.x, glmSca.y, 1.0f);
+    _shape->draw((_material->getTexture() != nullptr));
+
+    glPopMatrix();
 }
 
 #pragma region components

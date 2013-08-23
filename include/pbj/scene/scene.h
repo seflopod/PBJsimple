@@ -57,8 +57,6 @@ public:
     void setName(const std::string& name);
     const std::string& getName() const;
 
-    void addToDisable(U32);
-
     U32 addEntity(unique_ptr<Entity>&& entity);
     void removeEntity(U32 id, Entity::EntityType type);
 
@@ -104,11 +102,9 @@ private:
     Window& _window;
 
     std::mt19937 _prng;
+    b2World _physWorld;
 
     std::string _name;
-
-    PhysicsSettings _physSettings;
-    b2World _physWorld;
 
     //as we get more Entity types this may have to expand/change entirely
     EntityMap _spawnPoints;
@@ -125,7 +121,7 @@ private:
     U32 _nextBulletId;
 
     std::vector<Entity*> _toDisable;
-    std::vector<Entity*> _toRespawn;
+    std::queue<Entity*, std::vector<Entity*>> _toRespawn;
 
     U32 _bulletRing[100];
     I32 _curRingIdx;

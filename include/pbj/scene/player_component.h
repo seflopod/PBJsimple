@@ -14,6 +14,8 @@ using be::Id;
 namespace pbj {
 namespace scene {
 
+class Entity;
+
 ////////////////////////////////////////////////////////////////////////////
 /// \struct PlayerStats
 ///
@@ -131,7 +133,7 @@ public:
     void setBulletsFired(I32);
     void setBulletsHit(I32);
 
-    void* getOwner() const;
+    Entity* getOwner() const;
 
     bool canJump() const;
     void disableJump();
@@ -166,7 +168,7 @@ public:
     void setTimeOfDeath(F64);
 private:
     Id _id;
-    void* _owner;
+    Entity* _owner;
     PlayerStats _stats;
     PlayerScore _score;
     bool _canJump;
@@ -177,6 +179,7 @@ private:
     bool _fireCooldown;
     F32 _fireTimer;
     F32 _reloadTimer;
+    F32 _thrustExtraDelay;
     F64 _timeOfDeath;
 };
 

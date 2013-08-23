@@ -287,28 +287,7 @@ void Game::update()
 {
     _scene->update(_dt);
 
-    //check for any respawns that need to be done
-    if(!_toRespawn.empty())
-    {
-        F64 t = glfwGetTime();
 
-        //if the front of the queue isn't ready to respawn, we can assume that
-        //nothing behind it is ready.
-        while(!_toRespawn.empty() &&
-                _toRespawn.front()->getPlayerComponent()->getTimeOfDeath()+2<=t)
-        {   // five second delay to respawn
-            vec2 spwn = _scene->getRandomSpawnPoint()->getTransform().getPosition();
-            _toRespawn.front()->enable();
-            _toRespawn.front()->getTransform().setPosition(spwn.x, spwn.y);
-            _toRespawn.front()->getTransform().updateOwnerRigidbody();
-            _toRespawn.front()->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
-            _toRespawn.front()->getPlayerComponent()->setHealth(
-            _toRespawn.front()->getPlayerComponent()->getMaxHealth());
-            _toRespawn.front()->getPlayerComponent()->setAmmoRemaining(
-            _toRespawn.front()->getPlayerComponent()->getMaxAmmo());
-            _toRespawn.pop();
-        }
-    }
 
     if(_window.isClosePending() && _running)
         _running = false;
