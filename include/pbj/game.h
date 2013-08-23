@@ -124,7 +124,7 @@ private:
 
 
 
-    static unique_ptr<Game> _instance;
+    static std::unique_ptr<Game> _instance;
 
     Engine& _engine;
     Window& _window;

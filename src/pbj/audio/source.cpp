@@ -1,19 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\src\pbj\audio\audio_source.cpp
+/// \file   pbj\audio\source.cpp
 ///
 /// \brief  Implements the audio source class.
 ////////////////////////////////////////////////////////////////////////////////
-#include "pbj/audio/audio_source.h"
+#include "pbj/audio/source.h"
 
 #include "pbj/scene/entity.h"
-
-using pbj::scene::Entity;
 
 namespace pbj {
 namespace audio {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn AudioSource::AudioSource(void* owner)
+/// \fn Source::Source(void* owner)
 ///
 /// \brief  Constructor.
 ///
@@ -22,27 +20,27 @@ namespace audio {
 ///
 /// \param [in] owner   The owner of the AudioSource.  This MUST be an Entity.
 ////////////////////////////////////////////////////////////////////////////////
-AudioSource::AudioSource(void* owner)
+Source::Source(scene::Entity* owner)
+    : _owner(owner)
 {
-    assert((Entity*)owner);
-    _owner = owner;
     alGenSources(1, &_srcId);
-    _buffers.reset(new AudioBuffers());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn AudioSource::~AudioSource()
+/// \fn Source::~Source()
 ///
 /// \brief  Destructor.
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-AudioSource::~AudioSource()
-{}
+Source::~Source()
+{
+    alDeleteSources(1, &_srcId);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void AudioSource::setPitch(F32 val)
+/// \fn void Source::setPitch(F32 val)
 ///
 /// \brief  Sets the pitch.
 ///
@@ -51,13 +49,13 @@ AudioSource::~AudioSource()
 ///
 /// \param  val The value.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::setPitch(F32 val)
+void Source::setPitch(F32 val)
 {
     alSourcef(_srcId, AL_PITCH, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn F32 AudioSource::getPitch() const
+/// \fn F32 Source::getPitch() const
 ///
 /// \brief  Gets the pitch.
 ///
@@ -66,7 +64,7 @@ void AudioSource::setPitch(F32 val)
 ///
 /// \return The pitch.
 ////////////////////////////////////////////////////////////////////////////////
-F32 AudioSource::getPitch() const
+F32 Source::getPitch() const
 {
     ALfloat ret;
     alGetSourcef(_srcId, AL_PITCH, &ret);
@@ -74,7 +72,7 @@ F32 AudioSource::getPitch() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void AudioSource::setGain(F32 val)
+/// \fn void Source::setGain(F32 val)
 ///
 /// \brief  Sets the gain.
 ///
@@ -83,13 +81,13 @@ F32 AudioSource::getPitch() const
 ///
 /// \param  val The value.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::setGain(F32 val)
+void Source::setGain(F32 val)
 {
     alSourcef(_srcId, AL_GAIN, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn F32 AudioSource::getGain() const
+/// \fn F32 Source::getGain() const
 ///
 /// \brief  Gets the gain.
 ///
@@ -98,7 +96,7 @@ void AudioSource::setGain(F32 val)
 ///
 /// \return The gain.
 ////////////////////////////////////////////////////////////////////////////////
-F32 AudioSource::getGain() const
+F32 Source::getGain() const
 {
     ALfloat ret;
     alGetSourcef(_srcId, AL_GAIN, &ret);
@@ -106,7 +104,7 @@ F32 AudioSource::getGain() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void AudioSource::setMaxDistance(F32 val)
+/// \fn void Source::setMaxDistance(F32 val)
 ///
 /// \brief  Sets maximum distance before the source begins to falloff.
 ///
@@ -115,13 +113,13 @@ F32 AudioSource::getGain() const
 ///
 /// \param  val The value.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::setMaxDistance(F32 val)
+void Source::setMaxDistance(F32 val)
 {
     alSourcef(_srcId, AL_MAX_DISTANCE, val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn F32 AudioSource::getMaxDistance() const
+/// \fn F32 Source::getMaxDistance() const
 ///
 /// \brief  Gets maximum distance.
 ///
@@ -130,7 +128,7 @@ void AudioSource::setMaxDistance(F32 val)
 ///
 /// \return The maximum distance.
 ////////////////////////////////////////////////////////////////////////////////
-F32 AudioSource::getMaxDistance() const
+F32 Source::getMaxDistance() const
 {
     ALfloat ret;
     alGetSourcef(_srcId, AL_MAX_DISTANCE, &ret);
@@ -138,7 +136,7 @@ F32 AudioSource::getMaxDistance() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void AudioSource::setRolloff(F32 val)
+/// \fn void Source::setRolloff(F32 val)
 ///
 /// \brief  Sets the rolloff.
 ///
@@ -147,7 +145,7 @@ F32 AudioSource::getMaxDistance() const
 ///
 /// \param  val The value.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::setRolloff(F32 val)
+void Source::setRolloff(F32 val)
 {
     alSourcef(_srcId, AL_ROLLOFF_FACTOR, val);
 }
@@ -162,7 +160,7 @@ void AudioSource::setRolloff(F32 val)
 ///
 /// \return The rolloff.
 ////////////////////////////////////////////////////////////////////////////////
-F32 AudioSource::getRolloff() const
+F32 Source::getRolloff() const
 {
     ALfloat ret;
     alGetSourcef(_srcId, AL_ROLLOFF_FACTOR, &ret);
@@ -179,7 +177,7 @@ F32 AudioSource::getRolloff() const
 ///
 /// \param  val The value.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::setReferenceDistance(F32 val)
+void Source::setReferenceDistance(F32 val)
 {
     alSourcef(_srcId, AL_REFERENCE_DISTANCE, val);
 }
@@ -194,7 +192,7 @@ void AudioSource::setReferenceDistance(F32 val)
 ///
 /// \return The reference distance.
 ////////////////////////////////////////////////////////////////////////////////
-F32 AudioSource::getReferenceDistance() const
+F32 Source::getReferenceDistance() const
 {
     ALfloat ret;
     alGetSourcef(_srcId, AL_REFERENCE_DISTANCE, &ret);
@@ -211,7 +209,7 @@ F32 AudioSource::getReferenceDistance() const
 ///
 /// \param  val The value.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::setMinMaxGain(vec2 val)
+void Source::setMinMaxGain(vec2 val)
 {
     ALfloat min = val.x;
     ALfloat max = val.y;
@@ -229,7 +227,7 @@ void AudioSource::setMinMaxGain(vec2 val)
 ///
 /// \return The minimum maximum gain.
 ////////////////////////////////////////////////////////////////////////////////
-vec2 AudioSource::getMinMaxGain() const
+vec2 Source::getMinMaxGain() const
 {
     ALfloat min, max;
     alGetSourcef(_srcId, AL_MIN_GAIN, &min);
@@ -245,10 +243,15 @@ vec2 AudioSource::getMinMaxGain() const
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::updatePosition()
+void Source::updatePosition()
 {
     //since we're in 2d, we'll assume that z=0
-    vec2 xy = ((Entity*)_owner)->getTransform().getPosition();
+    vec2 xy;
+    if (_owner)
+    {
+        xy = _owner->getTransform().getPosition();
+    }
+
     alSource3f(_srcId, AL_POSITION, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
 }
 
@@ -260,25 +263,23 @@ void AudioSource::updatePosition()
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::updateVelocity()
+void Source::updateVelocity()
 {
     //since we're in 2d, we'll assume that z=0
-    Entity* e = (Entity*)_owner;
     vec2 xy;
-    if(e->getType() == Entity::EntityType::Camera)
+    if (_owner)
     {
-        xy = e->getCamera()->getTargetVelocity();
-    }
-    else if(e->getRigidbody())
-    {
-        xy = e->getRigidbody()->getVelocity();
-    }
-    else
-    {
-        xy = vec2(0.0f, 0.0f);
+        if (_owner->getRigidbody())
+        {
+            xy = _owner->getRigidbody()->getVelocity();
+        }
+        else if(_owner->getCamera())
+        {
+            xy = _owner->getCamera()->getTargetVelocity();
+        }
     }
 
-    alSource3f(_srcId, AL_VELOCITY, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
+    alSource3f(_srcId, AL_VELOCITY, xy.x, xy.y, 0.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -292,9 +293,9 @@ void AudioSource::updateVelocity()
 /// \param  name            The name.
 /// \param [in] buffer      The buffer to add.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::addAudioBuffer(string name, AudioBuffer* buffer)
+void Source::addBuffer(string name, Buffer* buffer)
 {
-    _buffers->insert(std::pair<string,AudioBuffer*>(name,buffer));
+    _buffers.insert(std::make_pair(name,buffer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -309,27 +310,12 @@ void AudioSource::addAudioBuffer(string name, AudioBuffer* buffer)
 ///
 /// \return null if it fails, else the audio buffer.
 ////////////////////////////////////////////////////////////////////////////////
-AudioBuffer* AudioSource::getAudioBuffer(string name) const
+Buffer* Source::getBuffer(string name)
 {
-    AudioBuffers::iterator it = _buffers->find(name);
-    if(it != _buffers->end())
-        return (AudioBuffer* const)(it->second);
+    auto it = _buffers.find(name);
+    if(it != _buffers.end())
+        return it->second;
     return nullptr;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn AudioSource::AudioBuffers* AudioSource::getAudioBuffers() const
-///
-/// \brief  Gets all audio buffers.
-///
-/// \author Peter Bartosch
-/// \date   2013-08-22
-///
-/// \return null if it fails, else the audio buffers.
-////////////////////////////////////////////////////////////////////////////////
-AudioSource::AudioBuffers* AudioSource::getAudioBuffers() const
-{
-    return _buffers.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -342,10 +328,14 @@ AudioSource::AudioBuffers* AudioSource::getAudioBuffers() const
 ///
 /// \param  name    The name.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::play(string name)
+void Source::play(string name)
 {
-    alSourcei(_srcId, AL_BUFFER, _buffers->at(name)->getBufferID());
-    alSourcePlay(_srcId);
+    Buffer* buf = getBuffer(name);
+    if (buf)
+    {
+        alSourcei(_srcId, AL_BUFFER, buf->getBufferID());
+        alSourcePlay(_srcId);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -359,11 +349,15 @@ void AudioSource::play(string name)
 /// \param  name    The name.
 /// \param  pos     The position in seconds.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::playAt(string name, F32 pos)
+void Source::playAt(string name, F32 pos)
 {
-    alSourcei(_srcId, AL_BUFFER, _buffers->at(name)->getBufferID());
-    alSourcef(_srcId, AL_SEC_OFFSET, pos);
-    alSourcePlay(_srcId);
+    Buffer* buf = getBuffer(name);
+    if (buf)
+    {
+        alSourcei(_srcId, AL_BUFFER, buf->getBufferID());
+        alSourcef(_srcId, AL_SEC_OFFSET, pos);
+        alSourcePlay(_srcId);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -374,7 +368,7 @@ void AudioSource::playAt(string name, F32 pos)
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::stop()
+void Source::stop()
 {
     alSourceStop(_srcId);
 }
@@ -387,7 +381,7 @@ void AudioSource::stop()
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::pause()
+void Source::pause()
 {
     alSourcePause(_srcId);
 }
@@ -402,7 +396,7 @@ void AudioSource::pause()
 ///
 /// \param  pos The position in seconds.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioSource::seek(F32 pos)
+void Source::seek(F32 pos)
 {
     alSourcef(_srcId, AL_SEC_OFFSET, pos);
 }
@@ -417,7 +411,10 @@ void AudioSource::seek(F32 pos)
 ///
 /// \return null if it fails, else the owner.
 ////////////////////////////////////////////////////////////////////////////////
-void* AudioSource::getOwner() const { return _owner; }
+scene::Entity* Source::getOwner() const
+{
+    return _owner;
+}
 
 } //namespace audio
 } //namespace pbj

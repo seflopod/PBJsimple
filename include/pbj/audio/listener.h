@@ -7,6 +7,11 @@
 #include "pbj/_math.h"
 
 namespace pbj {
+namespace scene {
+
+class Entity;
+
+} // namespace pbj::scene
 namespace audio {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -26,7 +31,7 @@ namespace audio {
 class Listener
 {
 public:
-    Listener(void*);
+    Listener(scene::Entity*);
     ~Listener();
 
     void updatePosition();
@@ -38,10 +43,10 @@ public:
     void setGain(F32);
     F32 getGain() const;
 
-    void* getOwner() const;
+    scene::Entity* getOwner() const;
 
 private:
-    void* _owner;
+    scene::Entity* _owner;
     vec3 _up;
     F32 _gain;
 

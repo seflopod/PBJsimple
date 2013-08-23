@@ -9,8 +9,6 @@
 #include "pbj/_pbj.h"
 #include "be/id.h"
 
-using be::Id;
-
 namespace pbj {
 namespace scene {
 

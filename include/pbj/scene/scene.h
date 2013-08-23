@@ -55,6 +55,8 @@ public:
     void update(F32 delta_t);
     void physUpdate(F32 delta_t);
 
+    b2World* getWorld();
+
     void setName(const std::string& name);
     const std::string& getName() const;
 
@@ -98,7 +100,7 @@ private:
     /// \typedef unordered_map<U32,Entity> EntityMap
     ///
     /// \brief An alias for an unordered map used for id->Entity
-    typedef unordered_map<U32, std::unique_ptr<Entity> > EntityMap;
+    typedef std::unordered_map<U32, std::unique_ptr<Entity> > EntityMap;
 
     Engine& _engine;
     Window& _window;
@@ -128,7 +130,7 @@ private:
     U32 _nextBulletId;
 
     std::vector<Entity*> _toDisable;
-    std::queue<Entity*, std::vector<Entity*>> _toRespawn;
+    std::queue<Entity*> _toRespawn;
 
     U32 _bulletRing[_maxBullets];
     I32 _curRingIndex;
@@ -144,7 +146,8 @@ private:
 };
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);
-void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene)
+void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene);
+void saveEntity(const Id& sandwich_id, const Id& map_id, Entity* entity);
 
 } // namespace pbj::scene
 } // namespace pbj

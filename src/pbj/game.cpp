@@ -13,14 +13,11 @@
 #include "pbj/scene/player_component.h"
 #include "pbj/sw/sandwich_open.h"
 
-using pbj::scene::Entity;
-
 namespace pbj {
 
 #pragma region statics
 /// \brief     The client instance pointer.
-unique_ptr<Game> Game::_instance;
-
+std::unique_ptr<Game> Game::_instance;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Game* Game::instance()
@@ -72,12 +69,12 @@ Game::Game()
         });
 
     //Register for input event handling
-    InputController::registerKeyAllListener(std::bind(onKeyboard, this));
+    InputController::registerKeyAllListener(std::bind(&Game::onKeyboard, this));
         /*[&](I32 keycode, I32 scancode, I32 action,I32 modifiers) {
             onKeyboard(keycode, scancode, action, modifiers);
         });*/
 
-    InputController::registerMouseLeftDownListener(std::bind(onMouseLeftDown, this));
+    InputController::registerMouseLeftDownListener(std::bind(&Game::onMouseLeftDown, this));
         /*[&](I32 mods) {
             onMouseLeftDown(mods);
         });*/
@@ -138,58 +135,40 @@ void Game::loadScene(const sw::ResourceId& scene_id)
 
     //add the local player to the scene
     vec2 spawnLoc = _scene->getRandomSpawnPoint()->getTransform().getPosition();
-    U32 player_id = _scene->addEntity(unique_ptr<Entity>(makePlayer(be::Id("Player"), spawnLoc.x, spawnLoc.y, false)));
-    _scene.setLocalPlayer(id);
-    _scene.getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
+    U32 player_id = _scene->makePlayer("Player", spawnLoc, false);
+    _scene->getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
 
     //since the player will be the focus of the camera, reduce the volume of its output
-    _scene.getLocalPlayer()->getAudioSource()->setGain(0.65f);
+    _scene->getLocalPlayer()->getAudioSource()->setGain(0.65f);
 
     //add other player Entities
-    I32 ids[4];
-    for(I32 i=0;i<4;++i)
+    U32 ids[4];
+    for (U32 i=0; i < 4; ++i)
     {
-        spawnLoc = _scene.getRandomSpawnPoint()->getTransform().getPosition();
-        char name[9] = "CPU ";
-        if(i<10)
-            name[4] = (char)(49+i);
-        else //I'm assuming that there will never be more than 19 ai players
-        {
-            name[4] = '1';
-            name[5] = (char)(49+i-10);
-        }
-        name[8] = '\0';
-        ids[i] = _scene.addEntity(unique_ptr<Entity>(makePlayer(be::Id(std::string(name)),spawnLoc.x, spawnLoc.y, true)));
+        spawnLoc = _scene->getRandomSpawnPoint()->getTransform().getPosition();
+        std::string name = "CPU ";
+        name.append(std::to_string(i));
+        ids[i] = _scene->makePlayer(std::string(name), spawnLoc, true);
     }
-    _scene.getPlayer(ids[0])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player2_outline"))));
-    _scene.getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
-    _scene.getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
-    _scene.getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
+    _scene->getPlayer(ids[0])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player2_outline"))));
+    _scene->getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
+    _scene->getPlayer(ids[2])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player4_outline"))));
+    _scene->getPlayer(ids[3])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player5_outline"))));
 
     //add the camera
-    Entity* e = new Entity();
-    e->setType(Entity::EntityType::Camera);
-    e->addAudioListener();
-    e->addCamera();
+    U32 camera_id = _scene->makeCamera();
+    _scene->setCurrentCamera(camera_id);
 
     //now that the camera is made, do matrix setup
-    ivec2 ctxtSize = _window.getContextSize();
-    F32 ratio = ctxtSize.x/(F32)ctxtSize.y;
-    glViewport(0, 0, ctxtSize.x, ctxtSize.y);
-    glClear(GL_COLOR_BUFFER_BIT);
-    mat4 ortho = glm::ortho(-ratio*grid_height/2.0f, ratio*grid_height/2.0f,
-                            -grid_height/2.0f, grid_height/2.0f,
-                            0.1f, -0.1f);
-    e->getCamera()->setProjection(ortho);
-
-    //and finally add the camera to the scene and mark it as the current camera
-    id = _scene.addEntity(unique_ptr<Entity>(e));
-    _scene.setCurrentCamera(id);
-
+    ivec2 wnd_size = _window.getContextSize();
+    glViewport(0, 0, wnd_size.x, wnd_size.y);
+    F32 ratio = wnd_size.x / F32(wnd_size.y);
+    F32 hheight = 25.0f;
+    F32 hwidth = ratio * hheight;
+    _scene->getCurrentCamera()->getCamera()->setProjection(glm::ortho(-hwidth, hwidth, -hheight, hheight));
+    
     //add the UI to the scene.
-    _scene.initUI();
-
-    _scene.getWorld()->SetContactListener(this);
+    _scene->makeHud();
 }
 
 #pragma region run_game

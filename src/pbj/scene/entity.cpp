@@ -87,14 +87,14 @@ void Entity::update(F32 dt)
         {
             _player->setTimeOfDeath(glfwGetTime());
             _player->setDeaths(_player->getDeaths()+1);
-            Game::instance()->respawnPlayer(this);
+            Game::instance()->getScene()->respawnPlayer(getSceneId());
         }
     }
 
-    if (_src)
+    if (_source)
     {
-        _src->updatePosition();
-        _src->updateVelocity();
+        _source->updatePosition();
+        _source->updateVelocity();
     }
 
     if (_listener)
@@ -105,7 +105,7 @@ void Entity::update(F32 dt)
 
     //If a bullet isn't moving fast enough, make it disappear
     if(_type == Bullet && _rigidbody && glm::length2(_rigidbody->getVelocity()) < 16.0f)
-        Game::instance()->disableBullet(this);
+        Game::instance()->getScene()->disableBullet(getSceneId());
 
     //Make sure the camera is doing as it needs to do.
     if(_camera)
@@ -129,7 +129,7 @@ void Entity::draw()
     if (_material)
         _material->use();
     else
-        Texture::disable();
+        gfx::Texture::disable();
 
     glPushMatrix();
 
@@ -176,7 +176,7 @@ void Entity::setTransform(const Transform& transform) { _transform = transform; 
 ///
 /// \return null if the shape does not exist; a pointer to the Shape otherwise.
 ////////////////////////////////////////////////////////////////////////////////
-Shape* Entity::getShape() const { return _shape.get(); }
+gfx::Shape* Entity::getShape() const { return _shape.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::setShape(Shape* shape)
@@ -190,7 +190,7 @@ Shape* Entity::getShape() const { return _shape.get(); }
 /// \details Any class the uses the Shape interface (ShapeSquare, ShapeTriangle)
 ///          is acceptable.  This is what will be drawn.
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::setShape(Shape* shape) { _shape.reset(shape); }
+void Entity::setShape(gfx::Shape* shape) { _shape.reset(shape); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  Gets the entity's material.
@@ -200,7 +200,7 @@ void Entity::setShape(Shape* shape) { _shape.reset(shape); }
 ///
 /// \return A pointer to the Material.
 ////////////////////////////////////////////////////////////////////////////////
-const Material* Entity::getMaterial() { return _material; }
+const gfx::Material* Entity::getMaterial() { return _material; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  Adds a material.
@@ -212,7 +212,7 @@ const Material* Entity::getMaterial() { return _material; }
 ///         must be at least as long as this entity's.  In the normal usage,
 ///         a ResourceManager will manage the lifetime of the material object.
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::setMaterial(const Material* material) { _material = material; }
+void Entity::setMaterial(const gfx::Material* material) { _material = material; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addRigidbody(Rigidbody::BodyType bodyType,
@@ -232,7 +232,7 @@ void Entity::setMaterial(const Material* material) { _material = material; }
 ///          use multiple fixtures for making complex shapes.  Simple boxes,
 ///          polygons and circles are used instead.
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
+void Entity::addRigidbody(physics::Rigidbody::BodyType bodyType, b2World* world)
 {
     if(!_rigidbody)
     {
@@ -240,7 +240,7 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
         vec2 pos = _transform.getPosition();
         b2PolygonShape shape;
 
-        Rigidbody* rigidbody = nullptr;
+        physics::Rigidbody* rigidbody = nullptr;
 
         switch(_type)
         {
@@ -248,24 +248,24 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
         {
             shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
             _transform.getRotation());
-            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+            _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+            _rigidbody->setCollisionGroup(physics::Rigidbody::Player);
             break;
         }
         case Terrain:
         {
             shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
             _transform.getRotation());
-            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+            _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
+            _rigidbody->setCollisionGroup(physics::Rigidbody::Terrain);
             break;
         }
         case SpawnPoint:
         {
             shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
             _transform.getRotation());
-            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+            _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
+            _rigidbody->setCollisionGroup(physics::Rigidbody::SpawnPoint);
             break;
         }
         case Bullet:
@@ -275,14 +275,14 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
             verts[1] = b2Vec2(0.5f*scale.x, -0.433f*scale.y);
             verts[2] = b2Vec2(0.0f*scale.x, 0.433f*scale.y);
             shape.Set(verts,3);
-            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this));
+            _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 0.01f/(scale.x*scale.y), 0.5f, 0.1f,this));
         }
         default:
         {
             shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
             _transform.getRotation());
-            _rigidbody.reset(new Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+            _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
+            _rigidbody->setCollisionGroup(physics::Rigidbody::Other);
         break;
         }
         }
@@ -299,7 +299,7 @@ void Entity::addRigidbody(Rigidbody::BodyType bodyType, b2World* world)
 ///
 /// \return null if it none exists, else the rigidbody.
 ////////////////////////////////////////////////////////////////////////////////
-Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
+physics::Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addPlayerComponent()
@@ -309,10 +309,10 @@ Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
 /// \author Peter Bartosch
 /// \date   2013-08-13
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::addPlayerComponent(Id id)
+void Entity::addPlayerComponent(const std::string& name)
 {
-    if(!_player)
-        _player.reset(new PlayerComponent(id, PlayerStats(), this));
+    if (!_player)
+        _player.reset(new PlayerComponent(name, PlayerStats(), this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,7 +379,7 @@ BulletComponent* Entity::getBulletComponent() const { return _bullet.get(); }
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::addAudioListener() { _listener.reset(new AudioListener(this)); }
+void Entity::addAudioListener() { _listener.reset(new audio::Listener(this)); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn AudioListener* Entity::getAudioListener() const
@@ -391,7 +391,7 @@ void Entity::addAudioListener() { _listener.reset(new AudioListener(this)); }
 ///
 /// \return null if it fails, else the audio listener.
 ////////////////////////////////////////////////////////////////////////////////
-AudioListener* Entity::getAudioListener() const { return _listener.get(); }
+audio::Listener* Entity::getAudioListener() const { return _listener.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addAudioSource()
@@ -401,7 +401,7 @@ AudioListener* Entity::getAudioListener() const { return _listener.get(); }
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void Entity::addAudioSource() { _src.reset(new AudioSource(this)); }
+void Entity::addAudioSource() { _source.reset(new audio::Source(this)); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn AudioSource* Entity::getAudioSource() const
@@ -413,7 +413,7 @@ void Entity::addAudioSource() { _src.reset(new AudioSource(this)); }
 ///
 /// \return null if it fails, else the audio source.
 ////////////////////////////////////////////////////////////////////////////////
-AudioSource* Entity::getAudioSource() const { return _src.get(); }
+audio::Source* Entity::getAudioSource() const { return _source.get(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addCamera()
@@ -490,16 +490,16 @@ void Entity::setType(EntityType et)
         switch(_type)
         {
         case Player:
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Player);
+            _rigidbody->setCollisionGroup(physics::Rigidbody::Player);
             break;
         case Terrain:
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Terrain);
+            _rigidbody->setCollisionGroup(physics::Rigidbody::Terrain);
             break;
         case SpawnPoint:
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::SpawnPoint);
+            _rigidbody->setCollisionGroup(physics::Rigidbody::SpawnPoint);
             break;
         default:
-            _rigidbody->setCollisionGroup(Rigidbody::CollisionGroup::Other);
+            _rigidbody->setCollisionGroup(physics::Rigidbody::Other);
             break;
         }
     }
@@ -581,72 +581,6 @@ void Entity::disable()
         _rigidbody->setActive(false);
 
     _enabled = false;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn void saveEntity(const Id& sandwich_id, const Id& map_id)
-///
-/// \brief  Saves an entity.
-///
-/// \author Ben Crist
-/// \date   2013-08-22
-///
-/// \param  sandwich_id Identifier for the sandwich.
-/// \param  map_id      Identifier for the map.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::saveEntity(const Id& sandwich_id, const Id& map_id)
-{
-    try
-    {
-      std::shared_ptr<sw::Sandwich> sandwich = sw::openWritable(sandwich_id);
-      if (!sandwich)
-         throw std::runtime_error("Could not open sandwich for writing!");
-
-      db::Db& db = sandwich->getDb();
-      db::Transaction transaction(db, db::Transaction::Immediate);
-
-      db::CachedStmt& stmt = sandwich->getStmtCache().hold(Id(PBJ_SCENE_ENTITY_SQLID_SAVE), PBJ_SCENE_ENTITY_SQL_SAVE);
-      stmt.bind(1, map_id.value());
-      stmt.bind(2, getSceneId());
-      stmt.bind(3, getType());
-      stmt.bind(4, getTransform().getRotation());
-      stmt.bind(5, getTransform().getPosition().x);
-      stmt.bind(6, getTransform().getPosition().y);
-      stmt.bind(7, getTransform().getScale().x);
-      stmt.bind(8, getTransform().getScale().y);
-      if (_material)
-      {
-          stmt.bind(9, _material->getId().sandwich.value());
-          stmt.bind(10, _material->getId().resource.value());
-      }
-      else
-      {
-          stmt.bind(9);
-          stmt.bind(10);
-      }
-      stmt.step();
-
-      transaction.commit();
-   }
-   catch (const db::Db::error& err)
-   {
-      PBJ_LOG(VWarning) << "Database error while saving scene!" << PBJ_LOG_NL
-                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
-                       << "     Map ID: " << map_id << PBJ_LOG_NL
-                       << "  Entity ID: " << getSceneId() << PBJ_LOG_NL
-                       << "  Exception: " << err.what() << PBJ_LOG_NL
-                       << "        SQL: " << err.sql() << PBJ_LOG_END;
-   }
-   catch (const std::runtime_error& err)
-   {
-      PBJ_LOG(VWarning) << "Exception while saving scene!" << PBJ_LOG_NL
-                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
-                       << "     Map ID: " << map_id << PBJ_LOG_NL
-                       << "  Entity ID: " << getSceneId() << PBJ_LOG_NL
-                       << "  Exception: " << err.what() << PBJ_LOG_END;
-   }
 }
 
 } // namespace pbj::scene

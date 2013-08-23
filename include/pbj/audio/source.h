@@ -3,8 +3,8 @@
 ///
 /// \brief  Declares the audio source class.
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef PBJ_AUDIO_AUDIO_SOURCE_H_
-#define PBJ_AUDIO_AUDIO_SOURCE_H_
+#ifndef PBJ_AUDIO_SOURCE_H_
+#define PBJ_AUDIO_SOURCE_H_
 
 #include <assert.h>
 #include <map>
@@ -14,12 +14,14 @@
 #include "pbj/_pbj.h"
 #include "pbj/_al.h"
 #include "pbj/_math.h"
-#include "pbj/audio/audio_buffer.h"
-
-using std::unordered_map;
-using std::string;
+#include "pbj/audio/buffer.h"
 
 namespace pbj {
+namespace scene {
+
+class Entity;
+
+} // namespace pbj::scene
 namespace audio {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -38,9 +40,9 @@ namespace audio {
 class Source
 {
 public:
-    typedef unordered_map<string, AudioBuffer*> AudioBuffers;
+    typedef 
 
-    Source(void*);
+    Source(scene::Entity* owner);
     ~Source();
 
     void setPitch(F32);
@@ -67,25 +69,24 @@ public:
     void updatePosition();
     void updateVelocity();
 
-    void addAudioBuffer(string, AudioBuffer*);
-    AudioBuffer* getAudioBuffer(string) const;
-    AudioBuffers* getAudioBuffers() const;
-    void play(string);
-    void playAt(string, F32);
+    void addBuffer(const std::string&, Buffer*);
+    Buffer* getBuffer(const std::string&);
+    void play(const std::string&);
+    void playAt(const std::string&, F32);
     void stop();
     void pause();
     void seek(F32);
 
-    string getPlaying() const;
+    const std::string& getPlaying() const;
 
-    Entity* getOwner() const;
+    scene::Entity* getOwner() const;
 private:
-    Entity* _owner;
+    scene::Entity* _owner;
     ALuint _srcId;
-    std::unique_ptr<AudioBuffers> _buffers;
-    string _curPlaying;
+    std::unordered_map<std::string, Buffer*> _buffers;
+    const std::string& _curPlaying;
 
-    Source(const Source&)
+    Source(const Source&);
     void operator=(const Source&);
 };
 

@@ -20,8 +20,8 @@
 #include "pbj/scene/ai_component.h"
 #include "pbj/scene/bullet_component.h"
 #include "pbj/scene/camera_component.h"
-#include "pbj/audio/audio_source.h"
-#include "pbj/audio/audio_listener.h"
+#include "pbj/audio/source.h"
+#include "pbj/audio/listener.h"
 #include "pbj/sw/sandwich.h"
 #include "be/id.h"
 
@@ -81,7 +81,7 @@ public:
     void addRigidbody(physics::Rigidbody::BodyType, b2World*);
     physics::Rigidbody* getRigidbody() const;
 
-    void addPlayerComponent(Id);
+    void addPlayerComponent(const std::string& name);
     PlayerComponent* getPlayerComponent() const;
 
     void addAIComponent();
@@ -112,8 +112,6 @@ public:
     bool isEnabled() const;
     void enable();
     void disable();
-
-    void saveEntity(const Id& sandwich_id, const Id& map_id);
 
 private:
     bool _drawable;

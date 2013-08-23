@@ -89,9 +89,10 @@ Scene::Scene()
       _nextBulletId(U32(-1))
 {
     _bulletMaterial = &_resources.getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullet")));
-    _bulletMaterial = &_resources.getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("spawnpoint")));
+    _spawnPointMaterial = &_resources.getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("spawnpoint")));
 
     _physWorld.SetAllowSleeping(true);
+    _physWorld.SetContactListener(this)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -265,14 +266,14 @@ void Scene::update(F32 dt)
         std::string deaths = std::to_string(p->getDeaths());
 
         std::ostringstream osh;
-        osh << p->getId().to_useful_string()
+        osh << p->getName()
             << std::setprecision(3)
             << " Health: "
             << ((p->getHealth() / (F32)p->getMaxHealth()) * 100);
         _player_health_lbl[player]->setText(osh.str());
 
         std::ostringstream oss;
-        oss << p->getId().to_useful_string()
+        oss << p->getName()
             << " Kills: " << kills
             << " Deaths: " << deaths;
         _player_kd_lbl[player]->setText(oss.str());
@@ -307,6 +308,21 @@ void Scene::physUpdate(F32 dt)
         entity->disable();
 
     _toDisable.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn b2World* Scene::getWorld()
+///
+/// \brief Gets the physics world.
+///
+/// \author Peter Bartosch
+/// \date 2013-08-08
+///
+/// \return A pointer to the b2World for Box2D simulations.
+////////////////////////////////////////////////////////////////////////////////
+b2World* Scene::getWorld()
+{
+    return &_physWorld;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -474,9 +490,9 @@ U32 Scene::makePlayer(const std::string& name, const vec2& position, bool local_
     e->getPlayerComponent()->setAmmoRemaining(30);
 
     e->addAudioSource();
-    e->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
-    e->getAudioSource()->addAudioBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
-    e->getAudioSource()->addAudioBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
+    e->getAudioSource()->addBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
+    e->getAudioSource()->addBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
+    e->getAudioSource()->addBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
     e->getAudioSource()->updatePosition();
     e->getAudioSource()->updateVelocity();
 
@@ -1111,12 +1127,12 @@ void Scene::saveScene(const Id& sandwich_id, const Id& map_id)
 
       for (auto i(_spawnPoints.begin()), end(_spawnPoints.end()); i != end; ++i)
       {
-          i->second->saveEntity(sandwich_id, map_id);
+          saveEntity(sandwich_id, map_id, i->second.get());
       }
 
       for (auto i(_terrain.begin()), end(_terrain.end()); i != end; ++i)
       {
-          i->second->saveEntity(sandwich_id, map_id);
+          saveEntity(sandwich_id, map_id, i->second.get());
       }
 
    }
@@ -1133,6 +1149,74 @@ void Scene::saveScene(const Id& sandwich_id, const Id& map_id)
       PBJ_LOG(VWarning) << "Exception while saving scene!" << PBJ_LOG_NL
                        << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
                        <<      "Map ID: " << map_id << PBJ_LOG_NL
+                       << "  Exception: " << err.what() << PBJ_LOG_END;
+   }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void saveEntity(const Id& sandwich_id, const Id& map_id)
+///
+/// \brief  Saves an entity.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  sandwich_id Identifier for the sandwich.
+/// \param  map_id      Identifier for the map.
+////////////////////////////////////////////////////////////////////////////////
+void saveEntity(const Id& sandwich_id, const Id& map_id, Entity* entity)
+{
+    if (!entity)
+        return;
+
+    try
+    {
+      std::shared_ptr<sw::Sandwich> sandwich = sw::openWritable(sandwich_id);
+      if (!sandwich)
+         throw std::runtime_error("Could not open sandwich for writing!");
+
+      db::Db& db = sandwich->getDb();
+      db::Transaction transaction(db, db::Transaction::Immediate);
+
+      db::CachedStmt& stmt = sandwich->getStmtCache().hold(Id(PBJSQLID_SAVE_ENTITY), PBJSQL_SAVE_ENTITY);
+      stmt.bind(1, map_id.value());
+      stmt.bind(2, entity->getSceneId());
+      stmt.bind(3, entity->getType());
+      stmt.bind(4, entity->getTransform().getRotation());
+      stmt.bind(5, entity->getTransform().getPosition().x);
+      stmt.bind(6, entity->getTransform().getPosition().y);
+      stmt.bind(7, entity->getTransform().getScale().x);
+      stmt.bind(8, entity->getTransform().getScale().y);
+      if (entity->getMaterial())
+      {
+          stmt.bind(9, entity->getMaterial()->getId().sandwich.value());
+          stmt.bind(10, entity->getMaterial()->getId().resource.value());
+      }
+      else
+      {
+          stmt.bind(9);
+          stmt.bind(10);
+      }
+      stmt.step();
+
+      transaction.commit();
+   }
+   catch (const db::Db::error& err)
+   {
+      PBJ_LOG(VWarning) << "Database error while saving scene!" << PBJ_LOG_NL
+                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
+                       << "     Map ID: " << map_id << PBJ_LOG_NL
+                       << "  Entity ID: " << entity->getSceneId() << PBJ_LOG_NL
+                       << "  Exception: " << err.what() << PBJ_LOG_NL
+                       << "        SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::runtime_error& err)
+   {
+      PBJ_LOG(VWarning) << "Exception while saving scene!" << PBJ_LOG_NL
+                       << "Sandwich ID: " << sandwich_id << PBJ_LOG_NL
+                       << "     Map ID: " << map_id << PBJ_LOG_NL
+                       << "  Entity ID: " << entity->getSceneId() << PBJ_LOG_NL
                        << "  Exception: " << err.what() << PBJ_LOG_END;
    }
 }

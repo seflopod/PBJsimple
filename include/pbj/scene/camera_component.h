@@ -20,7 +20,7 @@ public:
     CameraComponent(Entity*);
     ~CameraComponent();
 
-void setCoefficients(F32 a, F32 b, F32 c, F32 d);
+    void setCoefficients(F32 a, F32 b, F32 c, F32 d);
 
     void setProjection(const mat4& projection);
     void setTargetPosition(const vec2& position);

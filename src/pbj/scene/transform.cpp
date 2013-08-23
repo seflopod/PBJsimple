@@ -7,8 +7,6 @@
 #include "pbj/scene/transform.h"
 #include "pbj/scene/entity.h"
 
-using pbj::scene::Entity;
-
 namespace pbj {
 namespace scene {
 

@@ -3,10 +3,6 @@
 #include "pbj/scene/entity.h"
 #include "pbj/game.h"
 
-//I just hate seeing std:: all the damn time
-using std::sin;
-using std::cos;
-
 namespace pbj {
 namespace scene {
 
@@ -67,7 +63,6 @@ AIComponent::~AIComponent()
 ///          in three chance of jumping or using it's thrusters (each, so it
 ///          effectively has a one in three chance of only moving left or
 ///          right).
-////////////////////////////////////////////////////////////////////////////////
 void AIComponent::update(F32 dt)
 {
     F32 castDistance = 100.0f;
@@ -84,9 +79,11 @@ void AIComponent::update(F32 dt)
     //make the starting point on a circle off of the body, this way it isn't
     //counted in the raycast.
 
-    Game::instance()->currentScene().getWorld()->RayCast(this,
-                                    b2Vec2(r1*cos(angle),r1*sin(angle)), //start
-                                    b2Vec2(r2*cos(angle),r2*sin(angle))); //end
+    Game::instance()->getScene()->getWorld()->RayCast(
+        this,
+        b2Vec2(r1*cos(angle),r1*sin(angle)), //start
+        b2Vec2(r2*cos(angle),r2*sin(angle))); //end
+
     if(_seePlayer)
     {
         player->fire(_target.x, _target.y);

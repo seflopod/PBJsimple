@@ -1,19 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\src\pbj\audio\audio_listener.cpp
+/// \file   pbj\audio\audio_listener.cpp
 ///
 /// \brief  Implements the audio listener class.
 ////////////////////////////////////////////////////////////////////////////////
-#include "pbj/audio/audio_listener.h"
+#include "pbj/audio/listener.h"
 
 #include "pbj/scene/entity.h"
-
-using pbj::scene::Entity;
 
 namespace pbj {
 namespace audio {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn AudioListener::AudioListener(void* owner)
+/// \fn Listener::Listener(Entity* owner)
 ///
 /// \brief  Constructor.
 ///
@@ -22,11 +20,9 @@ namespace audio {
 ///
 /// \param [in] owner   If non-null, the owner.  This MUST be an Entity.
 ////////////////////////////////////////////////////////////////////////////////
-AudioListener::AudioListener(void* owner)
+Listener::Listener(scene::Entity* owner)
+    : _owner(owner)
 {
-    assert((Entity*)owner);
-    _owner = owner;
-
     //just assume that y=1 is up
     changeOrientation(vec3(0.0f, 1.0f, 0.0f));
 
@@ -44,7 +40,7 @@ AudioListener::AudioListener(void* owner)
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-AudioListener::~AudioListener()
+Listener::~Listener()
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,10 +51,10 @@ AudioListener::~AudioListener()
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void AudioListener::updatePosition()
+void Listener::updatePosition()
 {
     //since we're in 2d, we'll assume that z=0
-    vec2 xy = ((Entity*)_owner)->getTransform().getPosition();
+    vec2 xy = _owner->getTransform().getPosition();
     alListener3f(AL_POSITION, (ALfloat)xy.x, (ALfloat)xy.y, 0.0f);
 }
 
@@ -70,18 +66,17 @@ void AudioListener::updatePosition()
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-void AudioListener::updateVelocity()
+void Listener::updateVelocity()
 {
     //since we're in 2d, we'll assume that z=0
-    Entity* e = (Entity*)_owner;
     vec2 xy;
-    if(e->getType() == Entity::EntityType::Camera)
+    if(_owner->getType() == scene::Entity::Camera)
     {
-        xy = e->getCamera()->getTargetVelocity();
+        xy = _owner->getCamera()->getTargetVelocity();
     }
-    else if(e->getRigidbody())
+    else if(_owner->getRigidbody())
     {
-        xy = e->getRigidbody()->getVelocity();
+        xy = _owner->getRigidbody()->getVelocity();
     }
     else
     {
@@ -100,7 +95,7 @@ void AudioListener::updateVelocity()
 ///
 /// \param  up  The up vector.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioListener::changeOrientation(vec3 up)
+void Listener::changeOrientation(vec3 up)
 {
     //have to use intermediate array because AL_ORIENTATION only takes arrays
     _up = up;
@@ -118,7 +113,7 @@ void AudioListener::changeOrientation(vec3 up)
 ///
 /// \return The orientation.
 ////////////////////////////////////////////////////////////////////////////////
-vec3 AudioListener::getOrientation() const { return _up; }
+vec3 Listener::getOrientation() const { return _up; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void AudioListener::setGain(F32 gain)
@@ -130,7 +125,7 @@ vec3 AudioListener::getOrientation() const { return _up; }
 ///
 /// \param  gain    The gain.
 ////////////////////////////////////////////////////////////////////////////////
-void AudioListener::setGain(F32 gain)
+void Listener::setGain(F32 gain)
 {
     if(gain < 0)
         return;
@@ -149,7 +144,7 @@ void AudioListener::setGain(F32 gain)
 ///
 /// \return The gain.
 ////////////////////////////////////////////////////////////////////////////////
-F32 AudioListener::getGain() const { return _gain; }
+F32 Listener::getGain() const { return _gain; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void* AudioListener::getOwner() const
@@ -161,7 +156,7 @@ F32 AudioListener::getGain() const { return _gain; }
 ///
 /// \return null if it fails, else the owner.
 ////////////////////////////////////////////////////////////////////////////////
-void* AudioListener::getOwner() const { return _owner; }
+scene::Entity* Listener::getOwner() const { return _owner; }
 
 } //namespace audio
 } //namespace pbj

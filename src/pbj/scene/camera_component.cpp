@@ -67,7 +67,7 @@ CameraComponent::~CameraComponent()
 /// \param  c The first-order delta-velocity coefficient.
 /// \param  d The second-order delta-velocity coefficient.
 ////////////////////////////////////////////////////////////////////////////////
-void CameraComponent::setCoefficients(F32 a, F32 b, F32 d)
+void CameraComponent::setCoefficients(F32 a, F32 b, F32 c, F32 d)
 {
     _pos_k1 = a;
     _pos_k2 = b;

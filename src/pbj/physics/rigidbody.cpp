@@ -25,12 +25,16 @@ namespace physics {
 /// \param [in,out] physWorld If non-null, the physical world.
 /// \param [in,out] owner     If non-null, the owner.
 ////////////////////////////////////////////////////////////////////////////////
-Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
-                     const b2Shape& shape, b2World* physWorld, F32 density,
-                     F32 restitution, F32 friction, void* owner) :
-                    _owner(owner)
+Rigidbody::Rigidbody(Rigidbody::BodyType bodyType,
+                     vec2 position,
+                     const b2Shape& shape,
+                     b2World* physWorld,
+                     F32 density,
+                     F32 restitution,
+                     F32 friction,
+                     scene::Entity* owner)
+    : _owner(owner)
 {
-    assert((Entity*)owner);
 
     //Create the fixture (collider)
     b2FixtureDef fd;
@@ -43,7 +47,7 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
     b2BodyDef bd;
     bd.type = (b2BodyType)bodyType;
     bd.position.Set(position.x, position.y);
-    bd.angle = ((Entity*)owner)->getTransform().getRotation() * DEGTORAD;
+    bd.angle = _owner->getTransform().getRotation() * DEGTORAD;
     bd.angle = 0.0f;
     bd.linearDamping = 0.1f;
     bd.allowSleep = true;
@@ -55,8 +59,7 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType, vec2 position,
     _body = physWorld->CreateBody(&bd);
     _body->CreateFixture(&fd);
 
-    if(_owner)
-        _body->SetUserData(_owner);
+    _body->SetUserData(_owner);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -396,7 +399,7 @@ void Rigidbody::setActive(bool active)
 ///
 /// \return null if it fails, else the owner.
 ////////////////////////////////////////////////////////////////////////////////
-void* Rigidbody::getOwner()
+scene::Entity* Rigidbody::getOwner()
 {
     return _owner;
 }
@@ -453,17 +456,18 @@ void Rigidbody::applyForce(const vec2& force, Rigidbody::ForceMode mode)
 ////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::updateOwnerTransform()
 {
-    b2Vec2 bPos = _body->GetPosition();
-    F32 bRot = _body->GetAngle() * RADTODEG;
-    while(bRot >= 360.0f)
-        bRot -= 360.0f;
-    while(bRot <= -360.0f)
-        bRot += 360.0f;
-    if((Entity*)(_body->GetUserData()))
+    if (_owner)
     {
-        scene::Transform& xf = ((Entity*)(_body->GetUserData()))->getTransform();
-        xf.setPosition(vec2(bPos.x,bPos.y));
-        xf.setRotation(bRot);
+        b2Vec2 pos = _body->GetPosition();
+        F32 rot = _body->GetAngle() * RADTODEG;
+        while (rot >= 360.0f)
+            rot -= 360.0f;
+        while (rot <= -360.0f)
+            rot += 360.0f;
+
+        scene::Transform& xf = _owner->getTransform();
+        xf.setPosition(vec2(pos.x,pos.y));
+        xf.setRotation(rot);
     }
 }
 

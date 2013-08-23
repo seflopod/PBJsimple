@@ -12,6 +12,11 @@
 #include "pbj/_pbj.h"
 
 namespace pbj {
+namespace scene {
+
+class Entity;
+
+} // namespace pbj::scene
 namespace physics {
 ////////////////////////////////////////////////////////////////////////////
 /// \class  Rigidbody
@@ -62,7 +67,7 @@ public:
         Dynamic = 0x02
     };
 
-    Rigidbody(Rigidbody::BodyType, vec2, const b2Shape&, b2World*, F32, F32, F32, void*);
+    Rigidbody(Rigidbody::BodyType, vec2, const b2Shape&, b2World*, F32, F32, F32, scene::Entity*);
     virtual ~Rigidbody();
 
     b2Fixture* getFixtureList();
@@ -98,13 +103,13 @@ public:
     CollisionGroup getCollisionGroup();
     void setCollisionGroup(CollisionGroup); ///< negative for no collision with group members
 
-    void* getOwner();
+    scene::Entity* getOwner();
     void updateOwnerTransform();
 
     void destroy();
 private:
     b2Body* _body;
-    void* _owner;
+    scene::Entity* _owner;
 };
 
 } //namespace physics

@@ -1,24 +1,24 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file   pbj/audio/audio_buffer.cpp
+/// \file   pbj/audio/buffer.cpp
 /// \author Josh Douglas
 ///
-/// \brief  pbj::audio::AudioBuffer class source.
+/// \brief  pbj::audio::Buffer class source.
 
-#include "pbj/audio/audio_buffer.h"
+#include "pbj/audio/buffer.h"
 
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to load a audio buffer from a sandwich.
 /// \param  1 The id of the texture.
-#define PBJ_AUDIO_AUDIO_BUFFER_SQL_LOAD "SELECT data " \
+#define PBJSQL_LOAD "SELECT data " \
             "FROM sw_sounds WHERE id = ?"
 
 #ifdef BE_ID_NAMES_ENABLED
-#define PBJ_AUDIO_AUDIO_BUFFER_SQLID_LOAD PBJ_AUDIO_AUDIO_BUFFER_SQL_LOAD
+#define PBJSQLID_LOAD PBJSQL_LOAD
 #else
 // TODO: precalculate ids.
-#define PBJ_AUDIO_AUDIO_BUFFER_SQLID_LOAD PBJ_AUDIO_AUDIO_BUFFER_SQL_LOAD
+#define PBJSQLID_LOAD PBJSQL_LOAD
 #endif
 
 namespace pbj {
@@ -35,7 +35,7 @@ namespace audio {
 /// \param  data    The data.
 /// \param  size    The size.
 ////////////////////////////////////////////////////////////////////////////////
-AudioBuffer::AudioBuffer(const ALubyte* data, size_t size)
+Buffer::Buffer(const ALubyte* data, size_t size)
 {
     buffer_id_ = alutCreateBufferFromFileImage(data, size);
 }
@@ -48,7 +48,7 @@ AudioBuffer::AudioBuffer(const ALubyte* data, size_t size)
 /// \author Josh Douglas
 /// \date   2013-08-22
 ////////////////////////////////////////////////////////////////////////////////
-AudioBuffer::~AudioBuffer()
+Buffer::~Buffer()
 {
 }
 
@@ -62,7 +62,7 @@ AudioBuffer::~AudioBuffer()
 ///
 /// \return The buffer identifier.
 ////////////////////////////////////////////////////////////////////////////////
-ALuint AudioBuffer::getBufferID()
+ALuint Buffer::getBufferID()
 {
 	return buffer_id_;
 }
@@ -84,14 +84,14 @@ ALuint AudioBuffer::getBufferID()
 ///
 /// \return The sound.
 ////////////////////////////////////////////////////////////////////////////////
-std::unique_ptr<AudioBuffer> loadSound(sw::Sandwich& sandwich, const Id& id)
+std::unique_ptr<Buffer> loadSound(sw::Sandwich& sandwich, const Id& id)
 {
-    std::unique_ptr<AudioBuffer> result;
+    std::unique_ptr<Buffer> result;
    
     try
     {
         db::StmtCache& cache = sandwich.getStmtCache();
-        db::CachedStmt stmt = cache.hold(Id(PBJ_AUDIO_AUDIO_BUFFER_SQLID_LOAD), PBJ_AUDIO_AUDIO_BUFFER_SQL_LOAD);
+        db::CachedStmt stmt = cache.hold(Id(PBJSQLID_LOAD), PBJSQL_LOAD);
 
         stmt.bind(1, id.value());
         if (stmt.step())
@@ -99,7 +99,7 @@ std::unique_ptr<AudioBuffer> loadSound(sw::Sandwich& sandwich, const Id& id)
             const void* data;
             size_t data_length = stmt.getBlob(0, data);
 
-            result.reset(new AudioBuffer(static_cast<const ALubyte*>(data), data_length));
+            result.reset(new Buffer(static_cast<const ALubyte*>(data), data_length));
         }
         else
             throw std::runtime_error("Sound not found!");
