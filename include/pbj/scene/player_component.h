@@ -92,13 +92,13 @@ struct PlayerScore
 class PlayerComponent
 {
 public:
-    PlayerComponent(Id, PlayerStats, void*);
+    PlayerComponent(const std::string& name, PlayerStats stats, Entity* owner);
     ~PlayerComponent();
 
     PlayerStats getStats() const;
     void resetStats();
 
-    Id getId() const;
+    const std::string& getName() const;
 
     I32 getHealth() const;
     I32 getMaxHealth() const;
@@ -167,7 +167,7 @@ public:
     F64 getTimeOfDeath();
     void setTimeOfDeath(F64);
 private:
-    Id _id;
+    std::string _name;
     Entity* _owner;
     PlayerStats _stats;
     PlayerScore _score;

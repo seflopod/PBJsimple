@@ -11,6 +11,8 @@
 namespace pbj {
 namespace scene {
 
+class Entity;
+
 ////////////////////////////////////////////////////////////////////////////
 /// \class  BulletComponent
 ///
@@ -24,17 +26,17 @@ namespace scene {
 class BulletComponent
 {
 public:
-    BulletComponent(void*);
+    BulletComponent(Entity*);
     ~BulletComponent();
 
-    void setShooter(void*);
-    void* getShooter();
+    void setShooter(Entity*);
+    Entity* getShooter();
 
-    void* getOwner() const;
+    Entity* getOwner() const;
 
 private:
-    void* _owner;
-    void* _shooter;
+    Entity* _owner;
+    Entity* _shooter;
 };
 
 } //namespace scene

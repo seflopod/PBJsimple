@@ -16,7 +16,7 @@
 #pragma region SQL queries
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to load a scene's name from a sandwich.
-#define PBJSQL_LOAD \
+#define PBJSQL_LOAD_SCENE \
     "SELECT name FROM sw_maps WHERE id = ?"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to save a scene's name to a sandwich.
-#define PBJSQL_SAVE \
+#define PBJSQL_SAVE_SCENE \
     "INSERT OR REPLACE INTO sw_maps (id, name) VALUES (?,?)"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,17 +34,36 @@
 #define PBJSQL_CLEAR_ENTITIES \
     "DELETE FROM sw_map_entities WHERE map_id = ?"
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load an entity from a sandwich.
+#define PBJSQL_LOAD_ENTITY \
+    "SELECT entity_type, rotation, " \
+    "pos_x, pos_y, scale_x, scale_y, material_sw_id, material_id " \
+    "FROM sw_map_entities WHERE map_id = ? AND entity_id = ?"
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to save an entity to a sandwich.
+#define PBJSQL_SAVE_ENTITY \
+    "INSERT INTO sw_map_entities " \
+    "(map_id, entity_id, entity_type, rotation, " \
+    "pos_x, pos_y, scale_x, scale_y, material_sw_id, material_id) " \
+    "VALUES (?,?,?,?,?,?,?,?,?,?)"
+
 #ifdef BE_ID_NAMES_ENABLED
-#define PBJSQLID_GET_NAME        PBJSQL_GET_NAME
+#define PBJSQLID_LOAD_SCENE      PBJSQL_LOAD_SCENE
 #define PBJSQLID_GET_ENTITIES    PBJSQL_GET_ENTITIES
-#define PBJSQLID_SET_NAME        PBJSQL_SET_NAME
+#define PBJSQLID_SAVE_SCENE      PBJSQL_SAVE_SCENE
 #define PBJSQLID_CLEAR_ENTITIES  PBJSQL_CLEAR_ENTITIES
+#define PBJSQLID_LOAD_ENTITY     PBJSQL_LOAD_ENTITY
+#define PBJSQLID_SAVE_ENTITY     PBJSQL_SAVE_ENTITY
 #else
 // TODO: precalculate ids.
-#define PBJSQLID_GET_NAME        PBJSQL_GET_NAME
+#define PBJSQLID_LOAD_SCENE      PBJSQL_LOAD_SCENE
 #define PBJSQLID_GET_ENTITIES    PBJSQL_GET_ENTITIES
-#define PBJSQLID_SET_NAME        PBJSQL_SET_NAME
+#define PBJSQLID_SAVE_SCENE      PBJSQL_SAVE_SCENE
 #define PBJSQLID_CLEAR_ENTITIES  PBJSQL_CLEAR_ENTITIES
+#define PBJSQLID_LOAD_ENTITY     PBJSQL_LOAD_ENTITY
+#define PBJSQLID_SAVE_ENTITY     PBJSQL_SAVE_ENTITY
 #endif
 
 #pragma endregion
@@ -69,6 +88,9 @@ Scene::Scene()
       _localPlayerId(U32(-1)),
       _nextBulletId(U32(-1))
 {
+    _bulletMaterial = &_resources.getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullet")));
+    _bulletMaterial = &_resources.getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("spawnpoint")));
+
     _physWorld.SetAllowSleeping(true);
 }
 
@@ -118,7 +140,6 @@ void Scene::makeHud()
         top += spacing;
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Scene::draw()
@@ -288,8 +309,6 @@ void Scene::physUpdate(F32 dt)
     _toDisable.clear();
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Scene::setName(const std::string& name)
 ///
@@ -327,7 +346,7 @@ const std::string& Scene::getName() const
 /// \date 2013-08-08
 ///
 /// \param [in] e A unique pointer to the Entity to add.
-U32 Scene::addEntity(unique_ptr<Entity>&& e)
+U32 Scene::addEntity(std::unique_ptr<Entity>&& e)
 {
     U32 id = _nextEntityId;
     e->setSceneId(id);
@@ -382,21 +401,147 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn Entity* Scene::getLocalPlayer()
-///
-/// \brief  Gets local player.
-///
-/// \author Peter Bartosch
-/// \date   2013-08-22
-///
-/// \return A pointer to the local player Entity.
-////////////////////////////////////////////////////////////////////////////////
-Entity* Scene::getLocalPlayer()
+void Scene::initBulletRing()
 {
-     if (_localPlayerId == U32(-1))
-          return nullptr;
+    //make all the bullets we'll ever need
+    for (size_t i = 0; i < _maxBullets; ++i)
+    {
+        U32 id = _bulletRing[i] = makeBullet();
 
-     return _players[_localPlayerId].get();
+        Entity* e = getBullet(id);
+
+        e->getRigidbody()->setBullet(false);
+        e->disable();
+    }
+
+    _curRingIndex = 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn    U32 Scene::makeBullet()
+///
+/// \brief    Makes a bullet.
+///
+/// \author    Peter Bartosch
+/// \date    2013-08-13
+///
+/// \return    A pointer to an Entity that has all the characteristics of a
+///            bullet.
+U32 Scene::makeBullet()
+{
+    Entity* e = new Entity();
+    e->setType(Entity::EntityType::Bullet);
+    addEntity(std::unique_ptr<Entity>(e));
+
+    e->getTransform().setScale(0.5f, 0.5f);
+    e->addBulletComponent();
+    e->setMaterial(_bulletMaterial);
+    e->setShape(new gfx::ShapeTriangle());
+    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, &_physWorld);
+    e->getRigidbody()->setBullet(true);
+    e->getRigidbody()->setActive(false);
+
+    return e->getSceneId();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn    U32 Scene::makePlayer(const std::string& name, const vec2& position, bool local_player)
+///
+/// \brief    Makes the player.
+///
+/// \author    Peter Bartosch
+/// \date    2013-08-13
+///
+/// \return    A pointer to an Entity that has all the characteristics of a
+///            player.
+U32 Scene::makePlayer(const std::string& name, const vec2& position, bool local_player)
+{
+    Entity* e = new Entity();
+    e->setType(Entity::Player);
+    addEntity(std::unique_ptr<Entity>(e));
+    U32 id = e->getSceneId();
+
+    e->getTransform().setPosition(position);
+    e->getTransform().setScale(vec2(1.0f, 2.0f));
+    e->setShape(new gfx::ShapeSquare());
+    e->enableDraw();
+    
+    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, &_physWorld);
+    e->getRigidbody()->setFixedRotation(true);
+
+    e->addPlayerComponent(name);
+    e->getPlayerComponent()->setMaxAmmo(30);
+    e->getPlayerComponent()->setAmmoRemaining(30);
+
+    e->addAudioSource();
+    e->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
+    e->getAudioSource()->addAudioBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
+    e->getAudioSource()->addAudioBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
+    e->getAudioSource()->updatePosition();
+    e->getAudioSource()->updateVelocity();
+
+    if (local_player)
+        _localPlayerId = id;
+    else
+        e->addAIComponent();
+
+    return id;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+U32 Scene::makeTerrain(const vec2& position, const vec2& scale, F32 rotation, const gfx::Material* material)
+{
+    Entity* e = new Entity();
+    e->setType(Entity::Terrain);
+    addEntity(std::unique_ptr<Entity>(e));
+    U32 id = e->getSceneId();
+
+    e->getTransform().setPosition(position);
+    e->getTransform().setScale(scale);
+    e->getTransform().setRotation(rotation);
+    e->setShape(new gfx::ShapeSquare());
+    e->setMaterial(material);
+
+    return id;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+U32 Scene::makeSpawnPoint(const vec2& position)
+{
+    Entity* e = new Entity();
+    e->setType(Entity::SpawnPoint);
+    addEntity(std::unique_ptr<Entity>(e));
+    U32 id = e->getSceneId();
+
+    e->getTransform().setPosition(position);
+    e->getTransform().setScale(vec2(1, 2));
+    e->getTransform().setRotation(0);
+    e->setShape(new gfx::ShapeSquare());
+    e->setMaterial(_spawnPointMaterial);
+#ifdef PBJ_EDITOR
+    // When in the editor, draw spawnpoints no matter what.
+    e->enableDraw();
+#endif
+
+    return id;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+U32 Scene::makeCamera()
+{
+    Entity* e = new Entity();
+    e->setType(Entity::Camera);
+    addEntity(std::unique_ptr<Entity>(e));
+    U32 id = e->getSceneId();
+
+    e->getTransform().setPosition(vec2());
+    e->getTransform().setScale(vec2(1, 1));
+    e->getTransform().setRotation(0);
+
+    e->addAudioListener();
+    e->addCamera();
+
+    return id;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -410,7 +555,6 @@ Entity* Scene::getLocalPlayer()
 /// \param  id  The scene id of the bullet to get.
 ///
 /// \return null if it fails, else the bullet.
-////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getBullet(U32 id)
 {
     EntityMap::iterator it = _bullets.find(id);
@@ -431,7 +575,6 @@ Entity* Scene::getBullet(U32 id)
 /// \param  id  The scene id of the player to get.
 ///
 /// \return null if it fails, else the player.
-////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getPlayer(U32 id)
 {
     EntityMap::iterator it = _players.find(id);
@@ -439,6 +582,23 @@ Entity* Scene::getPlayer(U32 id)
         return _players[id].get();
 
     return nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getLocalPlayer()
+///
+/// \brief  Gets local player.
+///
+/// \author Peter Bartosch
+/// \date   2013-08-22
+///
+/// \return A pointer to the local player Entity.
+Entity* Scene::getLocalPlayer()
+{
+     if (_localPlayerId == U32(-1))
+          return nullptr;
+
+     return _players[_localPlayerId].get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -452,7 +612,6 @@ Entity* Scene::getPlayer(U32 id)
 /// \param  id  The scene id of the terrain to get.
 ///
 /// \return null if it fails, else the terrain.
-////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getTerrain(U32 id)
 {
     EntityMap::iterator it = _terrain.find(id);
@@ -473,7 +632,6 @@ Entity* Scene::getTerrain(U32 id)
 /// \param  id  The scene id of the spawn point to get.
 ///
 /// \return null if it fails, else the spawn point.
-////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getSpawnPoint(U32 id)
 {
     EntityMap::iterator it = _spawnPoints.find(id);
@@ -489,31 +647,45 @@ Entity* Scene::getSpawnPoint(U32 id)
 /// \brief  Gets a random spawn point.
 ///
 /// \author Peter Bartosch
+/// \author Ben Crist
 /// \date   2013-08-22
 ///
 /// \return A pointer to the Entity of a random element in the EntityMap for
 ///         spawn points.
-////////////////////////////////////////////////////////////////////////////////
 Entity* Scene::getRandomSpawnPoint()
 {
-    std::uniform_int_distribution<I32> dist(0, _spawnPoints.size()-1);
-    I32 stop = dist(_rnd);
-    I32 count = 0;
-    EntityMap::iterator it = _spawnPoints.begin();
-
-    while(it!=_spawnPoints.end() && count != stop)
+    std::uniform_int_distribution<I32> dist(1, _spawnPoints.size());
+    I32 count = dist(_prng);
+    for (auto i(_spawnPoints.begin()), end(_spawnPoints.end()); i != end; ++i)
     {
-        it++;
-        count++;
+        if (--count == 0)
+        {
+            return i->second.get();
+        }
     }
 
-    if(it == _spawnPoints.end())
-        return nullptr;
-
-    return it->second.get();
+    return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn Entity* Scene::getCamera(U32 id)
+///
+/// \brief  Gets a camera.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  id  The scene id of the camera to get.
+///
+/// \return null if it fails, else the camera.
+Entity* Scene::getCamera(U32 id)
+{
+    EntityMap::iterator it = _cameras.find(id);
+    if(it != _cameras.end())
+        return _cameras[id].get();
 
+    return nullptr;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Scene::setCurrentCamera(U32 id)
@@ -524,110 +696,28 @@ Entity* Scene::getRandomSpawnPoint()
 /// \date   2013-08-22
 ///
 /// \param  id  The scene id of the camera to make current.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::setCurrentCamera(U32 id)
 {
-    if(_cameras.find(id) != _cameras.end())
-        _curCamera = _cameras[id]->getCamera();
+    Entity* e = getCamera(id);
+    _curCameraId = e ? e->getSceneId() : U32(-1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn CameraComponent* Scene::getCurrentCamera() const
+/// \fn Entity* Scene::getCurrentCamera() const
 ///
 /// \brief  Gets current camera.
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ///
-/// \return A pointer to the CameraComponent that is used as the current camera.
-////////////////////////////////////////////////////////////////////////////////
-CameraComponent* Scene::getCurrentCamera() const { return _curCamera; }
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn b2World* Scene::getWorld() const
-///
-/// \brief Gets the physics world.
-///
-/// \author Peter Bartosch
-/// \date 2013-08-08
-///
-/// \return A pointer to the b2World for Box2D simulations.
-////////////////////////////////////////////////////////////////////////////////
-b2World* Scene::getWorld() const { return _physWorld.get(); }
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    Entity* Game::makePlayer()
-///
-/// \brief    Makes the player.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \return    A pointer to an Entity that has all the characteristics of a
-///            player.
-////////////////////////////////////////////////////////////////////////////////
-Entity* Scene::makePlayer(const std::string& name, const vec2& position, bool local_player)
+/// \return A pointer to the camera entity that is used as the current camera.
+Entity* Scene::getCurrentCamera()
 {
-    Entity* e = new Entity();
-    e->setType(Entity::Player);
-    e->getTransform().setPosition(vec2(x, y));
-    e->getTransform().setScale(vec2(1.0f, 2.0f));
-
-    e->setShape(new ShapeSquare());
-    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, &_physWorld);
-    e->getRigidbody()->setFixedRotation(true);
-
-    e->addPlayerComponent(name);
-    e->getPlayerComponent()->setMaxAmmo(1000);
-    e->getPlayerComponent()->setAmmoRemaining(1000);
-
-    e->addAudioSource();
-    e->getAudioSource()->addAudioBuffer("fire", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("wpnfire"))));
-    e->getAudioSource()->addAudioBuffer("dmg", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("dmg"))));
-    e->getAudioSource()->addAudioBuffer("death", _engine.getResourceManager().getSound(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("death"))));
-    e->getAudioSource()->updatePosition();
-    e->getAudioSource()->updateVelocity();
-
-    if (local_player)
-        _localPlayerId = ;
-    else
-        p->addAIComponent();
-
-    p->enableDraw();
-    return p;
+    return getCamera(_curCameraId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    Entity* Game::makeBullet()
-///
-/// \brief    Makes a bullet.
-///
-/// \author    Peter Bartosch
-/// \date    2013-08-13
-///
-/// \return    A pointer to an Entity that has all the characteristics of a
-///            bullet.
-////////////////////////////////////////////////////////////////////////////////
-Entity* Game::makeBullet()
-{
-    Entity* e = new Entity();
-    e->setType(Entity::EntityType::Bullet);
-    e->getTransform().setScale(0.5f, 0.5f);
-    e->addBulletComponent();
-    e->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("bullet"))));
-    e->setShape(new ShapeTriangle());
-    e->addRigidbody(physics::Rigidbody::BodyType::Dynamic, _scene->getWorld());
-    e->getRigidbody()->setBullet(true);
-    e->getRigidbody()->setActive(false);
-    return e;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::spawnBullet(const vec2& position, const vec2& velocity)
+/// \fn    void Scene::spawnBullet(const vec2& position, const vec2& velocity)
 ///
 /// \brief    Spawn bullet.
 ///
@@ -636,54 +726,61 @@ Entity* Game::makeBullet()
 ///
 /// \param    position    The position of the bullet.
 /// \param    velocity    The velocity for the bullet to have.
-////////////////////////////////////////////////////////////////////////////////
-void Game::spawnBullet(const vec2& position, const vec2& velocity, void* shooter)
+void Scene::spawnBullet(const vec2& position, const vec2& velocity, Entity* shooter)
 {
-    Entity* bullet = _scene->getBullet(_bulletRing[_curRingIdx++]);
+    Entity* bullet = getBullet(_bulletRing[_curRingIndex++]);
+    if(_curRingIndex >= _maxBullets)
+        _curRingIndex -= _maxBullets;
+
     bullet->getTransform().setPosition(position);
     bullet->getTransform().updateOwnerRigidbody();
     bullet->getRigidbody()->setVelocity(velocity);
     bullet->getRigidbody()->setAngularVelocity(6.28318f);
     bullet->getBulletComponent()->setShooter(shooter);
     bullet->enable();
-    if(_curRingIdx >= 100)
-        _curRingIdx -= 100;
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn void Game::disableBullet(Entity* e)
+/// \fn void Scene::disableBullet(U32 id)
 ///
 /// \brief  Disables a bullet.
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
 ///
-/// \param [in] e   Sends a the id of the passed Entity to the Scene so that it
-///                 can be disabled at the end of the physics loop.
-////////////////////////////////////////////////////////////////////////////////
-void Game::disableBullet(Entity* e)
+/// \param  id    The ID of the bullet to disable at the end of the physics
+///               loop.
+void Scene::disableBullet(U32 id)
 {
-    _scene->addToDisable(e->getSceneId());
+    Entity* e = getBullet(id);
+
+    if (e)
+        _toDisable.push_back(e);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::respawnPlayer(Entity* e)
+/// \fn    void Scene::respawnPlayer(U32 id)
 ///
 /// \brief    Respawn player.
 ///
 /// \author    Peter Bartosch
 /// \date    2013-08-14
 ///
-/// \param [in,out]    e    If non-null, the Entity* to process.
-////////////////////////////////////////////////////////////////////////////////
-void Game::respawnPlayer(Entity* e)
+/// \param  id  The ID of the player to respawn.
+void Scene::respawnPlayer(U32 id)
 {
-    _scene->addToDisable(e->getSceneId());
-    _toRespawn.push(e);
+    Entity* e = getPlayer(id);
+    
+    if (e)
+    {
+        _toDisable.push_back(e);
+        _toRespawn.push(e);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::BeginContact(b2Contact* contact)
+/// \fn    void Scene::BeginContact(b2Contact* contact)
 ///
 /// \brief    Handles the beginning of contact between two rigidbodies.
 ///
@@ -691,8 +788,7 @@ void Game::respawnPlayer(Entity* e)
 /// \date    2013-08-13
 ///
 /// \param [in,out]    contact    The contact data.
-////////////////////////////////////////////////////////////////////////////////
-void Game::BeginContact(b2Contact* contact)
+void Scene::BeginContact(b2Contact* contact)
 {
     //handle collisions for the entire game here
 
@@ -703,14 +799,14 @@ void Game::BeginContact(b2Contact* contact)
     {   //if either was not an Entity we have some issues and should do any more
         //processing
         PBJ_LOG(pbj::VError) << "Collision between untracked rigidbodies. "
-                                << PBJ_LOG_END;
+                             << PBJ_LOG_END;
         return;
     }
 
     //To cut down on the number of if-checks, make sure the player Entity is
     //in a (assuming one of the objects is a player).
     if(b->getType() == Entity::EntityType::Player &&
-        a->getType() != Entity::EntityType::Player)
+       a->getType() != Entity::EntityType::Player)
         std::swap(a, b);
 
     //if one of the objects is a player, we have some stuff to do.  Let's do it.
@@ -724,18 +820,24 @@ void Game::BeginContact(b2Contact* contact)
         {
         case Entity::EntityType::Terrain:
         {   //A player hitting terrain usually means that it can jump again
-            p->enableJump();
+
+            // Only let the player jump again if they hit the terrain from the top(ish)
+            b2WorldManifold worldManifold;
+            contact->GetWorldManifold(&worldManifold);
+            if (worldManifold.normal.y >= 0)
+                p->enableJump();
+
             break;
         }
+
         case Entity::EntityType::Bullet:
         {   //First we need to do damage calculations and then we need to check
             //for death.
-            scene::PlayerComponent* q = ((Entity*)(b->getBulletComponent()->getShooter()))->getPlayerComponent();
+            scene::PlayerComponent* q = b->getBulletComponent()->getShooter()->getPlayerComponent();
 
             //being a little too fancy with damage.  Base damage taken on
             //velocity of bullet.
-            I32 dmg = 100 + (I32)std::floor(
-                        glm::length2(b->getRigidbody()->getVelocity()) / 15.0f);
+            I32 dmg = 50 + I32(glm::length2(b->getRigidbody()->getVelocity()) / 12.0f);
 
             //scoring stuff.  Do damage to the hit party, make sure the shooter
             //knows that its bullet did the damage.
@@ -748,27 +850,27 @@ void Game::BeginContact(b2Contact* contact)
                 p->setDeaths(p->getDeaths()+1);
                 p->setTimeOfDeath(glfwGetTime());
 
-                if(p->getId() == q->getId())
+                if(p == q)
                 {   //self-kill
-                    std::cerr<<p->getId().to_useful_string()<<" suicided ("
-                                << p->getDeaths() << ")" << std::endl << std::endl;
+                    std::cerr << p->getName() << " suicided ("
+                              << p->getDeaths() << ")" << std::endl << std::endl;
                 }
                 else
                 {
                     //make sure the shooter gets credit for the kill
                     q->setKills(q->getKills()+1);
-                    std::cerr << p->getId().to_useful_string() << " died ("
-                                << p->getDeaths() << ")" << std::endl << q->getId().to_useful_string()
+                    std::cerr << p->getName() << " died ("
+                                << p->getDeaths() << ")" << std::endl << q->getName()
                                 << " got the kill (" << q->getKills() << ")"
                                 << std::endl << std::endl;
                 }
                 _toRespawn.push(a); //queue for respawning players
-                _scene.addToDisable(a->getSceneId()); //queue to remove an Entity from game.
+                _toDisable.push_back(a); //queue to remove an Entity from game.
             }
 
             //since the other object was a bullet, disable it so that disappears
             //after hitting someone
-            _scene.addToDisable(b->getSceneId());
+            _toDisable.push_back(b);
             break;
         }
         default:
@@ -779,7 +881,7 @@ void Game::BeginContact(b2Contact* contact)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::EndContact(b2Contact* contact)
+/// \fn    void Scene::EndContact(b2Contact* contact)
 ///
 /// \brief    Preforms actions necessary after contact has ended.
 ///
@@ -788,13 +890,12 @@ void Game::BeginContact(b2Contact* contact)
 ///
 /// \param [in,out]    contact    If non-null, the contact.
 ////////////////////////////////////////////////////////////////////////////////
-void Game::EndContact(b2Contact* contact)
+void Scene::EndContact(b2Contact* contact)
 {
-    //std::cerr<<"EndContact"<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
+/// \fn    void Scene::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 ///
 /// \brief    Handles the pre solve event for the physics world.
 ///
@@ -804,14 +905,12 @@ void Game::EndContact(b2Contact* contact)
 /// \param [in,out]    contact    If non-null, the contact.
 /// \param    manifold            The manifold.
 ////////////////////////////////////////////////////////////////////////////////
-void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
+void Scene::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 {
-    //handle presolve
-    //std::cerr<<"PreSolve"<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \fn    void Game::PostSolve(b2Contact* contact,
+/// \fn    void Scene::PostSolve(b2Contact* contact,
 ///     const b2ContactImpulse* impulse)
 ///
 /// \brief    Handles the post solve event for the physics world.
@@ -822,16 +921,9 @@ void Game::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 /// \param [in,out]    contact    If non-null, the contact.
 /// \param    impulse                The impulse.
 ////////////////////////////////////////////////////////////////////////////////
-void Game::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+void Scene::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
-    //handle post solve
-    //std::cerr<<"PostSolve"<<std::endl;
 }
-
-
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich,
@@ -856,7 +948,7 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
           std::string map_name;
 
           db::StmtCache& cache = sandwich.getStmtCache();
-          db::CachedStmt stmt = cache.hold(Id(PBJ_SCENE_SCENE_SQLID_GET_NAME), PBJ_SCENE_SCENE_SQL_GET_NAME);
+          db::CachedStmt stmt = cache.hold(Id(PBJSQLID_LOAD_SCENE), PBJSQL_LOAD_SCENE);
 
           stmt.bind(1, map_id.value());
           if (stmt.step())
@@ -865,7 +957,7 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
           }
 
           s.reset(new Scene());
-          db::CachedStmt s2 = cache.hold(Id(PBJ_SCENE_SCENE_SQLID_GET_ENTITIES), PBJ_SCENE_SCENE_SQL_GET_ENTITIES);
+          db::CachedStmt s2 = cache.hold(Id(PBJSQLID_GET_ENTITIES), PBJSQL_GET_ENTITIES);
 
           s2.bind(1, map_id.value());
           while (s2.step())
@@ -895,6 +987,95 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
     return s;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id)
+///
+/// \brief  Loads an entity and adds it to the provided scene.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param [in,out] sandwich    The sandwich.
+/// \param  map_id              Identifier for the map.
+/// \param  entity_id           Identifier for the entity.
+////////////////////////////////////////////////////////////////////////////////
+void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene)
+{
+    try
+    {
+        db::StmtCache& cache = sandwich.getStmtCache();
+        db::CachedStmt stmt = cache.hold(Id(PBJSQLID_LOAD_ENTITY), PBJSQL_LOAD_ENTITY);
+
+        stmt.bind(1, map_id.value());
+        stmt.bind(2, entity_id.value());
+        if (stmt.step())
+        {
+            Entity::EntityType type = static_cast<Entity::EntityType>(stmt.getUInt(0));
+            F32 rotation = float(stmt.getDouble(1));
+            vec2 position = vec2(float(stmt.getDouble(2)), float(stmt.getDouble(3)));
+            vec2 scale = vec2(float(stmt.getDouble(4)), float(stmt.getDouble(5)));
+
+            const gfx::Material* material = nullptr;
+            if (stmt.getType(7) != SQLITE_NULL)
+            {
+                sw::ResourceId material_id;
+                material_id.sandwich = (stmt.getType(6) == SQLITE_NULL)
+                                        ? sandwich.getId()
+                                        : Id(stmt.getUInt64(6));
+                material_id.resource = Id(stmt.getUInt64(7));
+                material = &scene._resources.getMaterial(material_id);
+            }
+
+            switch (type)
+            {
+            case Entity::Terrain:
+                scene.makeTerrain(position, scale, rotation, material);
+                break;
+
+            case Entity::SpawnPoint:
+                scene.makeSpawnPoint(position);
+                break;
+
+            case Entity::Camera:
+                // TODO: camera loading
+                // U32 makeCamera();
+                break;
+
+            case Entity::Player:
+                // TODO: player loading
+                // U32 makePlayer(const std::string& name, const vec2& position, bool local_player);
+                break;
+
+            case Entity::Bullet:
+                // TODO: bullet loading
+                // U32 makeBullet();
+                break;
+
+            default:
+                break;
+            }
+        }
+        else
+            throw std::runtime_error("Entity not found!");
+    }
+    catch (const db::Db::error& err)
+    {
+        PBJ_LOG(VWarning) << "Database error while loading entity!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Entity ID: " << entity_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_NL
+                          << "        SQL: " << err.sql() << PBJ_LOG_END;
+   }
+   catch (const std::exception& err)
+   {
+      PBJ_LOG(VWarning) << "Exception while loading entity!" << PBJ_LOG_NL
+                          << "Sandwich ID: " << sandwich.getId() << PBJ_LOG_NL
+                          << "     Map ID: " << map_id << PBJ_LOG_NL
+                          << "  Entity ID: " << entity_id << PBJ_LOG_NL
+                          << "  Exception: " << err.what() << PBJ_LOG_END;
+   }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void saveScene(const Id& sandwich_id, const Id& map_id)
@@ -917,12 +1098,12 @@ void Scene::saveScene(const Id& sandwich_id, const Id& map_id)
 
       db::Db& db = sandwich->getDb();
       db::Transaction transaction(db, db::Transaction::Immediate);
-      db::CachedStmt& stmt = sandwich->getStmtCache().hold(Id(PBJ_SCENE_SCENE_SQLID_SET_NAME), PBJ_SCENE_SCENE_SQL_SET_NAME);
+      db::CachedStmt& stmt = sandwich->getStmtCache().hold(Id(PBJSQLID_SAVE_SCENE), PBJSQL_SAVE_SCENE);
       stmt.bind(1, map_id.value());
-      stmt.bind(2, getMapName());
+      stmt.bind(2, getName());
       stmt.step();
 
-      db::CachedStmt& s2 = sandwich->getStmtCache().hold(Id(PBJ_SCENE_SCENE_SQLID_CLEAR_ENTITIES), PBJ_SCENE_SCENE_SQL_CLEAR_ENTITIES);
+      db::CachedStmt& s2 = sandwich->getStmtCache().hold(Id(PBJSQLID_CLEAR_ENTITIES), PBJSQL_CLEAR_ENTITIES);
       s2.bind(1, map_id.value());
       s2.step();
 

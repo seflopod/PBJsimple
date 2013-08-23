@@ -46,6 +46,7 @@ namespace scene {
 class Scene : public b2ContactListener
 {
     friend class Editor;
+    friend void loadEntity(sw::Sandwich&, const Id&, const Id&, Scene&);
 public:
     Scene();
     void makeHud();
@@ -57,14 +58,14 @@ public:
     void setName(const std::string& name);
     const std::string& getName() const;
 
-    U32 addEntity(unique_ptr<Entity>&& entity);
+    U32 addEntity(std::unique_ptr<Entity>&& entity);
     void removeEntity(U32 id, Entity::EntityType type);
 
     void initBulletRing();
     U32 makeBullet();
     U32 makePlayer(const std::string& name, const vec2& position, bool local_player);
-    U32 makeTerrain();
-    U32 makeSpawnPoint();
+    U32 makeTerrain(const vec2& position, const vec2& scale, F32 rotation, const gfx::Material* material);
+    U32 makeSpawnPoint(const vec2& position);
     U32 makeCamera();
 
     Entity* getBullet(U32 id);
@@ -75,9 +76,9 @@ public:
     Entity* getRandomSpawnPoint();
     Entity* getCamera(U32 id);
     void setCurrentCamera(U32 id);
-    Entity* getCurrentCamera() const;
+    Entity* getCurrentCamera();
 
-    void spawnBullet(const vec2&, const vec2&, void*);
+    void spawnBullet(const vec2& position, const vec2& velocity, Entity* shooter);
     void disableBullet(U32 id);
     void respawnPlayer(U32 id);
 
@@ -89,17 +90,23 @@ private:
     virtual void PreSolve(b2Contact* contact, const b2Manifold* manifold);
     virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse);
 
-    const I32 _physVelocityIterations = 8;
-    const I32 _physPositionIterations = 3;
+    static const I32 _physVelocityIterations = 8;
+    static const I32 _physPositionIterations = 3;
+    static const size_t _maxBullets = 500;
 
     ////////////////////////////////////////////////////////////////////////////
     /// \typedef unordered_map<U32,Entity> EntityMap
     ///
     /// \brief An alias for an unordered map used for id->Entity
-    typedef unordered_map<U32,unique_ptr<Entity> > EntityMap;
+    typedef unordered_map<U32, std::unique_ptr<Entity> > EntityMap;
 
     Engine& _engine;
     Window& _window;
+
+    sw::ResourceManager _resources;
+    const gfx::Material* _bulletMaterial;
+    const gfx::Material* _spawnPointMaterial;
+
 
     std::mt19937 _prng;
     b2World _physWorld;
@@ -123,9 +130,8 @@ private:
     std::vector<Entity*> _toDisable;
     std::queue<Entity*, std::vector<Entity*>> _toRespawn;
 
-    U32 _bulletRing[100];
-    I32 _curRingIdx;
-    I32 _bulletNum;
+    U32 _bulletRing[_maxBullets];
+    I32 _curRingIndex;
 
     UIRoot _ui;
     std::unordered_map<Id, UIElement*> _ui_elements;
@@ -138,6 +144,7 @@ private:
 };
 
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id);
+void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene)
 
 } // namespace pbj::scene
 } // namespace pbj

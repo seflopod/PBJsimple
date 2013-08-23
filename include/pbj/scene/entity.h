@@ -27,18 +27,6 @@
 
 #include <memory>
 
-using std::unique_ptr;
-using pbj::gfx::ComponentCallback;
-using pbj::gfx::Texture;
-using pbj::gfx::Shape;
-using pbj::gfx::ShapeSquare;
-using pbj::gfx::ShapeTriangle;
-using pbj::gfx::Material;
-using pbj::physics::Rigidbody;
-using pbj::audio::AudioSource;
-using pbj::audio::AudioListener;
-using be::Id;
-
 namespace pbj {
 namespace scene {
 
@@ -81,17 +69,17 @@ public:
     Transform& getTransform();
     void setTransform(const Transform&);
 
-    Shape* getShape() const;
-    void setShape(Shape*);
+    gfx::Shape* getShape() const;
+    void setShape(gfx::Shape*);
 
-    const Material* getMaterial();
-    void setMaterial(const Material*);
+    const gfx::Material* getMaterial();
+    void setMaterial(const gfx::Material*);
 
     GLuint getTextureId() const;
     void setTextureId(const GLuint);
 
-    void addRigidbody(Rigidbody::BodyType, b2World*);
-    Rigidbody* getRigidbody() const;
+    void addRigidbody(physics::Rigidbody::BodyType, b2World*);
+    physics::Rigidbody* getRigidbody() const;
 
     void addPlayerComponent(Id);
     PlayerComponent* getPlayerComponent() const;
@@ -105,10 +93,10 @@ public:
     BulletComponent* getBulletComponent() const;
 
     void addAudioListener();
-    AudioListener* getAudioListener() const;
+    audio::Listener* getAudioListener() const;
 
     void addAudioSource();
-    AudioSource* getAudioSource() const;
+    audio::Source* getAudioSource() const;
 
     void addCamera();
     CameraComponent* getCamera() const;
@@ -130,8 +118,6 @@ public:
 private:
     bool _drawable;
     bool _enabled;
-    //bool _toDisable;
-    //bool _toEnable;
 
     U32 _transformCallbackId;
     U32 _sceneId;
@@ -139,21 +125,20 @@ private:
 
     //components
     Transform _transform;
-    unique_ptr<Shape> _shape;
-    const Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
-    unique_ptr<Rigidbody> _rigidbody;
-    unique_ptr<PlayerComponent> _player;
-    unique_ptr<AIComponent> _ai;
-    unique_ptr<BulletComponent> _bullet;
-    unique_ptr<AudioSource> _src;
-    unique_ptr<AudioListener> _listener;
-    unique_ptr<CameraComponent> _camera;
+    std::unique_ptr<gfx::Shape> _shape;
+    const gfx::Material* _material;    ///< Not a unique ptr because the entity does not own the material object (ResourceManager does)
+    std::unique_ptr<physics::Rigidbody> _rigidbody;
+    std::unique_ptr<PlayerComponent> _player;
+    std::unique_ptr<AIComponent> _ai;
+    std::unique_ptr<BulletComponent> _bullet;
+    std::unique_ptr<audio::Source> _source;
+    std::unique_ptr<audio::Listener> _listener;
+    std::unique_ptr<CameraComponent> _camera;
 
+    // disallow copy/assignment
     Entity(const Entity&);
     void operator=(const Entity&);
 };
-
-void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene);
 
 } //namespace pbj::scene
 } //namespace pbj

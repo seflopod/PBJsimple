@@ -90,21 +90,6 @@ Game::Game()
     {
         getSceneIds(id);
     }
-
-
-    /*
-    //make all the bullets we'll ever need
-    for(I32 i=0;i<100;++i)
-    {
-        _bulletRing[i] = _scene.addEntity(unique_ptr<Entity>(makeBullet()));
-        _scene.getBullet(_bulletRing[i])->getRigidbody()->setBullet(false);
-        _scene.getBullet(_bulletRing[i])->disable();
-    }
-
-    _curRingIdx = 0;
-    _running = true;
-    _bulletNum = 0;
-    */
 }
 
 ////////////////////////////////////////////////////////////////////////////////

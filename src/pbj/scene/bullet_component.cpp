@@ -23,7 +23,7 @@ namespace scene
 ///
 /// \param [in,out] owner   If non-null, the owner.
 ////////////////////////////////////////////////////////////////////////////////
-BulletComponent::BulletComponent(void* owner) :
+BulletComponent::BulletComponent(Entity* owner) :
                     _shooter(nullptr)
 {
     assert((Entity*)owner);
@@ -54,7 +54,7 @@ BulletComponent::~BulletComponent()
 ///
 /// \param [in] shooter The Entity that shot the bullet.
 ////////////////////////////////////////////////////////////////////////////////
-void BulletComponent::setShooter(void* shooter)
+void BulletComponent::setShooter(Entity* shooter)
 {
     assert((Entity*)shooter);
     _shooter = shooter;
@@ -70,7 +70,7 @@ void BulletComponent::setShooter(void* shooter)
 ///
 /// \return null if it fails, else the shooter.
 ////////////////////////////////////////////////////////////////////////////////
-void* BulletComponent::getShooter() { return _shooter; }
+Entity* BulletComponent::getShooter() { return _shooter; }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void* BulletComponent::getOwner() const
@@ -82,7 +82,7 @@ void* BulletComponent::getShooter() { return _shooter; }
 ///
 /// \return null if it fails, else the owner.
 ////////////////////////////////////////////////////////////////////////////////
-void* BulletComponent::getOwner() const { return _owner; }
+Entity* BulletComponent::getOwner() const { return _owner; }
 
 } //namespace scene
 } //namespace pbj
