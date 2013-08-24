@@ -517,6 +517,7 @@ U32 Scene::makeTerrain(const vec2& position, const vec2& scale, F32 rotation, co
     e->getTransform().setRotation(rotation);
     e->setShape(new gfx::ShapeSquare());
     e->setMaterial(material);
+    e->enableDraw();
 
     return id;
 }

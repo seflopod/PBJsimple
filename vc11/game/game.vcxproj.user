@@ -19,7 +19,7 @@
     <LocalDebuggerCommand>$(SolutionDir)..\stage\$(TargetFileName)</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)..\stage</LocalDebuggerWorkingDirectory>
-    <LocalDebuggerCommandArguments>levels test1</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>levels test2</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
     <LocalDebuggerCommand>$(SolutionDir)..\stage\$(TargetFileName)</LocalDebuggerCommand>

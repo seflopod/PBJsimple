@@ -429,7 +429,7 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
         return;
 
     ((scene::UILabel*)ui_elements_[Id("menu.map_id_lbl")])->setText(map_id_.to_string());
-    ((scene::UILabel*)ui_elements_[Id("menu.map_name_lbl")])->setText(scene_->getMapName());
+    ((scene::UILabel*)ui_elements_[Id("menu.map_name_lbl")])->setText(scene_->getName());
 
     double last_frame_time = 0;
     double fps = 0;

@@ -35,7 +35,7 @@ void AddClobberEditorMode::onClick(I32 button, const vec2& start, const vec2& en
 
         scene::Entity* e = new scene::Entity();
         e->setType(type);
-        e->setShape(new ShapeSquare());
+        e->setShape(new gfx::ShapeSquare());
         e->getTransform().setPosition(end);
         e->getTransform().setScale(type == scene::Entity::SpawnPoint ? vec2(1, 2) : editor_.getActiveScale());
         e->getTransform().setRotation(0);

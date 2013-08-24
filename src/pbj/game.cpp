@@ -17,7 +17,7 @@ namespace pbj {
 
 #pragma region statics
 /// \brief     The client instance pointer.
-std::unique_ptr<Game> Game::_instance;
+Game* Game::_instance;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Game* Game::instance()
@@ -33,13 +33,13 @@ std::unique_ptr<Game> Game::_instance;
 ////////////////////////////////////////////////////////////////////////////////
 Game* Game::instance()
 {
-    if(_instance.get() == 0) //no instance yet
+    if(_instance == 0) //no instance yet
     {
         PBJ_LOG(VError) << "No game object available!" << PBJ_LOG_END;
         assert(false);
         //throw std::runtime_error("No game object available!");
     }
-    return _instance.get();
+    return _instance;
 }
 #pragma endregion
 
@@ -60,7 +60,7 @@ Game::Game()
 {
     const U32 fps = 30;
 
-    _instance.reset(this);
+    _instance = this;
 
     _dt = 1.0f/fps;
     _window.registerContextResizeListener([=](I32 width, I32 height) {
@@ -84,6 +84,7 @@ Game::Game()
     std::vector<Id> sws = sw::getSandwichIds();
     for (Id id : sws)
     {
+        PBJ_LOG(VInfo) << "Sandwich: " << id << PBJ_LOG_END;
         getSceneIds(id);
     }
 }
@@ -112,6 +113,7 @@ void Game::getSceneIds(const Id& sw_id)
 
         while (stmt.step())
         {
+            PBJ_LOG(VInfo) << "Found Map: " << sw::ResourceId(sw_id, Id(stmt.getUInt64(0))) << PBJ_LOG_END;
             _scene_ids.push_back(sw::ResourceId(sw_id, Id(stmt.getUInt64(0))));
         }
     }
@@ -131,9 +133,12 @@ void Game::loadScene(const sw::ResourceId& scene_id)
 
     _scene = scene::loadScene(*ptr, scene_id.resource);
 
+    PBJ_LOG(VInfo) << "Loading Scene: " << scene_id << ": " << (_scene ? "success" : "failed"
+        ) << PBJ_LOG_END;
+
     //add the local player to the scene
     vec2 spawnLoc = _scene->getRandomSpawnPoint()->getTransform().getPosition();
-    U32 player_id = _scene->makePlayer("Player", spawnLoc, false);
+    U32 player_id = _scene->makePlayer("Player", spawnLoc, true);
     _scene->getLocalPlayer()->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player1_outline"))));
 
     //since the player will be the focus of the camera, reduce the volume of its output
@@ -146,7 +151,7 @@ void Game::loadScene(const sw::ResourceId& scene_id)
         spawnLoc = _scene->getRandomSpawnPoint()->getTransform().getPosition();
         std::string name = "CPU ";
         name.append(std::to_string(i));
-        ids[i] = _scene->makePlayer(std::string(name), spawnLoc, true);
+        ids[i] = _scene->makePlayer(std::string(name), spawnLoc, false);
     }
     _scene->getPlayer(ids[0])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player2_outline"))));
     _scene->getPlayer(ids[1])->setMaterial(&_engine.getResourceManager().getMaterial(sw::ResourceId(Id(PBJ_ID_PBJBASE), Id("player3_outline"))));
@@ -156,6 +161,9 @@ void Game::loadScene(const sw::ResourceId& scene_id)
     //add the camera
     U32 camera_id = _scene->makeCamera();
     _scene->setCurrentCamera(camera_id);
+
+    _scene->initBulletRing();
+
 
     //now that the camera is made, do matrix setup
     ivec2 wnd_size = _window.getContextSize();
@@ -182,7 +190,7 @@ void Game::loadScene(const sw::ResourceId& scene_id)
 ////////////////////////////////////////////////////////////////////////////////
 I32 Game::run()
 {
-    F64 last_frame = -1.0;
+    F64 last_frame_start = -1.0;
     F64 last_frame_time = -1.0;
     F64 fps = -1.0;
 
@@ -194,12 +202,12 @@ I32 Game::run()
             break;
 
         F64 frame_start = glfwGetTime();
-        F64 delta_t = frame_start - last_frame;
+        F64 delta_t = frame_start - last_frame_start;
         fps = 1.0 / delta_t;
 
         if (_scene)
         {
-            if (last_frame >= 0 && !_paused)
+            if (last_frame_start >= 0 && !_paused)
             {
                 if (delta_t > PBJ_GAME_MIN_PHYSICS_TIMESTEP)
                 {
@@ -222,6 +230,7 @@ I32 Game::run()
             draw();
         }
 
+        last_frame_start = frame_start;
         F64 frame_time = last_frame_time = glfwGetTime() - frame_start;
         if (last_frame_time < (1.0 / PBJ_GAME_MAX_FPS))
         {
