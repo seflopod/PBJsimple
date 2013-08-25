@@ -48,7 +48,7 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType,
     bd.type = (b2BodyType)bodyType;
     bd.position.Set(position.x, position.y);
     bd.angle = _owner->getTransform().getRotation() * DEGTORAD;
-    bd.angle = 0.0f;
+    //bd.angle = 0.0f;
     bd.linearDamping = 0.1f;
     bd.allowSleep = true;
     bd.awake = true;

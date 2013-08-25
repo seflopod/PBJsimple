@@ -518,6 +518,7 @@ U32 Scene::makeTerrain(const vec2& position, const vec2& scale, F32 rotation, co
     e->setShape(new gfx::ShapeSquare());
     e->setMaterial(material);
     e->enableDraw();
+    e->addRigidbody(physics::Rigidbody::Static, &_physWorld);
 
     return id;
 }
@@ -974,6 +975,13 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
           }
 
           s.reset(new Scene());
+
+#ifndef PBJ_EDITOR
+          s->initBulletRing();
+          s->physUpdate(0.1);
+#endif
+
+
           db::CachedStmt s2 = cache.hold(Id(PBJSQLID_GET_ENTITIES), PBJSQL_GET_ENTITIES);
 
           s2.bind(1, map_id.value());

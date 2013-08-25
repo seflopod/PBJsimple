@@ -162,7 +162,7 @@ void Game::loadScene(const sw::ResourceId& scene_id)
     U32 camera_id = _scene->makeCamera();
     _scene->setCurrentCamera(camera_id);
 
-    _scene->initBulletRing();
+    
 
 
     //now that the camera is made, do matrix setup
@@ -209,9 +209,12 @@ I32 Game::run()
         {
             if (last_frame_start >= 0 && !_paused)
             {
+                if (delta_t > 1.0)
+                    delta_t = PBJ_GAME_MIN_PHYSICS_TIMESTEP;
+
                 if (delta_t > PBJ_GAME_MIN_PHYSICS_TIMESTEP)
                 {
-                    U32 steps = U32(std::ceil(delta_t / PBJ_GAME_MIN_PHYSICS_TIMESTEP));
+                    I32 steps = I32(std::ceil(delta_t / F64(PBJ_GAME_MIN_PHYSICS_TIMESTEP)));
                     F64 interval = delta_t / steps;
 
                     while (--steps >= 0)

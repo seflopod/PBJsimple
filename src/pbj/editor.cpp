@@ -458,12 +458,44 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
 
         if (scene_)
         {
+            scene::CameraComponent& camera = getCamera();
+
             if (last_sim_time == 0)
                 last_sim_time = frame_start;
 
-            getCamera().update(F32(frame_start - last_sim_time));
-            getCamera().use();
+            camera.update(F32(frame_start - last_sim_time));
+            camera.use();
             last_sim_time = frame_start;
+
+            ivec2 ctx_size = window_.getContextSize();
+            vec2 bottom_left = camera.getWorldPosition(ivec2(-1, ctx_size.y), ctx_size);
+            if (bottom_left.y < -50.0f)
+            {
+                // display the kill zone quad
+
+                vec2 bottom_right = camera.getWorldPosition(ctx_size, ctx_size);
+
+                glColor4f(1, 0, 0, 0.4);
+                glBegin(GL_QUADS);
+
+                glVertex2f(bottom_left.x, -50.0f);
+                glVertex2f(bottom_right.x, -50.0f);
+                glVertex2f(bottom_right.x, bottom_right.y);
+                glVertex2f(bottom_left.x, bottom_left.y);
+                glEnd();
+            }
+
+
+            
+            glBegin(GL_QUADS);
+            glColor3f(1, 0, 0);
+            glVertex2f(0, 0);
+            glVertex2f(1, 0);
+            glColor3f(0, 1, 0);
+            glVertex2f(0, 0);
+            glVertex2f(0, 1);
+            glEnd();
+
             scene_->draw();
         }
 

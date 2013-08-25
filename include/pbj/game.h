@@ -122,9 +122,6 @@ private:
     void onMouseLeftDown(I32);
     void checkMovement(I32, I32);
 
-
-
-
     static Game* _instance;
 
     Engine& _engine;

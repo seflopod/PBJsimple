@@ -79,10 +79,15 @@ void AIComponent::update(F32 dt)
     //make the starting point on a circle off of the body, this way it isn't
     //counted in the raycast.
 
-    Game::instance()->getScene()->getWorld()->RayCast(
-        this,
-        b2Vec2(r1*cos(angle),r1*sin(angle)), //start
-        b2Vec2(r2*cos(angle),r2*sin(angle))); //end
+    b2Vec2 start  = toB2(xf.getPosition());
+    b2Vec2 end = start;
+    start.x += r1 * cos(angle);
+    start.y += r1 * sin(angle);
+
+    end.x += r2 * cos(angle);
+    end.y += r2 * sin(angle);
+
+    Game::instance()->getScene()->getWorld()->RayCast(this, start, end);
 
     if(_seePlayer)
     {

@@ -246,24 +246,22 @@ void Entity::addRigidbody(physics::Rigidbody::BodyType bodyType, b2World* world)
         {
         case Player:
         {
-            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-            _transform.getRotation());
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero, 0);
             _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
             _rigidbody->setCollisionGroup(physics::Rigidbody::Player);
             break;
         }
         case Terrain:
         {
-            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-            _transform.getRotation());
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero, 0);
+            //_transform.getRotation());
             _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 100.0f/(scale.x*scale.y), 0.0f, 0.5f,this));
             _rigidbody->setCollisionGroup(physics::Rigidbody::Terrain);
             break;
         }
         case SpawnPoint:
         {
-            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-            _transform.getRotation());
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero, 0);
             _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
             _rigidbody->setCollisionGroup(physics::Rigidbody::SpawnPoint);
             break;
@@ -279,8 +277,7 @@ void Entity::addRigidbody(physics::Rigidbody::BodyType bodyType, b2World* world)
         }
         default:
         {
-            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero,
-            _transform.getRotation());
+            shape.SetAsBox(scale.x/2, scale.y/2, b2Vec2_zero, 0);
             _rigidbody.reset(new physics::Rigidbody(bodyType, pos, shape, world, 1.0f/(scale.x*scale.y), 0.0f, 1.0f, this));
             _rigidbody->setCollisionGroup(physics::Rigidbody::Other);
         break;
