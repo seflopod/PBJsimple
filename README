@@ -1,22 +1,51 @@
-   PBJgame - Peter-Ben-Josh-Jordan Game
+README
+Video Wars: 2084 is a 2D arcade-style arena shooter by PBJ2.
+Playing the game
+Open game.exe in /stage/
+Movement:
+•	W	Jump.
+•	A	Move left.
+•	S	Slow down/Drop vertically.
+•	D	 Move right.
+Use the left mouse button to fire bullets in the direction of the mouse cursor.
 
-License:
-   Copyright (c) 2013 PBJ Productions
+Using the editor
+From a command prompt in the stage folder run editor.exe using the following arguments:
 
-   Permission is hereby granted, free of charge, to any person obtaining a copy
-   of this software and associated documentation files (the "Software"), to
-   deal in the Software without restriction, including without limitation the
-   rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-   sell copies of the Software, and to permit persons to whom the Software is
-   furnished to do so, subject to the following conditions:
+“editor.exe <sandwich id> <map id>”
 
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
+<sandwich id>	The name of the database with the levels (not necessarily a file name)
+The ID for levels.sw is “levels” and the ID for joshlevels.sw is “josh_levels”
+<map id>	The name of the map to edit
+The IDs in levels.sw are test1 and test2 and in joshlevels.sw are in the form level0, level1, level2… etc.
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-   IN THE SOFTWARE.
+Use the tilde (‘~’) key to toggle the menu (holding the space bar works as well).
+Select a tool from the left-hand side to perform its associated operation.
+To change the material, choose one from the grid.
+To use a tool with spawn points, choose “Spawn Points” instead of a material.
+Click away from the menu and then press tilde to close the menu.
+To create a new database in which you can store levels, run the sw.exe program with the following arguments:
+“sw.exe <sandwich id> create”
+	<sandwich id>	This is the Id used to access the sandwich in the editor command line.
+
+Looking through the source
+•	assets
+	o	Contains any art or sound assets that are loaded into the databases.
+	o	Unused during gameplay.
+•	deps
+	o	Header and source files for uncompiled libraries that the game is dependent on.
+•	doc
+	o	Any and all documentation resides here.
+•	include
+	o	All of the include files written by PBJ2 for the game.  The folders are organized by namespace.
+•	src
+	o	The source files for the above mentioned headers.  Again these are organized by namespace.
+•	stage
+	o	The location for all compiled binaries and databases.
+•	tests
+	o	Source files for testing purposes
+•	tools
+	o	Binaries for tools that are usable outside of the context of this game.
+•	vc11
+	o	Contains the main solution and project files for Visual Studio 2012.  Also contains pre-compiled libraries containing classes and methods used in the game
+	
