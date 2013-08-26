@@ -130,6 +130,8 @@ private:
     F32 _dt;
     bool _paused;
 
+	bool _loadRandomSceneNextFrame;
+
     GameControls _controls;
 };
 

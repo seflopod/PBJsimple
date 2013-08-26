@@ -34,6 +34,8 @@ public:
     void setProjection(const mat4& projection);
     void setTargetPosition(const vec2& position);
     void setTargetVelocity(const vec2& velocity);
+	void setPosition(const vec2& position);
+	void setVelocity(const vec2& velocity);
 
     const vec2& getTargetPosition() const;
     const vec2& getTargetVelocity() const;

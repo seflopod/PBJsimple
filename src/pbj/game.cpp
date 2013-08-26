@@ -55,7 +55,8 @@ Game::Game()
     : _prng(std::mt19937::result_type(time(nullptr))),
      _paused(false),
      _engine(getEngine()),
-     _window(*getEngine().getWindow())
+     _window(*getEngine().getWindow()),
+	 _loadRandomSceneNextFrame(false)
 {
     const U32 fps = 30;
 
@@ -200,6 +201,14 @@ I32 Game::run()
         if (_window.isClosePending())
             break;
 
+		if (_loadRandomSceneNextFrame)
+		{
+			_loadRandomSceneNextFrame = false;
+			loadScene(getRandomSceneId());
+			last_frame_start = -1.0;
+			last_frame_time = -1.0;
+		}
+
         F64 frame_start = glfwGetTime();
         F64 delta_t = frame_start - last_frame_start;
         fps = 1.0 / delta_t;
@@ -312,7 +321,7 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
     if(action == GLFW_RELEASE)
     {
         if (keycode == GLFW_KEY_R)
-            loadScene(getRandomSceneId());
+			_loadRandomSceneNextFrame = true;
 
         if (keycode == GLFW_KEY_ESCAPE)
             _window.requestClose();

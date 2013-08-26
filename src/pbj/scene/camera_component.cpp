@@ -116,6 +116,34 @@ void CameraComponent::setTargetVelocity(const vec2& velocity)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::setPosition(const vec2& position)
+///
+/// \brief  Sets camera's current position.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  velocity    The velocity.
+void CameraComponent::setPosition(const vec2& position)
+{
+	_position = position;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// \fn void CameraComponent::setVelocity(const vec2& velocity)
+///
+/// \brief  Sets camera's velocity.
+///
+/// \author Ben Crist
+/// \date   2013-08-22
+///
+/// \param  velocity    The velocity.
+void CameraComponent::setVelocity(const vec2& velocity)
+{
+	_velocity = velocity;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /// \fn const vec2& CameraComponent::getTargetPosition() const
 ///
 /// \brief  Gets target position.

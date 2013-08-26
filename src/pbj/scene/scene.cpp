@@ -243,6 +243,15 @@ void Scene::update(F32 dt)
 
             e->enable();
             e->getTransform().setPosition(spwn.x, spwn.y);
+			if (getLocalPlayer() == e)
+			{
+				//vec2 pos = getCurrentCamera()->getCamera()->getTargetPosition();
+				//PBJ_LOG(VInfo) << "Camera target " << pos.x << "," << pos.y << PBJ_LOG_END;
+
+				getCurrentCamera()->getTransform().setPosition(spwn);
+				getCurrentCamera()->getCamera()->setVelocity(vec2(0,0));
+			}
+				
             e->getTransform().updateOwnerRigidbody();
             e->getRigidbody()->setVelocity(vec2(0.0f,0.0f));
             PlayerComponent* pc = e->getPlayerComponent();
