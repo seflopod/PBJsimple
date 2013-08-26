@@ -17,6 +17,18 @@ namespace scene {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Pushbutton UI element.
+///
+/// \details Each button can be in one of several states:  Disabled (visible,
+///         but not user-interactable), Normal, Hovered (mouse is over element)
+///         Active (is being pressed), Focused (has keyboard focus), Focused
+///         and Hovered, or Focused and Active.  The current state determines
+///         most of the aesthetics of the button.  Only the button text and
+///         onClick event handler are not determined by the current state.
+///         Each state is assigned a UIButtonStyle id which determines the
+///         way the button should look when in that state.  These can be
+///         changed at any time to (for instance) make toggle buttons, etc.
+///
+/// \author Ben Crist
 class UIButton : public UIElement
 {
 public:
@@ -28,6 +40,8 @@ public:
 
     void setClickCallback(const std::function<void()>& callback);
     
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Defines the possible states the button can be in.
     enum State
     {
         SNormal = 0,
@@ -82,6 +96,7 @@ private:
     bool kbd_active_;
     bool hovered_;
 
+    // prevent copying/assignment
     UIButton(const UIButton&);
     void operator=(const UIButton&);
 };

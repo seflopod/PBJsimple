@@ -11,6 +11,17 @@
 
 namespace pbj {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  An editor mode class which allows the user to add or remove
+///         (clobber) entities in the scene.
+///
+/// \details Right clicking removes the nearest entity to the cursor (within a
+///         reasonable distance).  Left clicking adds a new entity at the
+///         cursor's position.  The type of entity to add is determined by the
+///         current selection made in the editor's material UI panel.
+///
+/// \author Ben Crist
+/// \date   2013-08-13
 class AddClobberEditorMode : public EditorMode
 {
 public:

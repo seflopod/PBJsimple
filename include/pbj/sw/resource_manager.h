@@ -43,11 +43,12 @@ namespace sw {
 ///         Any sandwiches that are loaded from will remain open, and any
 ///         resources loaded from them will remain valid, until the
 ///         ResourceManager is destroyed.
+///
+/// \author Ben Crist
 class ResourceManager
 {
 public:
     ResourceManager();
-    ~ResourceManager();
 
     audio::Buffer* getSound(const ResourceId& id);
     const gfx::Material& getMaterial(const ResourceId& id);

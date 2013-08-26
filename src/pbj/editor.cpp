@@ -13,6 +13,7 @@
 #include "pbj/input_controller.h"
 #include "pbj/sw/sandwich_open.h"
 
+// include all the editor modes!
 #include "pbj/look_editor_mode.h"
 #include "pbj/add_clobber_editor_mode.h"
 #include "pbj/move_editor_mode.h"
@@ -28,6 +29,10 @@
 namespace pbj {
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Constructs a new editor object.
+///
+/// \details Initializes all the editor's UI elements, sets up event handlers,
+///         and initializes the default editor mode (look mode).
 Editor::Editor()
     : engine_(getEngine()),
       window_(*getEngine().getWindow()),
@@ -50,6 +55,15 @@ Editor::Editor()
         onContextResized_(width, height);
     });
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Editor keyboard listener function.
+    /// 
+    /// \details handles hotkeys for switcing modes and showing the menu.
+    ///
+    /// \param  keycode The GLFW keycode of the key
+    /// \param  scancode The GLFW scancode of the key (not used)
+    /// \param  action Whether the key was pressed, released, or is repeating.
+    /// \param  modifiers The state of any modifier keys like shift, ctrl, etc.
     InputController::registerKeyAllListener([&](I32 keycode, I32 scancode, I32 action, I32 modifiers)
     {
         if (keycode == GLFW_KEY_SPACE ||
@@ -103,6 +117,15 @@ Editor::Editor()
             ui_.panel.setVisible(false);
     });
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Editor mouse button listener.
+    ///
+    /// \details generates mouseDown/mouseUp/mouseCancel events for the
+    ///         current EditorMode.
+    ///
+    /// \param  button The button that was pressed or released
+    /// \param  action Whether the button was pressed or released
+    /// \param  modifiers The state of any modifier keys like shift, ctrl, etc.
     InputController::registerMouseButtonAnyListener([&](I32 button, I32 action, I32 modifiers)
     {
         if (current_mode_ && (button == GLFW_MOUSE_BUTTON_1 || button == GLFW_MOUSE_BUTTON_2 || button == GLFW_MOUSE_BUTTON_3))
@@ -131,6 +154,13 @@ Editor::Editor()
         }
     });
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Editor mouse movement listener.
+    ///
+    /// \details generates mouseMove events for the current EditorMode.
+    ///
+    /// \param  x The mouse's new x-coordinate
+    /// \param  y The mouse's new y-coordinate
     InputController::registerMouseMotionListener([&](F64 x, F64 y)
     {
         if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
@@ -141,6 +171,13 @@ Editor::Editor()
         }
     });
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Editor mouse wheel listener.
+    ///
+    /// \details generates mouseWheel events for the current EditorMode.
+    ///
+    /// \param  delta_x The horizontal wheel movement (ignored)
+    /// \param  delta_y The vertical wheel movement
     InputController::registerScrollListener([&](F64 delta_x, F64 delta_y)
     {
         if (current_mode_ && ui_.getElementUnderMouse() == nullptr)
@@ -151,13 +188,10 @@ Editor::Editor()
     });
 }
 
-///////////////////////////////////////////////////////////////////////////////
-Editor::~Editor()
-{
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Initializes all the UIElements needed to display the Editor menu
+///         and subpanels for each editor mode.
 void Editor::initUI()
 {
     sw::ResourceId menu_panel_style(Id(PBJ_ID_PBJBASE), Id("menu_panel"));
@@ -413,6 +447,13 @@ void Editor::initUI()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Loads a scene from a sandwich and runs the editor program until
+///         the user requests that the window close.
+///
+/// \param  sw_id A string which can be used to create an Id specifying the
+///         sandwich containing the scene we want to edit.
+/// \param  map_id A string which can be used to create an Id specifying the
+///         scene we want to edit within the sandich .
 void Editor::run(const std::string& sw_id, const std::string& map_id)
 {
     map_id_.sandwich = Id(sw_id);
@@ -485,15 +526,10 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
                 glEnd();
             }
 
-
-            
-            glBegin(GL_QUADS);
-            glColor3f(1, 0, 0);
-            glVertex2f(0, 0);
-            glVertex2f(1, 0);
-            glColor3f(0, 1, 0);
-            glVertex2f(0, 0);
-            glVertex2f(0, 1);
+            // Display axis lines at the origin
+            glBegin(GL_LINES);
+            glColor3f(1, 0, 0); glVertex2f(0, 0); glVertex2f(1, 0);
+            glColor3f(0, 1, 0); glVertex2f(0, 0); glVertex2f(0, 1);
             glEnd();
 
             scene_->draw();
@@ -522,6 +558,13 @@ void Editor::run(const std::string& sw_id, const std::string& map_id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns a pointer to a UIElement having the Id requested, or
+///         nullptr if it does not exist.
+///
+/// \details The element must be registered in the ui_elements_ map.
+///
+/// \param  id The Id of the UIElement requested.
+/// \return The UIElement having the Id requested, or nullptr.
 scene::UIElement* Editor::getUIElement(const Id& id)
 {
     auto i = ui_elements_.find(id);
@@ -532,6 +575,11 @@ scene::UIElement* Editor::getUIElement(const Id& id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Switches the UIButtonStyle ids associated with each state for the
+///         provided button so that it appears as a "__pbjbase__|highlight_btn"
+///         button.
+///
+/// \param  btn The button to change UIButtonStyles on.
 void Editor::highlightUIButton(scene::UIButton* btn)
 {
     if (btn)
@@ -547,6 +595,11 @@ void Editor::highlightUIButton(scene::UIButton* btn)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Switches the UIButtonStyle ids associated with each state for the
+///         provided button so that it appears as a "__pbjbase__|std_btn"
+///         button.
+///
+/// \param  btn The button to change UIButtonStyles on.
 void Editor::unhighlightUIButton(scene::UIButton* btn)
 {
     if (btn)
@@ -562,12 +615,25 @@ void Editor::unhighlightUIButton(scene::UIButton* btn)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns the current EditorMode object.
+///
+/// \details The EditorMode determines what type of edits are possible, as
+///         well as any state supporting those edits in progress.
+///
+/// \return A pointer to the current EditorMode object.
 EditorMode* Editor::getCurrentMode()
 {
     return current_mode_.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Destroys the current EditorMode object and replaces it with a new
+///         one having the Id specified.
+///
+/// \details If the EditorMode Id is not recognized, the current mode will
+///         not be changed.
+///
+/// \param  id Indicates the EditorMode we should enter.
 void Editor::setMode(const Id& id)
 {
     if (current_mode_ && current_mode_->getId() == id)
@@ -616,18 +682,30 @@ void Editor::setMode(const Id& id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the Editor's built-in CameraComponent object which
+///         determines the current view of the scene.
+///
+/// \return A reference to the CameraComponent object.
 scene::CameraComponent& Editor::getCamera() const
 {
     return *camera_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Gets the current zoom level.
+///
+/// \return The current zoom level.
 F64 Editor::getZoom() const
 {
     return zoom_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Sets the current zoom level.
+///
+/// \details Setting the zoom level resets the camera's projection matrix.
+///
+/// \param  zoom The new zoom level to use.
 void Editor::setZoom(F64 zoom)
 {
     if (zoom_ != zoom)
@@ -640,6 +718,14 @@ void Editor::setZoom(F64 zoom)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the closest entity to the provided world coordinates.
+///
+/// \param  world_coords The position to search around.
+/// \param  include_spawnpoints If false, spawn points will not be searched.
+/// \param  include_terrain If false, terrain entities will not be searched.
+/// \return The closest entity found, or nullptr if no entities were found, as
+///         well as the distance to the entity returned, or a negative number
+///         if no entity was found.
 std::pair<scene::Entity*, F32> Editor::getClosestEntity(const vec2& world_coords, bool include_spawnpoints, bool include_terrain)
 {
     std::pair<scene::Entity*, F32> result;
@@ -680,30 +766,53 @@ std::pair<scene::Entity*, F32> Editor::getClosestEntity(const vec2& world_coords
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Adds the provided loose entity to the editor's scene.
+///
+/// \param  entity A unique_ptr owning the entity to add to the scene.
 void Editor::addEntity(std::unique_ptr<scene::Entity>&& entity)
 {
     scene_->addEntity(std::move(entity));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Removes (deletes) an existing entity in the scene.
+///
+/// \param  entity a pointer to the entity to remove.
 void Editor::removeEntity(scene::Entity* entity)
 {
     scene_->removeEntity(entity->getSceneId(), entity->getType());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves a string which corresponds to the Id of the material
+///         currently selected in the material panel (used for Add and Decorate
+///         modes).
+///
+/// \return The currently selected material.
 const std::string& Editor::getActiveMaterial() const
 {
     return active_material_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the default scale for the material currently selected in
+///         the material panel.
+///
+/// \return The default scale for the currently selected material.
 const vec2& Editor::getActiveScale() const
 {
     return active_scale_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Sets the active material and default scale which correspond to
+///         the current selection in the material panel.
+///
+/// \details This function is called by the callbacks of each button in the
+///         material panel.
+///
+/// \param  name The current material.
+/// \param  scale The default scale for the current material.
 void Editor::setActiveMaterial(const std::string& name, const vec2& scale)
 {
     scene::UIButton* oldmat = (scene::UIButton*)ui_elements_[Id("menu.material_panel." + active_material_)];
@@ -713,19 +822,26 @@ void Editor::setActiveMaterial(const std::string& name, const vec2& scale)
     active_scale_ = scale;
 
     unhighlightUIButton(oldmat);
-    //oldmat->setDisabled(false);
-
     highlightUIButton(newmat);
-    //newmat->setDisabled(true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Overwrites the current scene's data in it's sandwich with the
+///         current scene's terrain and spawnpoint data.
 void Editor::saveMap()
 {
     scene_->saveScene(map_id_.sandwich, map_id_.resource);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when the window is resized.
+///
+/// \details Ensures that the menu panel is as big as possible but using only
+///         uniform integral scalings.  Sets the camera's projection so that
+///         it has a constant vertical height of 50 at zoom == 1.0.
+///         
+/// \param  width The window's new width.
+/// \param  height The window's new height.
 void Editor::onContextResized_(I32 width, I32 height)
 {
     // Place/scale ui correctly
@@ -751,6 +867,17 @@ void Editor::onContextResized_(I32 width, I32 height)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Constructs a new UIButton and places it in the editor UI hierarchy.
+///
+/// \param  id An Id to use to place the element in the ui_elements_ map.
+/// \param  text The text to place on the button.
+/// \param  position The button's position relative to it's UIPanel.
+/// \param  dimensions The button's dimensions.
+/// \param  callback A function to execute when the button is pressed.
+/// \param  parent The UIPanel to place the button into.
+/// \param  previous_focusable A reference to the UIElement* variable holding
+///         the element which should come before this one in the tab-ordering.
+/// \return A pointer to the button.
 scene::UIButton* Editor::newButton_(const Id& id,
                                     const std::string& text,
                                     const vec2& position,
@@ -776,6 +903,17 @@ scene::UIButton* Editor::newButton_(const Id& id,
     return btn;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Constructs a new UILabel and places it in the editor UI hierarchy.
+///
+/// \param  id An Id to use to place the element in the ui_elements_ map.
+/// \param  text The text to place on the label.
+/// \param  position The label's position relative to it's UIPanel.
+/// \param  dimensions The label's dimensions.
+/// \param  color The text color to use for the label.
+/// \param  align The text alignment to use.
+/// \param  parent The UIPanel to place the label into.
+/// \return A pointer to the label.
 scene::UILabel* Editor::newLabel_(const Id& id,
                                   const std::string& text,
                                   const vec2& position,

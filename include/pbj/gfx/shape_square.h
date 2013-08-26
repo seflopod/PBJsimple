@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-///         PBJgame\include\pbj\gfx\shape_square.h
+/// \file   gfx\shape_square.h
 ///
 /// \brief  Declares the square class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_GFX_SHAPE_SQUARE_H_
 #define PBJ_GFX_SHAPE_SQUARE_H_
 
@@ -21,7 +19,6 @@ namespace gfx {
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////
 class ShapeSquare : public Shape
 {
 public:
@@ -39,7 +36,6 @@ public:
     /// \param  hasTexture  true if this ShapeTriangle has texture.
     ///
     /// \details    Draws a unit square around this Shape's origin.
-    ////////////////////////////////////////////////////////////////////////
     virtual void draw(bool hasTexture)
     {
         if(hasTexture)

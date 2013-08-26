@@ -14,6 +14,14 @@
 namespace pbj {
 namespace scene {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  A UIPanelStyle determines the appearance of a rectangular UI
+///         element (primarily, UIPanels).
+///
+/// \details Additionally, it is used to define
+///         the background of UIButtons in UIButtonStyle.
+///
+/// \author Ben Crist
 struct UIPanelStyle
 {
     color4 background_color_top;    ///< The color of the inside of the button at the top
@@ -32,10 +40,20 @@ struct UIPanelStyle
     F32 border_width_bottom;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  A UIPanelStyle determines the appearance of a UIButton element.
+///
+/// \details In addition to the panel style, determines the text color, font,
+///         and text scale used for the button text.  The text is always
+///         drawn in the center of the button's background area however, the
+///         only way to adjust its alignment is to change the border/margin
+///         widths in the panel style portion.
+///
+/// \author Ben Crist
 struct UIButtonStyle
 {
     const gfx::TextureFont* font;
-    color4 text_color;          ///< The color of the button text
+    color4 text_color;
     vec2 text_scale;
     UIPanelStyle panel;
 };

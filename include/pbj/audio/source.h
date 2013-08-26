@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\include\pbj\audio\audio_source.h
+/// \file   pbj\audio\source.h
 ///
 /// \brief  Declares the audio source class.
-////////////////////////////////////////////////////////////////////////////////
+
 #ifndef PBJ_AUDIO_SOURCE_H_
 #define PBJ_AUDIO_SOURCE_H_
 
@@ -25,7 +25,7 @@ class Entity;
 namespace audio {
 
 ////////////////////////////////////////////////////////////////////////////
-/// \class  AudioSource
+/// \class  Source
 ///
 /// \brief  Audio source.
 ///
@@ -36,7 +36,6 @@ namespace audio {
 ///             alSource* functions.  I didn't provide all of the same
 ///             functionality (such as cone-directed sounds) because we did
 ///             not appear to need them.
-////////////////////////////////////////////////////////////////////////////
 class Source
 {
 public:

@@ -12,6 +12,11 @@
 
 namespace pbj {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns a string corresponding to a given OpenGL error code.
+///
+/// \param  error The OpenGL error code we are interested in
+/// \return The name of the GL_XXX constant describing the error.
 inline const char* getGlErrorString(GLenum error)
 {
     switch (error)
@@ -23,7 +28,7 @@ inline const char* getGlErrorString(GLenum error)
         case GL_OUT_OF_MEMORY:                 return "GL_OUT_OF_MEMORY";
         case GL_STACK_UNDERFLOW:               return "GL_STACK_UNDERFLOW";
         case GL_STACK_OVERFLOW:                return "GL_STACK_OVERFLOW";
-        default:                               return "";
+        default:                               return "??Unknown??";
     }
 }
 

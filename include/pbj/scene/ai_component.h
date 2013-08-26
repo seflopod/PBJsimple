@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\include\pbj\scene\ai_component.h
+/// \file   pbj\scene\ai_component.h
 ///
 /// \brief  Declares the ai component class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_SCENE_AI_COMPONENT_H_
 #define PBJ_SCENE_AI_COMPONENT_H_
 
@@ -25,7 +24,6 @@ class Entity;
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////
 class AIComponent : public b2RayCastCallback
 {
 public:

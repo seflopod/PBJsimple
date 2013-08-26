@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-///         PBJgame\include\pbj\gfx\shape_triangle.h
+/// \file   pbj\gfx\shape_triangle.h
 ///
 /// \brief  Declares the triangle class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_GFX_SHAPE_TRIANGLE_H_
 #define PBJ_GFX_SHAPE_TRIANGLE_H_
 
@@ -22,7 +20,6 @@ namespace gfx {
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////
 class ShapeTriangle : public Shape
 {
 public:
@@ -41,7 +38,6 @@ public:
     ///
     /// \details    Draws a 1 unit per side equilateral triangle around
     ///             this Shape's origin.
-    ////////////////////////////////////////////////////////////////////////
     virtual void draw(bool hasTexture)
     {
         if(hasTexture)

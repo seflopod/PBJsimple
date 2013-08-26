@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\include\pbj\scene\bullet_component.h
+/// \file   pbj\scene\bullet_component.h
 ///
 /// \brief  Declares the bullet component class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_SCENE_BULLET_COMPONENT_H_
 #define PBJ_SCENE_BULLET_COMPONENT_H_
 
@@ -22,7 +21,6 @@ class Entity;
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////
 class BulletComponent
 {
 public:

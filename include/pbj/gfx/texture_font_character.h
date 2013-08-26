@@ -13,6 +13,12 @@
 namespace pbj {
 namespace gfx {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Specifies a single character's parameters, which combined with
+///         the correct texture, allows the character to be printed out
+///         to the screen in the correct position relative to the cursor.
+///
+/// \author Ben Crist
 struct TextureFontCharacter
 {
     U32 codepoint;

@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\src\pbj\scene\bullet_component.cpp
+/// \file   pbj\scene\bullet_component.cpp
 ///
 /// \brief  Implements the bullet component class.
-////////////////////////////////////////////////////////////////////////////////
 
 #include "pbj/scene/bullet_component.h"
 
@@ -22,7 +21,6 @@ namespace scene
 /// \date   2013-08-22
 ///
 /// \param [in,out] owner   If non-null, the owner.
-////////////////////////////////////////////////////////////////////////////////
 BulletComponent::BulletComponent(Entity* owner) :
                     _shooter(nullptr)
 {
@@ -37,7 +35,6 @@ BulletComponent::BulletComponent(Entity* owner) :
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
 BulletComponent::~BulletComponent()
 {
     _owner = nullptr;
@@ -53,7 +50,6 @@ BulletComponent::~BulletComponent()
 /// \date   2013-08-22
 ///
 /// \param [in] shooter The Entity that shot the bullet.
-////////////////////////////////////////////////////////////////////////////////
 void BulletComponent::setShooter(Entity* shooter)
 {
     assert((Entity*)shooter);
@@ -69,8 +65,10 @@ void BulletComponent::setShooter(Entity* shooter)
 /// \date   2013-08-22
 ///
 /// \return null if it fails, else the shooter.
-////////////////////////////////////////////////////////////////////////////////
-Entity* BulletComponent::getShooter() { return _shooter; }
+Entity* BulletComponent::getShooter()
+{
+    return _shooter;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void* BulletComponent::getOwner() const
@@ -81,8 +79,10 @@ Entity* BulletComponent::getShooter() { return _shooter; }
 /// \date   2013-08-22
 ///
 /// \return null if it fails, else the owner.
-////////////////////////////////////////////////////////////////////////////////
-Entity* BulletComponent::getOwner() const { return _owner; }
+Entity* BulletComponent::getOwner() const
+{
+    return _owner;
+}
 
 } //namespace scene
 } //namespace pbj

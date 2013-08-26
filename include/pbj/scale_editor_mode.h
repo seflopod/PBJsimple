@@ -12,6 +12,17 @@
 
 namespace pbj {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  An editor mode class which allows the user to change the scale of
+///         an existing entity in the scene.
+///
+/// \details Right and left mouse button dragging both have the same effect.
+///         Dragging left or right decreases or increases (respectively) the
+///         entity's scale on it's local x-axis.  Dragging up and down
+///         increases or decreases (respectively) its scale on the local y-axis.
+///
+/// \author Ben Crist
+/// \date   2013-08-13
 class ScaleEditorMode : public EditorMode
 {
 public:

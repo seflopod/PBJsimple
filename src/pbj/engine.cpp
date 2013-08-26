@@ -126,7 +126,6 @@ Window* Engine::getWindow() const
 /// \date   2013-08-22
 ///
 /// \return The resource manager.
-////////////////////////////////////////////////////////////////////////////////
 sw::ResourceManager& Engine::getResourceManager()
 {
     return resource_mgr_;

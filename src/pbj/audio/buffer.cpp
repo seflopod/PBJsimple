@@ -34,7 +34,6 @@ namespace audio {
 ///
 /// \param  data    The data.
 /// \param  size    The size.
-////////////////////////////////////////////////////////////////////////////////
 Buffer::Buffer(const ALubyte* data, size_t size)
 {
     buffer_id_ = alutCreateBufferFromFileImage(data, size);
@@ -47,7 +46,6 @@ Buffer::Buffer(const ALubyte* data, size_t size)
 ///
 /// \author Josh Douglas
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
 Buffer::~Buffer()
 {
 }
@@ -61,7 +59,6 @@ Buffer::~Buffer()
 /// \date   2013-08-22
 ///
 /// \return The buffer identifier.
-////////////////////////////////////////////////////////////////////////////////
 ALuint Buffer::getBufferID()
 {
 	return buffer_id_;
@@ -83,7 +80,6 @@ ALuint Buffer::getBufferID()
 /// \param  id                  The identifier.
 ///
 /// \return The sound.
-////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Buffer> loadSound(sw::Sandwich& sandwich, const Id& id)
 {
     std::unique_ptr<Buffer> result;

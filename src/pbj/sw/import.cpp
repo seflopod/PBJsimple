@@ -13,6 +13,15 @@
 namespace pbj {
 namespace sw {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Creates a TextureFont by parsing an Angelcode BMFont XML font spec
+///         file.  The font must be contained within a single image, and that
+///         image must already be loaded and accessible by through the texture
+///         provided.
+///
+/// \param  texture The texture for the font.
+/// \param  data A pointer to the beginning of the XML data to parse.
+/// \param  size The size of the XML data buffer in memory.
 std::unique_ptr<gfx::TextureFont> parseBmFontXml(const gfx::Texture& texture, const void* data, size_t size)
 {
     pugi::xml_document doc;

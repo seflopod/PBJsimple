@@ -15,7 +15,6 @@ namespace scene {
 /// \date   2013-08-22
 ///
 /// \param [in,out] owner   If non-null, the owner.
-////////////////////////////////////////////////////////////////////////////////
 AIComponent::AIComponent(Entity* owner) :
                 _seePlayer(false),
                 _sweepCnt(0),
@@ -34,7 +33,6 @@ AIComponent::AIComponent(Entity* owner) :
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
 AIComponent::~AIComponent()
 {
     _owner = nullptr;
@@ -142,7 +140,6 @@ void AIComponent::update(F32 dt)
 ///             For our purposes this means we flag that a player has been
 ///             seen if the reported fixture is attachted to a PlayerComponent.
 ///             If that is the case, we set it to be our target.
-////////////////////////////////////////////////////////////////////////////////
 float32 AIComponent::ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction)
 {
     Entity* e = (Entity*)(fixture->GetBody()->GetUserData());

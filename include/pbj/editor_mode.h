@@ -16,12 +16,18 @@ namespace pbj {
 
 class Editor;
 
-class EditorOperation
-{
-public:
-    virtual ~EditorOperation() {}
-};
-
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  An editor mode determines how user input events affect the scene.
+///
+/// \details In addition, the construction and destruction of editor modes
+///         corresponds with entering and exiting that mode, so operations
+///         like toggling panel visibility and changing button appearances
+///         can be done in constructors/destructors.  When the editor mode
+///         changes, the previous editor mode will be destroyed before the
+///         new mode's constructor is called.
+///
+/// \author Ben Crist
+/// \date   2013-08-13
 class EditorMode
 {
 public:
@@ -46,9 +52,9 @@ protected:
 
     scene::UIButton* btn_;
     
-    vec2 btn_down_pos_[3];
-    bool btn_down_[3];
-    bool btn_down_moved_[3];
+    vec2 btn_down_pos_[3];      ///< The mouse position when each of the first 3 buttons was pressed.
+    bool btn_down_[3];          ///< Whether or not each of the first 3 buttons (L,R,M) was pressed while in this mode.
+    bool btn_down_moved_[3];    ///< Whether or not the mouse has moved since the mouse button was pressed.
 };
 
 } // namespace pbj

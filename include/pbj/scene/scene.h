@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file Z:\Documents\PBJsimple\include\pbj\scene\scene.h
+/// \file   pbj\scene\scene.h
 ///
-/// \brief Declares the scene class.
-////////////////////////////////////////////////////////////////////////////////
+/// \brief  Declares the scene class.
 #ifndef PBJ_SCENE_SCENE_H_
 #define PBJ_SCENE_SCENE_H_
 
@@ -29,20 +28,19 @@ class Editor;
 namespace scene {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class Scene
+/// \class  Scene
 ///
-/// \brief The Scene class is mostly an Entity container used in the game.
+/// \brief  The Scene class is mostly an Entity container used in the game.
 ///
 /// \author Peter Bartosch
-/// \date 2013-08-08
+/// \date   2013-08-08
 ///
 /// \details This class contains muliple unordered maps call EntityMap that will
-///          map an id number to a given Entity.  The maps are separated by
-///          EntityType.  When new types are added, the new maps will have to be
-///          added and handled.  Currently the UIRoot for the Scene is left as a
-///          global variable, which could probably change but until we have the
-///          user interface stuff down I'm leaving it as is.
-////////////////////////////////////////////////////////////////////////////////
+///         map an id number to a given Entity.  The maps are separated by
+///         EntityType.  When new types are added, the new maps will have to be
+///         added and handled.  Currently the UIRoot for the Scene is left as a
+///         global variable, which could probably change but until we have the
+///         user interface stuff down I'm leaving it as is.
 class Scene : public b2ContactListener
 {
     friend class Editor;

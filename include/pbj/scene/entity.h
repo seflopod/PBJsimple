@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file    C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-///         PBJsimple\include\pbj\scene\entity.h
+/// \file    pbj\scene\entity.h
 ///
 /// \brief    Declares the entity class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_SCENE_ENTITY_H_
 #define PBJ_SCENE_ENTITY_H_
 
@@ -40,7 +38,6 @@ class Scene;
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-05
-////////////////////////////////////////////////////////////////////////////
 class Entity
 {
 public:
@@ -48,7 +45,6 @@ public:
     /// \enum EntityType
     ///
     /// \brief Values that represent EntityType.
-    ////////////////////////////////////////////////////////////////////////
     enum EntityType
     {
         Terrain = 0x01,

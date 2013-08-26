@@ -24,6 +24,13 @@ class TextureFontText;
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Allows the drawing of text in OpenGL through the use of a font
 ///         sprite sheet.
+///
+/// \author Ben Crist
+///
+/// \details Fonts are specified in a manner closely resembling the Angelcode
+///         BMFont format; the texture coordinates and dimensions are set
+///         independently of the offset from the cursor location on screen
+///         and independently of the cursor advance for the character.
 class TextureFont
 {
 public:

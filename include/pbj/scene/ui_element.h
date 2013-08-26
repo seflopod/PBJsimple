@@ -19,7 +19,9 @@ class UIRoot;
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Abstract base class for UI elements.
 ///
-/// \details UI origin is in top left corner of screen.
+/// \author Ben Crist
+///
+/// \note   UI origin is in top left corner of screen.
 class UIElement
 {
     friend class UIRoot;
@@ -83,6 +85,7 @@ protected:
     bool visible_;
     bool* parent_visible_;
 
+    // prevent copying/assignment
     UIElement(const UIElement&);
     void operator=(const UIElement&);
 };

@@ -12,6 +12,10 @@
 namespace pbj {
 namespace scene {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Constructs a new UIButton.
+///
+/// \details The button defaults to the "std_btn" state UIButtonStyle ids.
 UIButton::UIButton()
     : active_style_(nullptr),
       disabled_(false),
@@ -30,25 +34,37 @@ UIButton::UIButton()
     label_.setAlign(UILabel::AlignCenter);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Destructor is necessary for polymorphism, but does nothing.
 UIButton::~UIButton()
 {
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Sets the text which appears on the button.
 void UIButton::setText(const std::string& text)
 {
     label_.setText(text);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the button's current label text.
 const std::string& UIButton::getText() const
 {
     return label_.getText();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Sets the callback function which will be called when the button is
+///         clicked.
 void UIButton::setClickCallback(const std::function<void()>& callback)
 {
     callback_ = callback;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Sets the Id of a UIButtonStyle to use for the specified button
+///         state.
 void UIButton::setStyle(State state, const sw::ResourceId& button_style)
 {
     style_ids_[state] = button_style;
@@ -57,11 +73,16 @@ void UIButton::setStyle(State state, const sw::ResourceId& button_style)
         active_style_ = nullptr;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the UIButtonStyle being used for the requested button
+///         state.
 const sw::ResourceId& UIButton::getStyle(State state) const
 {
     return style_ids_[state];
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Draws the button.
 void UIButton::draw()
 {
     if (isVisible() && view_)
@@ -112,41 +133,64 @@ void UIButton::draw()
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Makes the button disabled, preventing it from being clicked or
+///         activated via the keyboard, and applying the disabled style.
 void UIButton::setDisabled(bool disabled)
 {
     disabled_ = disabled;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if this button is disabled.
 bool UIButton::isDisabled() const
 {
     return disabled_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the button is currently being pressed.
 bool UIButton::isActive() const
 {
     return active_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the mouse is currently over the button.
 bool UIButton::isHovered() const
 {
     return hovered_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the button is focusable.
 bool UIButton::isFocusable() const
 {
     return isFullyVisible() && !isDisabled();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when the mouse moves into the element.  Sets the hovered_
+///         flag.
+///
+/// \param  position The current mouse position in screen coordinates.
 void UIButton::onMouseIn(const ivec2& position)
 {
     hovered_ = true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when the mouse moves out of the element.  Clears the
+///         hovered_ flag.
+///
+/// \param  position The current mouse position in screen coordinates.
 void UIButton::onMouseOut(const ivec2& position)
 {
     hovered_ = false;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a mouse button is pressed over this element.
 void UIButton::onMouseDown(I32 button)
 {
     UIElement::onMouseDown(button);
@@ -154,18 +198,24 @@ void UIButton::onMouseDown(I32 button)
         active_ = true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a mouse button is released over this element.
 void UIButton::onMouseUp(I32 button)
 {
     if (button == GLFW_MOUSE_BUTTON_1)
         active_ = false;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a mouse button is clicked over this element.
 void UIButton::onMouseClick(I32 button)
 {
     if (!disabled_ && button == GLFW_MOUSE_BUTTON_1 && callback_)
         callback_();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a key is released while this element has focus.
 void UIButton::onKeyUp(I32 keycode, I32 modifiers)
 {
     if (kbd_active_ && ((modifiers & (GLFW_MOD_ALT | GLFW_MOD_CONTROL | GLFW_MOD_SHIFT | GLFW_MOD_SUPER)) == 0))
@@ -178,6 +228,8 @@ void UIButton::onKeyUp(I32 keycode, I32 modifiers)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a key is pressed while this element has focus.
 void UIButton::onKeyPressed(I32 keycode, I32 modifiers)
 {
     UIElement::onKeyPressed(keycode, modifiers);
@@ -190,6 +242,8 @@ void UIButton::onKeyPressed(I32 keycode, I32 modifiers)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when the button's position or dimensions have changed.
 void UIButton::onBoundsChange_()
 {
     active_style_ = nullptr;
@@ -199,12 +253,16 @@ void UIButton::onBoundsChange_()
     label_.onBoundsChange_();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when the button gains or loses focus.
 void UIButton::onFocusChange_()
 {
     if (!isFocused())
         kbd_active_ = false;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the current state the button is in.
 UIButton::State UIButton::getCurrentState_() const
 {
     if (isDisabled())
@@ -234,6 +292,9 @@ UIButton::State UIButton::getCurrentState_() const
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  ensures that the button is displaying correctly for the state the
+///         button is in.
 void UIButton::refreshConfig_()
 {
     const UIButtonStyle& style = getEngine().getResourceManager().getUIButtonStyle(

@@ -18,10 +18,13 @@ namespace sw {
 ///
 /// \brief  Combines the Id of the Sandwich a resource is located in and
 ///         the Id of the resource itself.
+///
 /// \details A ResourceId represents a unique resource among all resources of
 ///         that type.  Resources in different Sandwiches may have the same
 ///         resource portion of their ResourceId.  The ResourceId contains no
 ///         information about what type of resource it is referring to.
+///
+/// \author Ben Crist
 class ResourceId
 {
 public:

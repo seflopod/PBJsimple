@@ -18,6 +18,7 @@ namespace pbj {
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Manages global engine objects.
+///
 /// \details Only one engine should be created per process.  Attempts to create
 ///        multiple engines will result in an exception.
 class Engine

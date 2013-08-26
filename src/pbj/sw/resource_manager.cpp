@@ -25,13 +25,12 @@ ResourceManager::ResourceManager()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief  Destroys this ResourceManager, along with all resources owned by
-///         the manager.
-ResourceManager::~ResourceManager()
-{
-}
-
-///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves an audio::Buffer from this ResourceManager, loading it
+///         from a sandwich if necessary.
+///
+/// \param  id The ResourceId of the asset to retrieve.
+/// \return A reference to the requested resource.
+/// \throws std::invalid_argument If the Texture could not be loaded.
 audio::Buffer* ResourceManager::getSound(const ResourceId& id)
 {
     auto i = sounds_.find(id);
@@ -59,6 +58,12 @@ audio::Buffer* ResourceManager::getSound(const ResourceId& id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves a Material from this ResourceManager, loading it from a
+///         sandwich if necessary.
+///
+/// \param  id The ResourceId of the material to retrieve.
+/// \return A reference to the requested resource.
+/// \throws std::invalid_argument If the Texture could not be loaded.
 const gfx::Material& ResourceManager::getMaterial(const ResourceId& id)
 {
     auto i = materials_.find(id);
@@ -152,6 +157,11 @@ const gfx::Texture& ResourceManager::getTexture(const ResourceId& id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves a UIPanelStyle from this ResourceManager, loading it
+///         from a sandwich if necessary.
+///
+/// \param  id The ResourceId of the asset to retrieve.
+/// \return A reference to the requested resource.
 const scene::UIPanelStyle& ResourceManager::getUIPanelStyle(const ResourceId& id)
 {
     auto i = panel_styles_.find(id);
@@ -165,6 +175,11 @@ const scene::UIPanelStyle& ResourceManager::getUIPanelStyle(const ResourceId& id
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves a UIButtonStyle from this ResourceManager, loading it
+///         from a sandwich if necessary.
+///
+/// \param  id The ResourceId of the asset to retrieve.
+/// \return A reference to the requested resource.
 const scene::UIButtonStyle& ResourceManager::getUIButtonStyle(const ResourceId& id)
 {
     auto i = button_styles_.find(id);

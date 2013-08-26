@@ -12,6 +12,14 @@
 
 namespace pbj {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  An editor mode class which allows the user to move an existing
+///         entity in the scene.
+///
+/// \details Right and left mouse button dragging both have the same effect.
+///
+/// \author Ben Crist
+/// \date   2013-08-13
 class MoveEditorMode : public EditorMode
 {
 public:

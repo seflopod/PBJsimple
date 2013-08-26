@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\src\pbj\physics\rigidbody.cpp
+/// \file   pbj\physics\rigidbody.cpp
 ///
 /// \brief  Implements the rigidbody class.
-////////////////////////////////////////////////////////////////////////////////
 #include "pbj/physics/rigidbody.h"
 
 #include "pbj/scene/entity.h"
@@ -24,7 +23,6 @@ namespace physics {
 /// \param shape              The shape.
 /// \param [in,out] physWorld If non-null, the physical world.
 /// \param [in,out] owner     If non-null, the owner.
-////////////////////////////////////////////////////////////////////////////////
 Rigidbody::Rigidbody(Rigidbody::BodyType bodyType,
                      vec2 position,
                      const b2Shape& shape,
@@ -69,7 +67,6 @@ Rigidbody::Rigidbody(Rigidbody::BodyType bodyType,
 ///
 /// \author Peter Bartosch
 /// \date 2013-08-08
-////////////////////////////////////////////////////////////////////////////////
 Rigidbody::~Rigidbody()
 {
     if(_body != 0 || _owner !=0)
@@ -86,7 +83,6 @@ Rigidbody::~Rigidbody()
 /// \date 2013-08-08
 ///
 /// \return null if it fails, else the fixture list.
-////////////////////////////////////////////////////////////////////////////////
 b2Fixture* Rigidbody::getFixtureList()
 {
     return _body->GetFixtureList();
@@ -101,7 +97,6 @@ b2Fixture* Rigidbody::getFixtureList()
 /// \date 2013-08-08
 ///
 /// \return null if it fails, else the fixture list.
-////////////////////////////////////////////////////////////////////////////////
 const b2Fixture* Rigidbody::getFixtureList() const
 {
     return _body->GetFixtureList();
@@ -116,7 +111,6 @@ const b2Fixture* Rigidbody::getFixtureList() const
 /// \date 2013-08-08
 ///
 /// \param [in,out] fixture If non-null, the fixture.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::destroyFixture(b2Fixture* fixture)
 {
     _body->DestroyFixture(fixture);
@@ -131,7 +125,6 @@ void Rigidbody::destroyFixture(b2Fixture* fixture)
 /// \date 2013-08-08
 ///
 /// \return null if it fails, else the contact list.
-////////////////////////////////////////////////////////////////////////////////
 b2ContactEdge* Rigidbody::getContactList()
 {
     return _body->GetContactList();
@@ -146,7 +139,6 @@ b2ContactEdge* Rigidbody::getContactList()
 /// \date 2013-08-08
 ///
 /// \return null if it fails, else the contact list.
-////////////////////////////////////////////////////////////////////////////////
 const b2ContactEdge* Rigidbody::getContactList() const
 {
     return _body->GetContactList();
@@ -161,7 +153,6 @@ const b2ContactEdge* Rigidbody::getContactList() const
 /// \date   2013-08-22
 ///
 /// \return The collision group.
-////////////////////////////////////////////////////////////////////////////////
 Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 {
     return (CollisionGroup)_body->GetFixtureList()->GetFilterData().groupIndex;
@@ -176,7 +167,6 @@ Rigidbody::CollisionGroup Rigidbody::getCollisionGroup()
 /// \date   2013-08-22
 ///
 /// \param  cg  The collision group for the Rigidbody.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setCollisionGroup(CollisionGroup cg)
 {
     b2Filter f;
@@ -215,7 +205,6 @@ void Rigidbody::setTransform(b2Vec2 pos, b2Vec2 scale, float32 rot)
 /// \date   2013-08-22
 ///
 /// \return The angular velocity.
-////////////////////////////////////////////////////////////////////////////////
 F32 Rigidbody::getAngularVelocity() const
 {
     return _body->GetAngularVelocity();
@@ -230,7 +219,6 @@ F32 Rigidbody::getAngularVelocity() const
 /// \date   2013-08-22
 ///
 /// \param  angVel  The angle velocity.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setAngularVelocity(F32 angVel)
 {
     _body->SetAngularVelocity((float32)angVel);
@@ -245,7 +233,6 @@ void Rigidbody::setAngularVelocity(F32 angVel)
 /// \date 2013-08-08
 ///
 /// \return The velocity.
-////////////////////////////////////////////////////////////////////////////////
 vec2 Rigidbody::getVelocity() const
 {
     b2Vec2 v = _body->GetLinearVelocity();
@@ -261,7 +248,6 @@ vec2 Rigidbody::getVelocity() const
 /// \date 2013-08-08
 ///
 /// \param v The const vec2 to process.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setVelocity(const vec2& v)
 {
     _body->SetLinearVelocity(b2Vec2(v.x, v.y));
@@ -276,7 +262,6 @@ void Rigidbody::setVelocity(const vec2& v)
 /// \date 2013-08-08
 ///
 /// \return The mass.
-////////////////////////////////////////////////////////////////////////////////
 F32 Rigidbody::getMass()
 {
     return _body->GetMass();
@@ -291,7 +276,6 @@ F32 Rigidbody::getMass()
 /// \date 2013-08-08
 ///
 /// \param m The F32 to process.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setMass(F32 m)
 {
     b2MassData md;
@@ -308,7 +292,6 @@ void Rigidbody::setMass(F32 m)
 /// \date 2013-08-08
 ///
 /// \return The type.
-////////////////////////////////////////////////////////////////////////////////
 Rigidbody::BodyType Rigidbody::getType() const
 {
     return (Rigidbody::BodyType)(_body->GetType());
@@ -323,7 +306,6 @@ Rigidbody::BodyType Rigidbody::getType() const
 /// \date 2013-08-08
 ///
 /// \param bullet true to bullet.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setBullet(bool bullet)
 {
     _body->SetBullet(bullet);
@@ -338,7 +320,6 @@ void Rigidbody::setBullet(bool bullet)
 /// \date 2013-08-08
 ///
 /// \return true if bullet, false if not.
-////////////////////////////////////////////////////////////////////////////////
 bool Rigidbody::isBullet()
 {
     return _body->IsBullet();
@@ -353,7 +334,6 @@ bool Rigidbody::isBullet()
 /// \date 2013-08-08
 ///
 /// \return true if awake, false if not.
-////////////////////////////////////////////////////////////////////////////////
 bool Rigidbody::isAwake()
 {
     return _body->IsAwake();
@@ -368,7 +348,6 @@ bool Rigidbody::isAwake()
 /// \date 2013-08-08
 ///
 /// \return true if active, false if not.
-////////////////////////////////////////////////////////////////////////////////
 bool Rigidbody::isActive()
 {
     return _body->IsActive();
@@ -383,7 +362,6 @@ bool Rigidbody::isActive()
 /// \date   2013-08-22
 ///
 /// \param  active  true to activate.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::setActive(bool active)
 {
     _body->SetActive(active);
@@ -398,7 +376,6 @@ void Rigidbody::setActive(bool active)
 /// \date 2013-08-08
 ///
 /// \return null if it fails, else the owner.
-////////////////////////////////////////////////////////////////////////////////
 scene::Entity* Rigidbody::getOwner()
 {
     return _owner;
@@ -413,7 +390,6 @@ scene::Entity* Rigidbody::getOwner()
 /// \date 2013-08-08
 ///
 /// \param force The force.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::applyForce(const vec2& force)
 {
     _body->ApplyForceToCenter(b2Vec2(force.x, force.y));
@@ -430,7 +406,6 @@ void Rigidbody::applyForce(const vec2& force)
 ///
 /// \param force The force.
 /// \param mode  The mode.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::applyForce(const vec2& force, Rigidbody::ForceMode mode)
 {
     switch(mode)
@@ -453,7 +428,6 @@ void Rigidbody::applyForce(const vec2& force, Rigidbody::ForceMode mode)
 ///
 /// \author Peter Bartosch
 /// \date 2013-08-08
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::updateOwnerTransform()
 {
     if (_owner)
@@ -481,7 +455,6 @@ void Rigidbody::updateOwnerTransform()
 /// \details Since the rigidbody is being destroyed, I assume the b2body should
 ///          be destroyed as well.  But we cannot assume the owner Entity needs
 ///          to be destroyed, so I'll just NULL the pointer.
-////////////////////////////////////////////////////////////////////////////////
 void Rigidbody::destroy()
 {
     //hope this works.  otherwise need a temp b2World*

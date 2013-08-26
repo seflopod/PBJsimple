@@ -2,7 +2,8 @@
 /// \file   pbj/sw/sandwich_open.h
 /// \author Benjamin Crist
 ///
-/// \brief  pbj::sw::Sandwich non-member functions.
+/// \brief  pbj::sw::Sandwich non-member functions for opening sandwiches
+///         and retrieving sandwiches that are already open.
 
 #ifndef PBJ_SW_SANDWICH_OPEN_H_
 #define PBJ_SW_SANDWICH_OPEN_H_

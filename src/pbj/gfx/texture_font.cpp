@@ -192,6 +192,13 @@ F32 TextureFont::calculateTextWidth(const std::string& text) const
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  Loads a texture font from the specified sandwich database.
+///
+/// \param  sandwich The database from which to load the TextureFont.
+/// \param  texture_id Identifies the TextureFont to load from the database.
+/// \param  rm The ResourceManager from which to retrieve the texture for the
+///         font.
+/// \return A unique_ptr to the font, or an empty unique_ptr if a problem
+///         occurs during the load.
 std::unique_ptr<TextureFont> loadTextureFont(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
 {
     std::unique_ptr<TextureFont> result;

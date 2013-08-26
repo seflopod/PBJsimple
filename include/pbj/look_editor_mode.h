@@ -11,6 +11,17 @@
 
 namespace pbj {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  An editor mode class which allows the user to move around the scene
+///         without affecting anything in it.
+///
+/// \details Left dragging moves the target position around which the camera
+///         "hovers" around.  Right clicking sets the camera's target to the
+///         point under the mouse.  Scrolling in or out with the mouse wheel
+///         changes the camera's zoom level.
+///
+/// \author Ben Crist
+/// \date   2013-08-13
 class LookEditorMode : public EditorMode
 {
 public:

@@ -1,3 +1,21 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file   pbj/input_controller.cpp
+///
+/// \author Peter Bartosch
+/// \date   2013-07-18
+///
+/// \brief  Intermediate class for input handling
+///
+/// \details InputController is a class consisting of static methods and
+///         variables for grabbing GLFW input events and passing them to
+///         registered observers.  While GLFW does support more input events
+///         than those listed here, we are not concerned with joysticks at the
+///         moment and therefore do not register to hear them.  This is setup
+///         for use in only one window.  I do not anticipate that being an
+///         issue.  The double-click detection will work poorly without having
+///         a timer implemented.  C'est la vie.  Furthermore, I think the way
+///         listeners are implemented can be improved.
+
 #include "pbj/input_controller.h"
 
 namespace pbj {

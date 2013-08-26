@@ -88,6 +88,8 @@ int main(int argc, char* argv[])
     // Initialize game engine
     pbj::Engine e(&argc, argv);
 
+    ///////////////////////////////////////////////////////////////////////////
+    // If this is the editor, create an Editor object.
 #ifdef PBJ_EDITOR
 
     if (argc < 3)
@@ -104,7 +106,8 @@ int main(int argc, char* argv[])
     editor.run(argv[1], argv[2]);
 
 #else
-    //Start and run game
+    ///////////////////////////////////////////////////////////////////////////
+    // If this is the game, create a Game object.
     pbj::Game game;
     game.loadScene(game.getRandomSceneId());
     pbj::I32 exitCode = game.run();

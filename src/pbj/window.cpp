@@ -226,16 +226,22 @@ bool Window::isVisible() const
     return glfwGetWindowAttrib(glfw_window_, GLFW_VISIBLE) != 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Makes the window iconified (minimized)
 void Window::iconify()
 {
     setIconified(true);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Ensures the window is not iconified (minimized)
 void Window::restore()
 {
     setIconified(false);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief   Makes the window iconified (minimized) or not.
 void Window::setIconified(bool iconified)
 {
     if (glfwGetWindowAttrib(glfw_window_, GLFW_ICONIFIED) == 0)
@@ -250,53 +256,72 @@ void Window::setIconified(bool iconified)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the window is currently iconified (minimized).
 bool Window::isIconified() const
 {
     return glfwGetWindowAttrib(glfw_window_, GLFW_ICONIFIED) != 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the window currently has keyboard focus.
 bool Window::isFocused() const
 {
     return glfwGetWindowAttrib(glfw_window_, GLFW_FOCUSED) != 0;
 }
 
-
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Requests that the window close.
 void Window::requestClose()
 {
     glfwSetWindowShouldClose(glfw_window_, 1);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Cancels any previous requests to make the window close, from 
+///         clicking the window's close button, etc.
 void Window::cancelClose()
 {
     glfwSetWindowShouldClose(glfw_window_, 0);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if a close has been requested but not cancelled.
 bool Window::isClosePending() const
 {
     return glfwWindowShouldClose(glfw_window_) != 0;
 }
 
-
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the window is resizable.
 bool Window::isResizable() const
 {
     return glfwGetWindowAttrib(glfw_window_, GLFW_RESIZABLE) != 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the window has a border.
 bool Window::isDecorated() const
 {
     return glfwGetWindowAttrib(glfw_window_, GLFW_DECORATED) != 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the context's major OpenGL version
 int Window::getContextVersionMajor() const
 {
     return glfwGetWindowAttrib(glfw_window_, GLFW_CONTEXT_VERSION_MAJOR);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the context's minor OpenGL version
 int Window::getContextVersionMinor() const
 {
     return glfwGetWindowAttrib(glfw_window_, GLFW_CONTEXT_VERSION_MINOR);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the context's OpenGL revision number.
 int Window::getContextRevision() const
 {
     return glfwGetWindowAttrib(glfw_window_, GLFW_CONTEXT_REVISION);
@@ -554,6 +579,9 @@ void Window::cancelStateChangeListener(U32 id)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// PRIVATE FUNCTIONS:
+#pragma region private functions
 Window::Window(const WindowSettings& window_settings)
     : next_listener_id_(0),
       window_settings_(window_settings)
@@ -838,5 +866,6 @@ void Window::glfwIconStateChanged_(GLFWwindow* window, int state)
     Window* wnd = static_cast<Window*>(glfwGetWindowUserPointer(window));
     wnd->fireStateChanged_(state != 0);
 }
+#pragma endregion
 
 } // namespace pbj

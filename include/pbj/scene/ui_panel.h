@@ -17,6 +17,22 @@ namespace scene {
 
 class UIRoot;
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  A UIElement that allows other UIElements to be added to it.
+///
+/// \details The panel may have a visual style, defined by a UIPanelStyle
+///         object, which determines the panel's appearance.  The "children"
+///         of a panel will be drawn after the panel.
+///
+///         A panel's children will be offset such that their origin appears
+///         to be at the top left corner of the panel.  The panel may also
+///         have a scale, which affects only the entites added to it, not
+///         the UIPanelStyle defined for the panel.
+///
+///         When a panel is made visible/invisible or moved, it automatically
+///         updates all of its children so that they function correctly.
+///
+/// \author Ben Crist
 class UIPanel : public UIElement
 {
     friend class UIRoot;
@@ -59,6 +75,7 @@ private:
     mat4 view_matrix_;
     mat4 inv_view_matrix_;
 
+    // prevent copying/assignment
     UIPanel(const UIPanel&);
     void operator=(const UIPanel&);
 };

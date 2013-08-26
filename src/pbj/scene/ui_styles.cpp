@@ -9,12 +9,16 @@
 #include "pbj/sw/resource_manager.h"
 #include <iostream>
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load a UIPanelStyle from a sandwich
 #define PBJ_SCENE_UI_STYLES_SQL_LOAD_PSTYLE "SELECT bg_color_top, bg_color_bottom, " \
             "border_color, margin_color, " \
             "margin_left, margin_right, margin_top, margin_bottom, " \
             "border_left, border_right, border_top, border_bottom " \
             "FROM sw_ui_panel_styles WHERE id = ?"
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  SQL statement to load a UIButtonStyle from a sandwich
 #define PBJ_SCENE_UI_STYLES_SQL_LOAD_BSTYLE "SELECT font_id, text_color, " \
             "text_scale_x, text_scale_y, panel_style_id " \
             "FROM sw_ui_button_styles WHERE id = ?"
@@ -36,6 +40,8 @@ namespace scene {
 ///
 /// \param  sandwich The database from which to load the resource.
 /// \param  id Identifies the panel style object to load from the database.
+/// \return The UIPanelStyle loaded from the database.  If there are any
+///         problems with the load, the returned UIPanelStyle may be invalid.
 UIPanelStyle loadUIPanelStyle(sw::Sandwich& sandwich, const Id& id)
 {
     UIPanelStyle result;
@@ -88,6 +94,8 @@ UIPanelStyle loadUIPanelStyle(sw::Sandwich& sandwich, const Id& id)
 ///
 /// \param  sandwich The database from which to load the resource.
 /// \param  id Identifies the button style object to load from the database.
+/// \return The UIButtonStyle loaded from the database.  If there are any
+///         problems with the load, the returned UIButtonStyle may be invalid.
 UIButtonStyle loadUIButtonStyle(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
 {
     UIButtonStyle result;

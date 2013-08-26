@@ -22,7 +22,7 @@ namespace pbj {
 class Engine;
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \class  Window   pbj/window.h "pbj/window.h"
+/// \class  Window
 ///
 /// \brief  Represents a window or fullscreen exclusive mode which can be used
 ///         to display OpenGL graphics.

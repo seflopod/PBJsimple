@@ -1,3 +1,8 @@
+////////////////////////////////////////////////////////////////////////////////
+/// \file   pbj\audio\listener.h
+///
+/// \brief  Declares the audio source class.
+
 #ifndef PBJ_AUDIO_LISTENER_H_
 #define PBJ_AUDIO_LISTENER_H_
 
@@ -27,7 +32,6 @@ namespace audio {
 ///             velocity updates more automatic, but they work.  I left in
 ///             the ability to change the orientation of the AudioListener,
 ///             but I do not think we will need to use it.
-////////////////////////////////////////////////////////////////////////////
 class Listener
 {
 public:

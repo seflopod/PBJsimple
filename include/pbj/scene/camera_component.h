@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\include\pbj\scene\camera_component.h
+/// \file   pbj\scene\camera_component.h
 ///
 /// \brief  Declares the camera component class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_SCENE_CAMERA_COMPONENT_H_
 #define PBJ_SCENE_CAMERA_COMPONENT_H_
 
@@ -14,6 +13,16 @@ namespace scene {
 
 class Entity;
 
+////////////////////////////////////////////////////////////////////////////////
+/// \struct CameraComponent
+///
+/// \brief  Keeps track of a camera's position and velocity and applies a
+///         parametric acceleration in order to move it closer to a target
+///         position and velocity.
+///
+/// \author Ben Crist
+/// \author Peter Bartosch
+/// \date   2013-08-22
 class CameraComponent
 {
 public:

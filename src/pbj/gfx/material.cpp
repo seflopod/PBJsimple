@@ -45,6 +45,10 @@ Material::~Material()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \brief  returns the material's color.
+///
+/// \author Josh Douglas
+/// \date   2013-08-13
 const color4& Material::getColor() const
 {
     return color_;
@@ -61,12 +65,21 @@ const Texture* Material::getTexture() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns the texturemode.
+///
+/// \author Josh Douglas
+/// \date   2013-08-13
 GLenum Material::getTextureMode() const
 {
     return tex_mode_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \brief  Ensures that the current vertex color is set to this material's
+///         color and that the proper texture settings are enabled so that
+///         geometry appears to have this material's apperance.
+///
+/// \author Ben Crist
 void Material::use() const
 {
     if (tex_)
@@ -77,12 +90,27 @@ void Material::use() const
     glColor4fv(glm::value_ptr(color_));
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the ResourceId which describes where this material can
+///         be loaded from in a sandwich.
 const sw::ResourceId& Material::getId() const
 {
     return id_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \brief  Loads the material having the requested Id from the sandwich
+///         provided.
+///
+/// \details If the material has a texture, it will be retrieved using the
+///         ResourceManager provided.
+///
+/// \param  sandwich the Sandwich to load from.
+/// \param  id The Id of the material in the sandwich to load.
+/// \param  rm The resourceManager to retrieve the material's texture from, if
+///         necessary.
+/// \return A unique_ptr to the material, or an empty unique_ptr if there is a
+///         problem loading it.
 std::unique_ptr<Material> loadMaterial(sw::Sandwich& sandwich, const Id& id, sw::ResourceManager& rm)
 {
     std::unique_ptr<Material> result;

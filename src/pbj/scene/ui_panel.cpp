@@ -11,18 +11,24 @@
 namespace pbj {
 namespace scene {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Constructs a new UIPanel.  By default, it will not have a
+///         PanelStyle.
 UIPanel::UIPanel()
     : scale_(1.0f, 1.0f),
-      //style_id_(Id("pbjbase"), Id("PanelStyle.default")),
       style_(nullptr),
       panel_transform_valid_(false)
 {
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Destructor is necessary for polymorphism, but does nothing.
 UIPanel::~UIPanel()
 {
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Sets the ResourceId of the UIPanelStyle to use for this panel.
 void UIPanel::setStyle(const sw::ResourceId& panel_style)
 {
     if (style_id_ != panel_style)
@@ -33,11 +39,15 @@ void UIPanel::setStyle(const sw::ResourceId& panel_style)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieve the ResourceId of the UIPanelStyle in use by this panel.
 const sw::ResourceId& UIPanel::getStyle() const
 {
     return style_id_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Set the scale of the UIElement children of this panel.
 void UIPanel::setScale(const vec2& scale)
 {
     if (scale != scale_)
@@ -47,11 +57,19 @@ void UIPanel::setScale(const vec2& scale)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the scale of this panel's children.
 const vec2& UIPanel::getScale() const
 {
     return scale_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Adds a new UIElement as a child of this panel.
+///
+/// \note   There is currently no way to remove an elemtn after it has been
+///         added without destroying the UIRoot at the base of the hierarchy.
+///         Instead you must set unused elements to be invisible.
 void UIPanel::addElement(std::unique_ptr<UIElement>&& element)
 {
     element->view_ = &view_matrix_;
@@ -63,6 +81,10 @@ void UIPanel::addElement(std::unique_ptr<UIElement>&& element)
     elements_.push_back(std::move(element));
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the first element which exists at the specified position.
+///
+/// \details Invisible elements don't count.
 UIElement* UIPanel::getElementAt(const ivec2& screen_position)
 {
     if (!inv_view_ || !isVisible())
@@ -91,6 +113,8 @@ UIElement* UIPanel::getElementAt(const ivec2& screen_position)
     return nullptr;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  Draws this UIPanel and all of its children.
 void UIPanel::draw()
 {
     if (!isVisible())
@@ -146,6 +170,8 @@ void UIPanel::draw()
         ptr->draw();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when the UIPanel's position or dimensions have changed.
 void UIPanel::onBoundsChange_()
 {
     view_matrix_ = glm::scale(glm::translate(*view_, vec3(getPosition(), 0)), vec3(scale_, 1));
@@ -162,6 +188,9 @@ void UIPanel::onBoundsChange_()
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  called when the UIPanel's visibility or one of it's ancestor's
+///         visibility has changed.
 void UIPanel::onVisibilityChange_()
 {
     UIElement::onVisibilityChange_();
@@ -173,6 +202,9 @@ void UIPanel::onVisibilityChange_()
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  Recalculates the modelview matrix required to draw this panel's
+///         background.
 void UIPanel::calculateTransform_()
 {
     if (!view_)

@@ -21,7 +21,9 @@ namespace pbj {
 namespace gfx {
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief  Represents an OpenGL texture object
+/// \brief  Represents an OpenGL texture object stored on the graphics card.
+///
+/// \author Benjamin Crist
 class Texture
 {
 public:

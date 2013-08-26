@@ -16,6 +16,16 @@
 namespace pbj {
 namespace scene {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Base for UIElement hierarchies.
+///
+/// \details All UIElements must be placed in a UIRoot's member UIPanel, or
+///         indirectly by being placed into a UIPanel that is already part of
+///         the hierarchy.  This allows the entire hierarchy to be drawn with
+///         a single call and makes sure that mouse and keyboard events and
+///         keyboard focus work properly.
+///
+/// \author Ben Crist
 class UIRoot
 {
 public:
@@ -59,6 +69,7 @@ private:
 
     bool input_handlers_active_;
 
+    // prevent copying/assignment
     UIRoot(const UIRoot&);
     void operator=(const UIRoot&);
 };

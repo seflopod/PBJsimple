@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\include\pbj\scene\player_component.h
+/// \file   pbj\scene\player_component.h
 ///
 /// \brief  Declares the player component class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_SCENE_PLAYER_COMPONENT_H_
 #define PBJ_SCENE_PLAYER_COMPONENT_H_
 
@@ -22,7 +21,6 @@ class Entity;
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////
 struct PlayerStats
 {
     I32 health;
@@ -60,7 +58,6 @@ struct PlayerStats
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////
 struct PlayerScore
 {
     I32 kills;
@@ -86,7 +83,6 @@ struct PlayerScore
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////
 class PlayerComponent
 {
 public:

@@ -11,6 +11,16 @@
 
 namespace pbj {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  An editor mode class which allows the user to copy attributes from
+///         one existing entity to another.
+///
+/// \details This mode is not yet fully implemented.  It would work like
+///         DupeEditorMode except instead of creating new entities, left click
+///         sets the closest entity to have the copied attributes.
+///
+/// \author Ben Crist
+/// \date   2013-08-13
 class MimicEditorMode : public EditorMode
 {
 public:

@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-///         PBJsimple\include\pbj\game.h
+/// \file   pbj\game.h
 ///
 /// \brief  Declares the game class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef PBJ_GAME_H_
 #define PBJ_GAME_H_
 
@@ -37,7 +35,6 @@ namespace pbj {
 /// \date   2013-08-13
 /// \details Rather than hardcode the inputs it made sense to create a
 ///          struct that could be customized.
-////////////////////////////////////////////////////////////////////////////
 struct GameControls
 {
     I32 left[2];
@@ -92,9 +89,7 @@ struct GameControls
 ///
 /// \author     Peter Bartosch
 /// \date       2013-08-05
-/// \details    The Game class manages and runs the game.  It inherits from
-///             b2ContactListener so that it can capture collision events.
-////////////////////////////////////////////////////////////////////////////
+/// \details    The Game class manages and runs the game.
 class Game
 {
 public:

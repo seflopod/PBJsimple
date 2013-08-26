@@ -16,7 +16,16 @@ namespace scene {
 class UIButton;
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief  Text Label UI element.
+/// \brief  Defines a box with text drawn in it.
+///
+/// \details The text is anchored at either the left, center or right edge of
+///         the label.  If the label's text is larger than the label, it will
+///         overflow off the opposite side(s) from where it is anchored.
+///         The label uses the font's Cap Height parameter to estimate the
+///         vertical dimensions of the font and attempt to center the text
+///         vertically.
+///
+// \author Ben Crist
 class UILabel : public UIElement
 {
     friend class UIButton;
@@ -64,7 +73,8 @@ private:
 
     mat4 text_transform_;
     bool text_transform_valid_;
-
+    
+    // prevent copying/assignment
     UILabel(const UILabel&);
     void operator=(const UILabel&);
 };

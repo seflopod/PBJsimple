@@ -12,6 +12,16 @@
 
 namespace pbj {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  An editor mode class which allows the user to rotate an existing
+///         entity in the scene.
+///
+/// \details Right and left mouse button dragging both have the same effect.
+///         Drag to the left or up to rotate CCW or right or down to rotate
+///         CW.
+///
+/// \author Ben Crist
+/// \date   2013-08-13
 class RotateEditorMode : public EditorMode
 {
 public:

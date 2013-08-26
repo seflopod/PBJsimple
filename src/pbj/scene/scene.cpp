@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file Z:\Documents\PBJsimple\src\pbj\scene\scene.cpp
+/// \file   pbj\scene\scene.cpp
 ///
-/// \brief Implements the scene class.
+/// \brief  Implements the scene class.
 
 #include "pbj/scene/scene.h"
 
@@ -319,7 +319,6 @@ void Scene::physUpdate(F32 dt)
 /// \date 2013-08-08
 ///
 /// \return A pointer to the b2World for Box2D simulations.
-////////////////////////////////////////////////////////////////////////////////
 b2World* Scene::getWorld()
 {
     return &_physWorld;
@@ -417,6 +416,13 @@ void Scene::removeEntity(U32 id, Entity::EntityType et)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \fn     void Scene::initBulletRing()
+///
+/// \brief  Initializes the ring buffer for the level's bullets.  This prevents
+///         the need to constantly be allocating and destroying bullets every
+///         frame (slow)
+///
+/// \author Ben Crist
 void Scene::initBulletRing()
 {
     //make all the bullets we'll ever need
@@ -505,6 +511,15 @@ U32 Scene::makePlayer(const std::string& name, const vec2& position, bool local_
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \fn    U32 Scene::makeTerrain(const vec2& position, const vec2& scale, F32 rotation, const gfx::Material* material)
+///
+/// \brief    Makes a terrain piece.
+///
+/// \author    Peter Bartosch
+/// \date    2013-08-13
+///
+/// \return    A pointer to an Entity that has all the characteristics of a
+///            piece of dirt.
 U32 Scene::makeTerrain(const vec2& position, const vec2& scale, F32 rotation, const gfx::Material* material)
 {
     Entity* e = new Entity();
@@ -524,6 +539,15 @@ U32 Scene::makeTerrain(const vec2& position, const vec2& scale, F32 rotation, co
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \fn    U32 Scene::makeSpawnPoint(const vec2& position)
+///
+/// \brief    Makes a spawn point.
+///
+/// \author    Peter Bartosch
+/// \date    2013-08-13
+///
+/// \return    A pointer to an Entity that has all the characteristics of a
+///            spawn point.
 U32 Scene::makeSpawnPoint(const vec2& position)
 {
     Entity* e = new Entity();
@@ -545,6 +569,15 @@ U32 Scene::makeSpawnPoint(const vec2& position)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// \fn    U32 Scene::makeCamera()
+///
+/// \brief    Makes a camera.
+///
+/// \author    Peter Bartosch
+/// \date    2013-08-13
+///
+/// \return    A pointer to an Entity that has all the characteristics of a
+///            camera.
 U32 Scene::makeCamera()
 {
     Entity* e = new Entity();
@@ -907,7 +940,6 @@ void Scene::BeginContact(b2Contact* contact)
 /// \date    2013-08-13
 ///
 /// \param [in,out]    contact    If non-null, the contact.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::EndContact(b2Contact* contact)
 {
 }
@@ -922,7 +954,6 @@ void Scene::EndContact(b2Contact* contact)
 ///
 /// \param [in,out]    contact    If non-null, the contact.
 /// \param    manifold            The manifold.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 {
 }
@@ -938,7 +969,6 @@ void Scene::PreSolve(b2Contact* contact, const b2Manifold* manifold)
 ///
 /// \param [in,out]    contact    If non-null, the contact.
 /// \param    impulse                The impulse.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
 }
@@ -956,7 +986,6 @@ void Scene::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 /// \param  map_id              Identifier for the map.
 ///
 /// \return The scene.
-////////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
 {
      std::unique_ptr<Scene> s;
@@ -1023,7 +1052,6 @@ std::unique_ptr<Scene> loadScene(sw::Sandwich& sandwich, const Id& map_id)
 /// \param [in,out] sandwich    The sandwich.
 /// \param  map_id              Identifier for the map.
 /// \param  entity_id           Identifier for the entity.
-////////////////////////////////////////////////////////////////////////////////
 void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, Scene& scene)
 {
     try
@@ -1112,7 +1140,6 @@ void loadEntity(sw::Sandwich& sandwich, const Id& map_id, const Id& entity_id, S
 ///
 /// \param  sandwich_id Identifier for the sandwich.
 /// \param  map_id      Identifier for the map.
-////////////////////////////////////////////////////////////////////////////////
 void Scene::saveScene(const Id& sandwich_id, const Id& map_id)
 {
    try

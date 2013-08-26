@@ -14,6 +14,11 @@
 namespace pbj {
 namespace scene {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Constructs a new UIRoot.
+///
+/// \details Input handler functions are registered with InputController and
+///         the panel member is set up.
 UIRoot::UIRoot()
     : under_mouse_(nullptr),
       focused_element_(&panel),
@@ -77,6 +82,10 @@ UIRoot::UIRoot()
     panel.onBoundsChange_();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Destroys the UIRoot.
+///
+/// \details The input handlers registered in the constructor are released.
 UIRoot::~UIRoot()
 {
     InputController::cancelMouseMotionListener(mouse_motion_listener_id_);
@@ -86,6 +95,13 @@ UIRoot::~UIRoot()
     getEngine().getWindow()->cancelContextResizeListener(context_resize_listener_id_);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Draws the UI hierarchy.
+///
+/// \details The GL_PROJECTION and GL_MODELVIEW matrices are modified during
+///         the draw and the UIRoot does not restore them to their prior
+///         values.  Therefore they must be reset every frame! (UI is usually
+///         the last thing drawn on each frame)
 void UIRoot::draw()
 {
     Window* window = getEngine().getWindow();
@@ -97,6 +113,9 @@ void UIRoot::draw()
     panel.draw();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  If the UIRoot's panel is visible, it becomes focused.  Otherwise,
+///         the focus is cleared (focused_element_ = nullptr).
 void UIRoot::clearFocus()
 {
     if (panel.isVisible())
@@ -110,26 +129,41 @@ void UIRoot::clearFocus()
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the currently focused element, or nullptr if there is no
+///         focus.
 UIElement* UIRoot::getFocus()
 {
     return focused_element_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrieves the UIElement that was under the mouse the last time it
+///         moved or nullptr if there is no such element.
 UIElement* UIRoot::getElementUnderMouse()
 {
     return under_mouse_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Enables or disables the input handler functions.  This acts as a
+///         global enable/disable for the entire UI hierarchy.
+///
+/// \param  enabled true if the input handlers should be active.
 void UIRoot::setInputEnabled(bool enabled)
 {
     input_handlers_active_ = enabled;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Returns true if the input handler functions are active.
 bool UIRoot::isInputEnabled() const
 {
     return input_handlers_active_;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when the mouse movement handler is fired.
 void UIRoot::onMouseMove(const ivec2& position)
 {
     mouse_position_ = position;
@@ -159,6 +193,8 @@ void UIRoot::onMouseMove(const ivec2& position)
         button3_down_over_->onMouseMove(position);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a mouse button is pressed or released.
 void UIRoot::onMouseButton(I32 button, bool down)
 {
     UIElement* under_mouse = panel.getElementAt(mouse_position_);
@@ -213,6 +249,8 @@ void UIRoot::onMouseButton(I32 button, bool down)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a key is pressed or released on the keyboard.
 void UIRoot::onKey(I32 keycode, I32 action, I32 modifiers)
 {
     if (!focused_element_ && panel.isVisible())
@@ -242,6 +280,9 @@ void UIRoot::onKey(I32 keycode, I32 action, I32 modifiers)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Called when a character is input.  This does not necessarily map to
+///         onKey() events in a 1:1 manner.
 void UIRoot::onCharacter(I32 codepoint)
 {
     if (!focused_element_)

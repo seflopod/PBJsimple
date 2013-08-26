@@ -11,7 +11,6 @@
 #include <cassert>
 #include <iostream>
 
-
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief  SQL statement to load a texture from a sandwich.
 /// \param  1 The id of the texture.
@@ -229,6 +228,8 @@ void Texture::disable()
 ///
 /// \param  sandwich The database from which to load the texture.
 /// \param  texture_id Identifies the texture to load from the database.
+/// \return A unique_ptr owning the texture loaded, or an empty unique_ptr
+///         if there is a problem with the load.
 std::unique_ptr<Texture> loadTexture(sw::Sandwich& sandwich, const Id& texture_id)
 {
     std::unique_ptr<Texture> result;

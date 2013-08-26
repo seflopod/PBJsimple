@@ -19,8 +19,10 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
     /// \brief  Calculates the hashcode of the provided ResourceId.
+    ///
     /// \details Just XORs the \c std::hash values of the two Ids that make up
     ///         the ResourceId.
+    ///
     /// \param  id The ResourceId to hash.
     /// \return A hashcode suitable for use in hashtable-based data structures.
     size_t operator()(const pbj::sw::ResourceId& id) const

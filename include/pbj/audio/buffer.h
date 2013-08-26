@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file   pbj/audio/audio_buffer.h
+/// \file   pbj/audio/buffer.h
 /// \author Josh Douglas
 ///
-/// \brief  pbj::audio::AudioBuffer class header.
+/// \brief  pbj::audio::Buffer class header.
 
 #ifndef PBJ_AUDIO_BUFFER_H_
 #define PBJ_AUDIO_BUFFER_H_
@@ -17,7 +17,7 @@ namespace pbj {
 namespace audio {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class  AudioBuffer
+/// \class  Buffer
 ///
 /// \brief  Audio element.
 ///
@@ -25,7 +25,6 @@ namespace audio {
 /// \date   2013-08-22
 ///
 /// \details Wraps OpenAL audio buffers.
-////////////////////////////////////////////////////////////////////////////////
 class Buffer
 {
 public:

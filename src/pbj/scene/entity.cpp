@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   Z:\Documents\PBJsimple\src\pbj\scene\entity.cpp
+/// \file   pbj\scene\entity.cpp
 ///
 /// \brief  Implements the entity class.
-////////////////////////////////////////////////////////////////////////////////
 #ifndef ENTITY_H_
 #include "pbj/scene/entity.h"
 #endif
@@ -116,7 +115,6 @@ void Entity::update(F32 dt)
 ///
 /// \author Peter Bartosch / Josh Douglas / Ben Crist
 /// \date   2013-08-08
-////////////////////////////////////////////////////////////////////////////////
 void Entity::draw()
 {
     if (!_drawable)
@@ -151,8 +149,10 @@ void Entity::draw()
 /// \date   2013-08-05
 ///
 /// \return the transform.
-////////////////////////////////////////////////////////////////////////////////
-Transform& Entity::getTransform() { return _transform; }
+Transform& Entity::getTransform()
+{
+    return _transform;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::setTransform(Transform transform)
@@ -163,8 +163,10 @@ Transform& Entity::getTransform() { return _transform; }
 /// \date   2013-08-05
 ///
 /// \param  transform   The transform.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::setTransform(const Transform& transform) { _transform = transform; }
+void Entity::setTransform(const Transform& transform)
+{
+    _transform = transform;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn Shape* Entity::getShape() const
@@ -175,8 +177,10 @@ void Entity::setTransform(const Transform& transform) { _transform = transform; 
 /// \date   2013-08-13
 ///
 /// \return null if the shape does not exist; a pointer to the Shape otherwise.
-////////////////////////////////////////////////////////////////////////////////
-gfx::Shape* Entity::getShape() const { return _shape.get(); }
+gfx::Shape* Entity::getShape() const
+{
+    return _shape.get();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::setShape(Shape* shape)
@@ -189,8 +193,10 @@ gfx::Shape* Entity::getShape() const { return _shape.get(); }
 /// \param [in] shape   A pointer to the Shape to use.
 /// \details Any class the uses the Shape interface (ShapeSquare, ShapeTriangle)
 ///          is acceptable.  This is what will be drawn.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::setShape(gfx::Shape* shape) { _shape.reset(shape); }
+void Entity::setShape(gfx::Shape* shape)
+{
+    _shape.reset(shape);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  Gets the entity's material.
@@ -199,8 +205,10 @@ void Entity::setShape(gfx::Shape* shape) { _shape.reset(shape); }
 /// \date   2013-08-13
 ///
 /// \return A pointer to the Material.
-////////////////////////////////////////////////////////////////////////////////
-const gfx::Material* Entity::getMaterial() { return _material; }
+const gfx::Material* Entity::getMaterial()
+{
+    return _material;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief  Adds a material.
@@ -211,8 +219,10 @@ const gfx::Material* Entity::getMaterial() { return _material; }
 /// \param  material A pointer to a material object.  The object's lifetime
 ///         must be at least as long as this entity's.  In the normal usage,
 ///         a ResourceManager will manage the lifetime of the material object.
-////////////////////////////////////////////////////////////////////////////////
-void Entity::setMaterial(const gfx::Material* material) { _material = material; }
+void Entity::setMaterial(const gfx::Material* material)
+{
+    _material = material;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addRigidbody(Rigidbody::BodyType bodyType,
@@ -231,7 +241,6 @@ void Entity::setMaterial(const gfx::Material* material) { _material = material; 
 ///          particular Entity.  This is rather simple and therefore does not
 ///          use multiple fixtures for making complex shapes.  Simple boxes,
 ///          polygons and circles are used instead.
-////////////////////////////////////////////////////////////////////////////////
 void Entity::addRigidbody(physics::Rigidbody::BodyType bodyType, b2World* world)
 {
     if(!_rigidbody)
@@ -295,8 +304,10 @@ void Entity::addRigidbody(physics::Rigidbody::BodyType bodyType, b2World* world)
 /// \date   2013-08-13
 ///
 /// \return null if it none exists, else the rigidbody.
-////////////////////////////////////////////////////////////////////////////////
-physics::Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
+physics::Rigidbody* Entity::getRigidbody() const
+{
+    return _rigidbody.get();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addPlayerComponent()
@@ -305,7 +316,6 @@ physics::Rigidbody* Entity::getRigidbody() const { return _rigidbody.get(); }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-13
-////////////////////////////////////////////////////////////////////////////////
 void Entity::addPlayerComponent(const std::string& name)
 {
     if (!_player)
@@ -321,8 +331,10 @@ void Entity::addPlayerComponent(const std::string& name)
 /// \date   2013-08-13
 ///
 /// \return null if none exists, else the player component.
-////////////////////////////////////////////////////////////////////////////////
-PlayerComponent* Entity::getPlayerComponent() const { return _player.get(); }
+PlayerComponent* Entity::getPlayerComponent() const
+{
+    return _player.get();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addAIComponent()
@@ -331,8 +343,10 @@ PlayerComponent* Entity::getPlayerComponent() const { return _player.get(); }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
-void Entity::addAIComponent() { _ai.reset(new AIComponent(this)); }
+void Entity::addAIComponent()
+{
+    _ai.reset(new AIComponent(this));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn AIComponent* Entity::getAIComponent() const
@@ -343,8 +357,10 @@ void Entity::addAIComponent() { _ai.reset(new AIComponent(this)); }
 /// \date   2013-08-22
 ///
 /// \return null if it fails, else the AI component.
-////////////////////////////////////////////////////////////////////////////////
-AIComponent* Entity::getAIComponent() const { return _ai.get(); }
+AIComponent* Entity::getAIComponent() const
+{
+    return _ai.get();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addBulletComponent()
@@ -353,8 +369,10 @@ AIComponent* Entity::getAIComponent() const { return _ai.get(); }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
-void Entity::addBulletComponent() { _bullet.reset(new BulletComponent(this)); }
+void Entity::addBulletComponent()
+{
+    _bullet.reset(new BulletComponent(this));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn BulletComponent* Entity::getBulletComponent() const
@@ -365,8 +383,10 @@ void Entity::addBulletComponent() { _bullet.reset(new BulletComponent(this)); }
 /// \date   2013-08-22
 ///
 /// \return null if it fails, else the bullet component.
-////////////////////////////////////////////////////////////////////////////////
-BulletComponent* Entity::getBulletComponent() const { return _bullet.get(); }
+BulletComponent* Entity::getBulletComponent() const
+{
+    return _bullet.get();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addAudioListener()
@@ -375,8 +395,10 @@ BulletComponent* Entity::getBulletComponent() const { return _bullet.get(); }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
-void Entity::addAudioListener() { _listener.reset(new audio::Listener(this)); }
+void Entity::addAudioListener()
+{
+    _listener.reset(new audio::Listener(this));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn AudioListener* Entity::getAudioListener() const
@@ -387,8 +409,10 @@ void Entity::addAudioListener() { _listener.reset(new audio::Listener(this)); }
 /// \date   2013-08-22
 ///
 /// \return null if it fails, else the audio listener.
-////////////////////////////////////////////////////////////////////////////////
-audio::Listener* Entity::getAudioListener() const { return _listener.get(); }
+audio::Listener* Entity::getAudioListener() const
+{
+    return _listener.get();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addAudioSource()
@@ -397,8 +421,10 @@ audio::Listener* Entity::getAudioListener() const { return _listener.get(); }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
-void Entity::addAudioSource() { _source.reset(new audio::Source(this)); }
+void Entity::addAudioSource()
+{
+    _source.reset(new audio::Source(this));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn AudioSource* Entity::getAudioSource() const
@@ -409,8 +435,10 @@ void Entity::addAudioSource() { _source.reset(new audio::Source(this)); }
 /// \date   2013-08-22
 ///
 /// \return null if it fails, else the audio source.
-////////////////////////////////////////////////////////////////////////////////
-audio::Source* Entity::getAudioSource() const { return _source.get(); }
+audio::Source* Entity::getAudioSource() const
+{
+    return _source.get();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::addCamera()
@@ -419,8 +447,10 @@ audio::Source* Entity::getAudioSource() const { return _source.get(); }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
-void Entity::addCamera() { _camera.reset(new CameraComponent(this)); }
+void Entity::addCamera()
+{
+    _camera.reset(new CameraComponent(this));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn CameraComponent* Entity::getCamera() const
@@ -431,8 +461,10 @@ void Entity::addCamera() { _camera.reset(new CameraComponent(this)); }
 /// \date   2013-08-22
 ///
 /// \return null if it fails, else the camera.
-////////////////////////////////////////////////////////////////////////////////
-CameraComponent* Entity::getCamera() const { return _camera.get(); }
+CameraComponent* Entity::getCamera() const
+{
+    return _camera.get();
+}
 
 #pragma endregion
 ////////////////////////////////////////////////////////////////////////////////
@@ -463,6 +495,8 @@ void Entity::setSceneId(U32 id)
     _sceneId = id;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  Retrievers the EntityType of this entity.
 Entity::EntityType Entity::getType() const
 {
     return _type;
@@ -478,7 +512,6 @@ Entity::EntityType Entity::getType() const
 /// \date   2013-08-13
 ///
 /// \param  et  The EntityType to use.
-////////////////////////////////////////////////////////////////////////////////
 void Entity::setType(EntityType et)
 {
     _type = et;
@@ -509,8 +542,10 @@ void Entity::setType(EntityType et)
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-13
-////////////////////////////////////////////////////////////////////////////////
-void Entity::enableDraw() { _drawable = true; }
+void Entity::enableDraw()
+{
+    _drawable = true;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::disableDraw()
@@ -519,7 +554,10 @@ void Entity::enableDraw() { _drawable = true; }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-13
-void Entity::disableDraw() { _drawable = false; }
+void Entity::disableDraw()
+{
+    _drawable = false;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn bool Entity::isDrawable() const
@@ -530,8 +568,10 @@ void Entity::disableDraw() { _drawable = false; }
 /// \date   2013-08-13
 ///
 /// \return true if drawable, false if not.
-////////////////////////////////////////////////////////////////////////////////
-bool Entity::isDrawable() const { return _drawable; }
+bool Entity::isDrawable() const
+{
+    return _drawable;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn bool Entity::isEnabled() const
@@ -542,8 +582,10 @@ bool Entity::isDrawable() const { return _drawable; }
 /// \date   2013-08-22
 ///
 /// \return true if enabled, false if not.
-////////////////////////////////////////////////////////////////////////////////
-bool Entity::isEnabled() const { return _enabled; }
+bool Entity::isEnabled() const 
+{
+    return _enabled;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \fn void Entity::enable()
@@ -552,7 +594,6 @@ bool Entity::isEnabled() const { return _enabled; }
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
 void Entity::enable()
 {
     if(_shape.get())
@@ -570,7 +611,6 @@ void Entity::enable()
 ///
 /// \author Peter Bartosch
 /// \date   2013-08-22
-////////////////////////////////////////////////////////////////////////////////
 void Entity::disable()
 {
     _drawable = false;

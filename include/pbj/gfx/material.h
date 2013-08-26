@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file   C:\Users\pbartosch_sa\Documents\Visual Studio 2012\Projects\
-///         PBJgame\include\pbj\gfx\material.h
+/// \file   pbj\gfx\material.h
 ///
 /// \brief  Declares the Material class.
-////////////////////////////////////////////////////////////////////////////////
 
 #ifndef PBJ_GFX_MATERIAL_H_
 #define PBJ_GFX_MATERIAL_H_
@@ -16,6 +14,13 @@
 namespace pbj {
 namespace gfx {
 
+////////////////////////////////////////////////////////////////////////////////
+/// \brief  Defines a color and optional texture and texture mode parameters
+///         which define the appearance of a shape.
+///
+/// \author Peter Bartosh
+/// \author Josh Douglas
+/// \author Ben Crist
 class Material
 {
 public:

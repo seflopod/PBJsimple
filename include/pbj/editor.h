@@ -20,11 +20,13 @@
 
 namespace pbj {
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief  Main class for the editor.  Constructs all editor UI elements,
+///         loads a saved scene from a sandwich, and allows it to be edited.
 class Editor
 {
 public:
     Editor();
-    ~Editor();
 
     void initUI();
     void run(const std::string& sw_id, const std::string& map_id);
@@ -80,20 +82,22 @@ private:
     std::unordered_map<Id, scene::UIElement*> ui_elements_;
     scene::UIPanel* menu_;
     bool menu_toggled_;
-    U32 menu_visible_counter_;
+    U32 menu_visible_counter_;      // When this is above 0, the menu should be visible.
     scene::UILabel* frame_time_label_;
 
     std::unique_ptr<scene::Scene> scene_;
     std::unique_ptr<scene::CameraComponent> camera_;
     F64 zoom_;
 
+    // determined by current selection in material panel:
     vec2 active_scale_;
     std::string active_material_;
 
-    std::unique_ptr<EditorMode> current_mode_;
-    EditorMode* mouse_down_mode_[3];
-    ivec2 mouse_position_;
+    std::unique_ptr<EditorMode> current_mode_;  ///< The current editing mode being used
+    EditorMode* mouse_down_mode_[3];            ///< The editing mode we were in when each mouse button was pressed.
+    ivec2 mouse_position_;                      ///< The mouse position the last time the cursor moved.
 
+    // prevent copy/assign
     Editor(const Editor&);
     void operator=(const Editor&);
 };
