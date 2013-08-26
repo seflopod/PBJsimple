@@ -10,15 +10,15 @@ sw __pbjbase__ font     std_font                ../assets/std.xml
 sw __pbjbase__ texture  std_font.texture       ../assets/std_0.png
 sw __pbjbase__ texture  player_outline.texture ../assets/player_outline.png
 sw __pbjbase__ texture  bullet_tex             ../assets/bullet.png
-sw __pbjbase__ texture  2x2_tex                ../assets/2x2.png
-sw __pbjbase__ texture  4x2_tex                ../assets/4x2.png
-sw __pbjbase__ texture  8x2_tex                ../assets/8x2.png
-sw __pbjbase__ texture  4x4_tex                ../assets/4x4.png
-sw __pbjbase__ texture  8x4_tex                ../assets/8x4.png
-sw __pbjbase__ texture  16x4_tex               ../assets/16x4.png
-sw __pbjbase__ texture  8x8_tex                ../assets/8x8.png
-sw __pbjbase__ texture  16x8_tex               ../assets/16x8.png
-sw __pbjbase__ texture  16x16_tex              ../assets/16x16.png
+sw __pbjbase__ texture  2x2_tex                ../assets/Terrain/2x2.png
+sw __pbjbase__ texture  4x2_tex                ../assets/Terrain/4x2.png
+sw __pbjbase__ texture  8x2_tex                ../assets/Terrain/8x2.png
+sw __pbjbase__ texture  4x4_tex                ../assets/Terrain/4x4.png
+sw __pbjbase__ texture  8x4_tex                ../assets/Terrain/8x4.png
+sw __pbjbase__ texture  16x4_tex               ../assets/Terrain/16x4.png
+sw __pbjbase__ texture  8x8_tex                ../assets/Terrain/8x8.png
+sw __pbjbase__ texture  16x8_tex               ../assets/Terrain/16x8.png
+sw __pbjbase__ texture  16x16_tex              ../assets/Terrain/16x16.png
 
 btngen std_btn       0.5  0.6  0.65 | sqlite3 pbjbase.sw
 btngen highlight_btn 0.6  0.5  0.45 | sqlite3 pbjbase.sw
