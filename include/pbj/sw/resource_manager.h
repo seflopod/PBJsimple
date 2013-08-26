@@ -11,25 +11,13 @@
 #include "pbj/sw/sandwich.h"
 #include "pbj/scene/ui_styles.h"
 #include "pbj/_pbj.h"
+#include "pbj/audio/buffer.h"
+#include "pbj/gfx/material.h"
 
 #include <unordered_map>
 #include <memory>
 
 namespace pbj {
-namespace audio {
-
-class Buffer;
-
-} // namespace pbj::audio
-
-namespace gfx {
-
-//class Material;
-class TextureFont;
-class Texture;
-class Material;
-
-} // namespace pbj::gfx
 namespace sw {
 
 ///////////////////////////////////////////////////////////////////////////////

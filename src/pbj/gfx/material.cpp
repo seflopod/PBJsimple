@@ -4,6 +4,8 @@
 /// \brief  Implements the Material class.
 #include "pbj\gfx\material.h"
 
+#include "pbj/sw/resource_manager.h"
+
 #include <iostream>
 
 ///////////////////////////////////////////////////////////////////////////////

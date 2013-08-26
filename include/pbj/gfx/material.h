@@ -9,9 +9,14 @@
 #include "pbj/_pbj.h"
 #include "pbj/_math.h"
 #include "pbj/gfx/texture.h"
-#include "pbj/sw/resource_manager.h"
 
 namespace pbj {
+
+namespace sw {
+
+class ResourceManager;
+
+}
 namespace gfx {
 
 ////////////////////////////////////////////////////////////////////////////////

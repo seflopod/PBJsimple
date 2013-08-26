@@ -311,6 +311,9 @@ void Game::onKeyboard(I32 keycode, I32 scancode, I32 action, I32 modifiers)
 
     if(action == GLFW_RELEASE)
     {
+        if (keycode == GLFW_KEY_R)
+            loadScene(getRandomSceneId());
+
         if (keycode == GLFW_KEY_ESCAPE)
             _window.requestClose();
 
